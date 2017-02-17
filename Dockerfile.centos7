@@ -11,28 +11,30 @@ ENV PACKAGES="$PACKAGES t1lib t1lib-devel libmhash-devel libmcrypt-devel readlin
 RUN yum install -y -q $PACKAGES && yum clean all
 
 # checkinstall---------------------------------------------------------------
-RUN yum install -y -q git gettext which && yum clean all
+RUN yum install -y -q git gettext which \
+ && yum clean all
 WORKDIR /usr/local/src/
-RUN git clone http://checkinstall.izto.org/checkinstall.git
-WORKDIR /usr/local/src/checkinstall
-RUN sed -i 's@CONFDIR=$(PREFIX)/lib/checkinstall@CONFDIR=$(PREFIX)@g' Makefile \
+RUN mkdir -p /root/rpmbuild/SOURCES \
+ && git clone http://checkinstall.izto.org/checkinstall.git \
+ && cd /usr/local/src/checkinstall \
+ && sed -i 's@CONFDIR=$(PREFIX)/lib/checkinstall@CONFDIR=$(PREFIX)@g' Makefile \
  && sed -i 's@EXCLUDE=""@EXCLUDE="/selinux"@g' checkinstallrc-dist \
  && sed -i 's@LIBDIR=$(PREFIX)/lib@LIBDIR=$(PREFIX)/lib64@g' installwatch/Makefile \
  && make -s \
  && make install \
- && mkdir -p /root/rpmbuild/SOURCES
-RUN checkinstall -y -R --pkgname=checkinstall
+ && checkinstall -y -R --pkgname=checkinstall
 
 # fpm (mysqlがなぜかcheckinstallでrpm作成に失敗したため) --------------------
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
+
 # mysql----------------------------------------------------------------------
 WORKDIR /usr/local/src/
-COPY ../mysql-4.0.30.tar.gz .
+COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
 # eucjpとsjisを有効化
-RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis \
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
   --without-server
 RUN make -s
 RUN make install
@@ -46,7 +48,6 @@ RUN fpm -s dir \
 
 # php------------------------------------------------------------------------
 WORKDIR /usr/local/src/
-COPY ../php-5.2.17.tar.bz2 .
 RUN tar jxf php-5.2.17.tar.bz2
 RUN yum install -y -q lemon && yum clean all
 
@@ -56,15 +57,12 @@ RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlcl
  && ln -s /opt/mysql/lib /opt/mysql/lib64
 
 # patch
-COPY ../php-5.2patch/php-5.2.17.patch .
-COPY ../php-5.2patch/gmp.patch .
-COPY ../php-5.2patch/php_functions.patch .
 WORKDIR /usr/local/src/php-5.2.17
-RUN patch -p0 -b < ../php-5.2.17.patch \
- && patch -p0 -b < ../gmp.patch \
- && patch -p0 -b < ../php_functions.patch
+RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
+ && patch -p0 -b < ../php-patch/gmp.patch \
+ && patch -p0 -b < ../php-patch/php_functions.patch
 
-RUN ./configure \
+RUN ./configure --quiet \
   --prefix=/usr/local/php \
   --with-apxs2=/usr/bin/apxs \
   --with-config-file-path=/etc/php \
@@ -92,10 +90,29 @@ RUN ./configure \
   \
   --with-libdir=lib64
 
-# php5.2では以下はデフォルト有効
-#  --enable-trans-sid \
-#  --enable-memory-limit \
-
 RUN make -s
+RUN make test
+# /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
-RUN checkinstall -y -R --pkgname=local-php
+RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/ \
+ && ls -lh /root/rpmbuild/RPMS/x86_64/*.rpm
+
+#---------
+# local-pear
+#---------
+RUN /usr/local/php/bin/pear install DB-1.8.2 \
+ && /usr/local/php/bin/pear install Var_Dump
+
+WORKDIR /usr/local
+RUN tar czf /root/rpmbuild/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
+ && tar xzf /root/rpmbuild/SOURCES/local-pear.tar.gz -C /root/rpmbuild/BUILD/
+
+WORKDIR /root/rpmbuild/
+COPY files.centos6/local-pear.spec /root/rpmbuild/SOURCES/
+RUN mv /root/rpmbuild/SOURCES/local-pear.spec /root/rpmbuild/SPECS/ \
+ && rpmbuild -ba SPECS/local-pear.spec
+
+#---------
+# resuilt
+#---------
+RUN sh -c "find . | grep \.rpm$ | xargs ls -lh"

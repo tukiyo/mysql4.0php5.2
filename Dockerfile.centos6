@@ -64,6 +64,7 @@ RUN ./configure --quiet \
   --enable-gd-jis-conv \
   \
   --with-libdir=lib64
+
 RUN make -s
 RUN make test
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外

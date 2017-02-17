@@ -1,0 +1,110 @@
+FROM centos:5
+
+ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which"
+RUN yum install -y -q $PACKAGES \
+ && yum clean all \
+ && mkdir -p /usr/src/redhat/SPECS /usr/src/redhat/SOURCES /usr/src/redhat/BUILD
+WORKDIR /usr/src/redhat/SOURCES
+
+COPY files .
+COPY files.centos6 .
+#-------------
+# checkinstall
+#-------------
+RUN yum install -y -q gettext \
+ && rpm -ivh checkinstall-20150420-1.x86_64.rpm \
+ && ln -s /usr/local/lib/installwatch.so /usr/local/lib64/installwatch.so
+
+#---------
+# mysql
+#---------
+RUN tar xzf mysql-4.0.30.tar.gz \
+ && cd "/usr/src/redhat/SOURCES/mysql-4.0.30" \
+ && ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
+WORKDIR /usr/src/redhat/SOURCES/mysql-4.0.30
+RUN make -s
+#RUN make test
+RUN make install
+RUN ln -s /opt/mysql/lib /opt/mysql/lib64
+RUN checkinstall -y -R --pkgname=opt-mysql4
+
+#----------
+# local-php
+#----------
+ENV PACKAGES="libmcrypt-devel flex httpd-devel libxml2-devel openssl-devel libjpeg-devel libpng-devel freetype-devel mhash-devel bison"
+RUN yum install -y -q $PACKAGES
+WORKDIR /usr/src/redhat/SOURCES/
+
+#-----
+# re2c
+#-----
+# phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
+RUN tar xzf re2c-0.16.tar.gz \
+ && cd re2c-0.16 \
+ && ./configure \
+ && make -s \
+ && make install \
+ && checkinstall -y -R --pkgname=opt-re2c
+
+#-----
+# lemon
+#-----
+RUN gcc -o /usr/local/bin/lemon lemon.c
+
+# php
+RUN tar jxf php-5.2.17.tar.bz2
+WORKDIR /usr/src/redhat/SOURCES/php-5.2.17
+
+RUN ./configure --quiet \
+  --prefix=/usr/local/php \
+  --with-apxs2=/usr/sbin/apxs \
+  --with-config-file-path=/etc/php \
+  --with-pear=/usr/local/pear \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-libdir=lib64
+
+RUN make -s
+RUN yum install -y -q autoconf
+RUN make test
+# /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
+RUN make install
+RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/
+
+#---------
+# local-pear
+#---------
+RUN /usr/local/php/bin/pear install DB-1.8.2 \
+ && /usr/local/php/bin/pear install Var_Dump
+
+WORKDIR /usr/local
+RUN tar czf /usr/src/redhat/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
+ && tar xzf /usr/src/redhat/SOURCES/local-pear.tar.gz -C /usr/src/redhat/BUILD/
+
+WORKDIR /usr/src/redhat/
+RUN mv /usr/src/redhat/SOURCES/local-pear.spec /usr/src/redhat/SPECS/ \
+ && rpmbuild -ba SPECS/local-pear.spec
+
+#---------
+# resuilt
+#---------
+RUN sh -c "find . | grep \.rpm$ | xargs ls -lh"
