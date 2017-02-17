@@ -67,8 +67,8 @@ RUN ./configure --quiet \
   --enable-gd-jis-conv \
   \
   --with-libdir=lib64
-# TODO: makeがopensslのエラーで通らない。
 RUN make -s
+RUN make test
 ## httpdパッケージとconfrictするため /etc/httpd/conf/httpd.conf を除外
 RUN make install
 RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/ \
@@ -77,13 +77,14 @@ RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/ \
 #---------
 # local-pear
 #---------
-RUN /usr/local/php/bin/pear install DB-1.8.2
-RUN /usr/local/php/bin/pear install Var_Dump
+RUN /usr/local/php/bin/pear install DB-1.8.2 \
+ && /usr/local/php/bin/pear install Var_Dump
+
 WORKDIR /usr/local
 RUN tar czf /root/rpmbuild/SOURCES/local-pear.tar.gz \
-  pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh
-RUN tar xzf /root/rpmbuild/SOURCES/local-pear.tar.gz \
-  -C /root/rpmbuild/BUILD/
+ && pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
+ && tar xzf /root/rpmbuild/SOURCES/local-pear.tar.gz -C /root/rpmbuild/BUILD/
+
 WORKDIR /root/rpmbuild/
 RUN mv /root/rpmbuild/SOURCES/local-pear.spec /root/rpmbuild/SPECS/ \
  && rpmbuild -ba SPECS/local-pear.spec
