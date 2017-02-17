@@ -36,9 +36,6 @@ RUN yum install -y -q lemon bison epel-release \
 ## source
 RUN tar jxf php-5.2.17.tar.bz2
 WORKDIR /root/rpmbuild/SOURCES/php-5.2.17
-#&& patch -p0 -b < php-5.2.17.patch \
-#&& patch -p0 -b < gmp.patch \
-#&& patch -p0 -b < php_functions.patch \
 
 RUN ./configure --quiet \
   --prefix=/usr/local/php \
@@ -69,7 +66,7 @@ RUN ./configure --quiet \
   --with-libdir=lib64
 RUN make -s
 RUN make test
-## httpdパッケージとconfrictするため /etc/httpd/conf/httpd.conf を除外
+# /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
 RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/ \
  && ls -lh /root/rpmbuild/RPMS/x86_64/*.rpm
