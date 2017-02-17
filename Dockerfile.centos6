@@ -1,0 +1,94 @@
+FROM centos:6
+
+ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git"
+RUN yum install -y -q $PACKAGES \
+ && yum clean all \
+ && mkdir -p /root/rpmbuild/SPECS /root/rpmbuild/SOURCES
+WORKDIR /root/rpmbuild/SOURCES
+
+COPY files .
+COPY files.centos6 .
+#-------------
+# checkinstall
+#-------------
+RUN yum install -y -q gettext \
+ && rpm -ivh checkinstall-20150420-1.x86_64.rpm \
+ && ln -s /usr/local/lib/installwatch.so /usr/local/lib64/installwatch.so
+
+#---------
+# mysql
+#---------
+RUN tar xzf mysql-4.0.30.tar.gz \
+ && cd "/root/rpmbuild/SOURCES/mysql-4.0.30" \
+ && ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
+ && make -s \
+ && make install \
+ && ln -s /opt/mysql/lib /opt/mysql/lib64 \
+ && checkinstall -y -R --pkgname=opt-mysql4 \
+ && ls -lh /root/rpmbuild/RPMS/x86_64/*.rpm
+
+#----------
+# local-php
+#----------
+ENV PACKAGES="libmcrypt-devel re2c flex httpd-devel libxml2-devel openssl-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel"
+RUN yum install -y -q lemon bison epel-release \
+ && yum install -y -q $PACKAGES
+## source
+RUN tar jxf php-5.2.17.tar.bz2
+WORKDIR /root/rpmbuild/SOURCES/php-5.2.17
+#&& patch -p0 -b < php-5.2.17.patch \
+#&& patch -p0 -b < gmp.patch \
+#&& patch -p0 -b < php_functions.patch \
+
+RUN ./configure --quiet \
+  --prefix=/usr/local/php \
+  --with-apxs2=/usr/sbin/apxs \
+  --with-config-file-path=/etc/php \
+  --with-pear=/usr/local/pear \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-libdir=lib64
+# TODO: makeがopensslのエラーで通らない。
+RUN make -s
+## httpdパッケージとconfrictするため /etc/httpd/conf/httpd.conf を除外
+RUN make install
+RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/ \
+ && ls -lh /root/rpmbuild/RPMS/x86_64/*.rpm
+
+#---------
+# local-pear
+#---------
+RUN /usr/local/php/bin/pear install DB-1.8.2
+RUN /usr/local/php/bin/pear install Var_Dump
+WORKDIR /usr/local
+RUN tar czf /root/rpmbuild/SOURCES/local-pear.tar.gz \
+  pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh
+RUN tar xzf /root/rpmbuild/SOURCES/local-pear.tar.gz \
+  -C /root/rpmbuild/BUILD/
+WORKDIR /root/rpmbuild/
+RUN mv /root/rpmbuild/SOURCES/local-pear.spec /root/rpmbuild/SPECS/ \
+ && rpmbuild -ba SPECS/local-pear.spec
+
+#---------
+# resuilt
+#---------
+RUN sh -c "find . | grep \.rpm$ | xargs ls -lh"

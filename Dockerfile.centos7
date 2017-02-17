@@ -1,0 +1,101 @@
+FROM centos:7
+
+# libmcryptがepelで配布
+RUN yum install -y -q epel-release && yum clean all
+
+ENV PACKAGES="gcc gcc-c++ glibc-devel ncurses-devel make rpm-build wget which"
+ENV PACKAGES="$PACKAGES libedit-devel libtool-ltdl-devel libtidy-devel recode-devel libicu-devel enchant-devel"
+ENV PACKAGES="$PACKAGES bzip2-devel curl-devel db4-devel gmp-devel httpd-devel pam-devel openssl-devel sqlite-devel zlib-devel pcre-devel smtpdaemon libtool krb5-devel libc-client-devel cyrus-sasl-devel openldap-devel mysql-devel postgresql-devel unixODBC-devel libxml2-devel net-snmp-devel libxslt-devel libXpm-devel libjpeg-devel libpng-devel freetype-devel aspell-devel"
+ENV PACKAGES="$PACKAGES bison re2c"
+ENV PACKAGES="$PACKAGES t1lib t1lib-devel libmhash-devel libmcrypt-devel readline-devel patch"
+RUN yum install -y -q $PACKAGES && yum clean all
+
+# checkinstall---------------------------------------------------------------
+RUN yum install -y -q git gettext which && yum clean all
+WORKDIR /usr/local/src/
+RUN git clone http://checkinstall.izto.org/checkinstall.git
+WORKDIR /usr/local/src/checkinstall
+RUN sed -i 's@CONFDIR=$(PREFIX)/lib/checkinstall@CONFDIR=$(PREFIX)@g' Makefile \
+ && sed -i 's@EXCLUDE=""@EXCLUDE="/selinux"@g' checkinstallrc-dist \
+ && sed -i 's@LIBDIR=$(PREFIX)/lib@LIBDIR=$(PREFIX)/lib64@g' installwatch/Makefile \
+ && make -s \
+ && make install \
+ && mkdir -p /root/rpmbuild/SOURCES
+RUN checkinstall -y -R --pkgname=checkinstall
+
+# fpm (mysqlがなぜかcheckinstallでrpm作成に失敗したため) --------------------
+RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
+ && gem install fpm --no-rdoc --no-ri
+# mysql----------------------------------------------------------------------
+WORKDIR /usr/local/src/
+COPY ../mysql-4.0.30.tar.gz .
+RUN tar xzf mysql-4.0.30.tar.gz
+WORKDIR /usr/local/src/mysql-4.0.30
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis \
+  --without-server
+RUN make -s
+RUN make install
+RUN fpm -s dir \
+  -v 4.0.30 \
+  -t rpm \
+  -n opt-mysql-client \
+  -p opt-mysql-client-4.0.30.el7.x86_64.rpm \
+  -C /opt/mysql \
+  -a x86_64
+
+# php------------------------------------------------------------------------
+WORKDIR /usr/local/src/
+COPY ../php-5.2.17.tar.bz2 .
+RUN tar jxf php-5.2.17.tar.bz2
+RUN yum install -y -q lemon && yum clean all
+
+# configureを通すため。
+RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
+ && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
+ && ln -s /opt/mysql/lib /opt/mysql/lib64
+
+# patch
+COPY ../php-5.2patch/php-5.2.17.patch .
+COPY ../php-5.2patch/gmp.patch .
+COPY ../php-5.2patch/php_functions.patch .
+WORKDIR /usr/local/src/php-5.2.17
+RUN patch -p0 -b < ../php-5.2.17.patch \
+ && patch -p0 -b < ../gmp.patch \
+ && patch -p0 -b < ../php_functions.patch
+
+RUN ./configure \
+  --prefix=/usr/local/php \
+  --with-apxs2=/usr/bin/apxs \
+  --with-config-file-path=/etc/php \
+  --with-pear=/usr/local/pear \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-libdir=lib64
+
+# php5.2では以下はデフォルト有効
+#  --enable-trans-sid \
+#  --enable-memory-limit \
+
+RUN make -s
+RUN make install
+RUN checkinstall -y -R --pkgname=local-php
