@@ -1,13 +1,13 @@
 FROM centos:6
 
-ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git"
+ENV BUILDROOT="/root/rpmbuild"
+ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which"
 RUN yum install -y -q $PACKAGES \
  && yum clean all \
- && mkdir -p /root/rpmbuild/SPECS /root/rpmbuild/SOURCES
-WORKDIR /root/rpmbuild/SOURCES
+ && mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES
+WORKDIR $BUILDROOT/SOURCES
 
 COPY files .
-COPY files.centos6 .
 #-------------
 # checkinstall
 #-------------
@@ -19,28 +19,43 @@ RUN yum install -y -q gettext \
 # mysql
 #---------
 RUN tar xzf mysql-4.0.30.tar.gz \
- && cd "/root/rpmbuild/SOURCES/mysql-4.0.30" \
+ && cd "$BUILDROOT/SOURCES/mysql-4.0.30" \
  && ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
  && make -s \
  && make install \
  && ln -s /opt/mysql/lib /opt/mysql/lib64 \
- && checkinstall -y -R --pkgname=opt-mysql4 \
- && ls -lh /root/rpmbuild/RPMS/x86_64/*.rpm
+ && checkinstall -y -R --pkgname=opt-mysql4
 
 #----------
 # local-php
 #----------
-ENV PACKAGES="libmcrypt-devel re2c flex httpd-devel libxml2-devel openssl-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel"
-RUN yum install -y -q lemon bison epel-release \
+ENV PACKAGES="libmcrypt-devel flex httpd-devel libxml2-devel openssl-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel bison"
+RUN yum install -y -q epel-release \
  && yum install -y -q $PACKAGES
-## source
+
+#-----
+# re2c
+#-----
+# phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
+RUN tar xzf re2c-0.16.tar.gz \
+ && cd re2c-0.16 \
+ && ./configure \
+ && make -s \
+ && make install \
+ && checkinstall -y -R --pkgname=local-re2c
+
+#-----
+# lemon
+#-----
+RUN gcc -o /usr/local/bin/lemon lemon.c
+
+# php
 RUN tar jxf php-5.2.17.tar.bz2
-WORKDIR /root/rpmbuild/SOURCES/php-5.2.17
+WORKDIR $BUILDROOT/SOURCES/php-5.2.17
 
 RUN ./configure --quiet \
   --prefix=/usr/local/php \
   --with-apxs2=/usr/sbin/apxs \
-  --with-config-file-path=/etc/php \
   --with-pear=/usr/local/pear \
   --disable-cgi \
   --enable-zend-multibyte \
@@ -63,13 +78,16 @@ RUN ./configure --quiet \
   --enable-gd-native-ttf \
   --enable-gd-jis-conv \
   \
+  --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
+  \
   --with-libdir=lib64
+
 RUN make -s
+RUN yum install -y -q autoconf
 RUN make test
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
-RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/ \
- && ls -lh /root/rpmbuild/RPMS/x86_64/*.rpm
+RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/
 
 #---------
 # local-pear
@@ -78,11 +96,11 @@ RUN /usr/local/php/bin/pear install DB-1.8.2 \
  && /usr/local/php/bin/pear install Var_Dump
 
 WORKDIR /usr/local
-RUN tar czf /root/rpmbuild/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
- && tar xzf /root/rpmbuild/SOURCES/local-pear.tar.gz -C /root/rpmbuild/BUILD/
+RUN tar czf $BUILDROOT/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
+ && tar xzf $BUILDROOT/SOURCES/local-pear.tar.gz -C $BUILDROOT/BUILD/
 
-WORKDIR /root/rpmbuild/
-RUN mv /root/rpmbuild/SOURCES/local-pear.spec /root/rpmbuild/SPECS/ \
+WORKDIR $BUILDROOT/
+RUN mv $BUILDROOT/SOURCES/local-pear.spec $BUILDROOT/SPECS/ \
  && rpmbuild -ba SPECS/local-pear.spec
 
 #---------
