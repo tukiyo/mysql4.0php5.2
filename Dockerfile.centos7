@@ -1,6 +1,6 @@
 FROM centos:7
 
-ENV BUILDROOT="/root/rpmbuild/SOURCES"
+ENV BUILDROOT="/root/rpmbuild"
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
@@ -37,7 +37,8 @@ COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
 # eucjpとsjisを有効化
-RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
+ --without-server
 RUN make -s
 RUN make install
 RUN fpm -s dir \
@@ -49,6 +50,7 @@ RUN fpm -s dir \
   -a x86_64
 
 # php
+WORKDIR /usr/local/src/
 
 #-----
 # re2c
@@ -66,7 +68,6 @@ RUN tar xzf re2c-0.16.tar.gz \
 #-----
 RUN gcc -o /usr/local/bin/lemon lemon.c
 
-WORKDIR /usr/local/src/
 RUN tar jxf php-5.2.17.tar.bz2
 RUN yum install -y -q lemon && yum clean all
 
