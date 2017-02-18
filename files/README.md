@@ -1,3 +1,17 @@
+* centos5
+    * re2c
+    * lemon
+* centos6
+    * re2c
+    * lemon
+    * flex
+* centos7
+    * re2c
+    * lemon
+    * flex
+    * bison
+
+
 ## re2c
 
 > configure: warning: You will need re2c 0.13.4 or later if you want to regenerate PHP parsers.
@@ -12,11 +26,17 @@
 * http://www.sqlite.org/src/raw/tool/lemon.c?name=09a96bed19955697a5e20c49ad863ec2005815a2
 * http://oki2a24.com/2016/05/31/install-lemon-parser-to-centos-5-64/
 
-## flex
+## flex 2.5.4a (centos6,7)
 
-* http://php.net/manual/ja/install.unix.php
-* https://github.com/westes/flex/tags?after=flex-2_5_33-2_fc7
-* https://github.com/westes/flex/archive/flex-2_5_4a-41_fc6.tar.gz
+> configure: warning: flex versions supported for regeneration of the Zend/PHP parsers: 2.5.4  (found: none)
+
+* https://mirrors.netix.net/sourceforge/l/lt/ltsp/Sources/Misc%20sources/flex-2.5.4a.tar.gz
+
+## bison (centos7)
+
+> configure: warning: bison versions supported for regeneration of the Zend/PHP parsers: 1.28 1.35 1.75 1.875 2.0 2.1 2.2 2.3 2.4 2.4.1 (found: 2.7).
+
+* http://ftp.gnu.org/gnu/bison/bison-2.4.1.tar.bz2
 
 ## xdebug
 
