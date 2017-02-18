@@ -12,6 +12,10 @@
 * http://www.sqlite.org/src/raw/tool/lemon.c?name=09a96bed19955697a5e20c49ad863ec2005815a2
 * http://oki2a24.com/2016/05/31/install-lemon-parser-to-centos-5-64/
 
+## xdebug
+
+* http://xdebug.org/files/xdebug-2.2.7.tgz
+
 ## mysql
 
 ```
