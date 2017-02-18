@@ -70,7 +70,8 @@ RUN gcc -o /usr/local/bin/lemon lemon.c
 #-----
 # flex
 #-----
-RUN tar xzf flex-2.5.4a.tar.gz \
+RUN yum install -y -q byacc && yum clean all \
+ && tar xzf flex-2.5.4a.tar.gz \
  && cd flex-2.5.4 \
  && ./configure \
  && make -s \
@@ -79,7 +80,7 @@ RUN tar xzf flex-2.5.4a.tar.gz \
 #------
 # bison
 #------
-RUN tar xzf bison-2.4.1.tar.bz2 \
+RUN tar jxf bison-2.4.1.tar.bz2 \
  && cd bison-2.4.1 \
  && ./configure \
  && make -s \
@@ -88,7 +89,6 @@ RUN tar xzf bison-2.4.1.tar.bz2 \
 
 # php
 RUN tar jxf php-5.2.17.tar.bz2
-RUN yum install -y -q lemon && yum clean all
 
 # configureを通すため。
 RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
