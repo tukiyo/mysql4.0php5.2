@@ -12,6 +12,12 @@
 * http://www.sqlite.org/src/raw/tool/lemon.c?name=09a96bed19955697a5e20c49ad863ec2005815a2
 * http://oki2a24.com/2016/05/31/install-lemon-parser-to-centos-5-64/
 
+## flex
+
+* http://php.net/manual/ja/install.unix.php
+* https://github.com/westes/flex/tags?after=flex-2_5_33-2_fc7
+* https://github.com/westes/flex/archive/flex-2_5_4a-41_fc6.tar.gz
+
 ## xdebug
 
 * http://xdebug.org/files/xdebug-2.2.7.tgz
