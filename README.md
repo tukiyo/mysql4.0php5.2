@@ -21,18 +21,12 @@
  --enable-memory-limit \
 ```
 
-## todo
+* todo
+    * mysql : orbit-config not found.
 
-* mysql
-    * orbit-config not found.
-* php
-    * re2c
+* php: make test
 
-## mysql: make test
-
-## php: make test
-
-* centos5
+### centos5
 
 ```ruby
 TEST RESULT SUMMARY
@@ -80,7 +74,9 @@ Test uniqid() function : basic functionality [ext/standard/tests/general_functio
 time_sleep_until() function - basic test for time_sleep_until() [ext/standard/tests/misc/time_sleep_until_basic.phpt]
 ```
 
-* centos6
+### centos6
+
+> configure: warning: flex versions supported for regeneration of the Zend/PHP parsers: 2.5.4  (found: 2.5.35)
 
 ```ruby
 TEST RESULT SUMMARY
@@ -99,7 +95,13 @@ Tests passed    : 6820 ( 75.5%) ( 99.6%)
 Time taken      :  202 seconds
 ```
 
-* centos7
+### centos7
+
+> configure: warning: bison versions supported for regeneration of the Zend/PHP parsers: 1.28 1.35 1.75 1.875 2.0 2.1 2.2 2.3 2.4 2.4.1 (found: 2.7).
+
+* bison は 2.6.2以前が必要?
+
+> configure: warning: flex versions supported for regeneration of the Zend/PHP parsers: 2.5.4  (found: none)
 
 ```ruby
 TEST RESULT SUMMARY

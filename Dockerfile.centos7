@@ -68,6 +68,17 @@ RUN tar xzf re2c-0.16.tar.gz \
 #-----
 RUN gcc -o /usr/local/bin/lemon lemon.c
 
+#-----
+# flex
+#-----
+RUN tar xzf flex-2_5_4a-41_fc6.tar.gz \
+ && cd flex
+ && ./configure
+ && make -s
+ && make install
+ && checkinstall -y -R --pkgname=local-flex
+
+# php
 RUN tar jxf php-5.2.17.tar.bz2
 RUN yum install -y -q lemon && yum clean all
 
