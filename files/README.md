@@ -44,6 +44,9 @@
 
 ## mysql
 
+* https://dbstudy.info/mysql/4.0.27/mysql-4.0.27.tar.gz
+* https://dbstudy.info/mysql/4.0.30/mysql-4.0.30.tar.gz
+
 ```
 //mysql4.1
 ./configure --with-charset=ujis

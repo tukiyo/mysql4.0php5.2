@@ -21,10 +21,14 @@
  --enable-memory-limit \
 ```
 
-* todo
-    * mysql : orbit-config not found.
+## mysql
+    * orbit-config not found.
+    * --with-named-thread-libs="-lpthread" つけても centos7 では mysql-serverをmakeできなかった。
+    * centos 7.1, 7.2, 7.3 全てで試した。
 
-* php: make test
+----
+
+## php: make test
 
 ### centos5
 
