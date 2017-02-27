@@ -12,7 +12,7 @@ yum install -y -q gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git wh
 mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES $BUILDROOT/BUILD
 cd $BUILDROOT/SOURCES
 
-cp -a ~/files/* .
+cp -a ~/mysql4.0php5.2/files/* .
 yum install -y epel-release
 yum install -y git gettext
 yum install -y -q 
