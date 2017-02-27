@@ -1,6 +1,9 @@
 set -eu
+grep "^SELINUX=disabled" /etc/selinux/config \
+|| exit 1
+
 # rpm -qip *.rpm でHost名が記録されているのを上書き
-hostname CentOS5.11.i386
+hostname cent511.i386
 
 export BUILDROOT="/usr/src/redhat"
 export CHECKINSTALL=/usr/local/sbin/checkinstall
@@ -11,8 +14,8 @@ cd $BUILDROOT/SOURCES
 
 cp -a ~/files/* .
 yum install -y epel-release
-yum install -y git
-yum install -y -q gettext
+yum install -y git gettext
+yum install -y -q 
 
 git clone http://checkinstall.izto.org/checkinstall.git
 cd checkinstall
