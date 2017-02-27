@@ -14,20 +14,21 @@ cd $BUILDROOT/SOURCES
 
 cp -a ~/mysql4.0php5.2/files/* .
 yum install -y epel-release
-yum install -y git gettext
-yum install -y -q 
+yum install -y git
+yum install -y -q gettext
 
-git clone http://checkinstall.izto.org/checkinstall.git
-cd checkinstall
-./configure
-make
-make install
-$CHECKINSTALL -y -R --pkgname=checkinstall
+#git clone http://checkinstall.izto.org/checkinstall.git
+#cd checkinstall
+#./configure
+#make
+#make install
+#$CHECKINSTALL -y -R --pkgname=checkinstall
+rpm -ivh "~/mysql4.0php5.2/files.centos5.i386/checkinstall-20170227-1.i386.rpm"
 
 cd $BUILDROOT/SOURCES
 
 tar xzf mysql-4.0.30.tar.gz
-cd "$BUILDROOT/SOURCES/mysql-4.0.30"
+cd "$BUILDROOT/SOURCES/mysql-4.0.30" \
  && ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
  && make -s \
  && make install
