@@ -90,7 +90,7 @@ yum install -y -q autoconf
 make install
 $CHECKINSTALL -y -R --pkgname=local-php --exclude=/etc/httpd/conf/
 
-/usr/local/php/bin/pear install DB-1.8.2 \
+/usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
 
 cd /usr/local

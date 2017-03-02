@@ -26,6 +26,19 @@
     * --with-named-thread-libs="-lpthread" つけても centos7 では mysql-serverをmakeできなかった。
     * centos 7.1, 7.2, 7.3 全てで試した。
 
+## pear::DB
+
+> PHP Fatal error:  Cannot make static method DB::connect() non static in class DBcommon in 〜.php
+
+`DB::connect()`を書き換えずに使い続けるなら1.7系最後の`1.7.14`を使う。
+
+* https://pear.php.net/package/DB/download/All
+
+```
+pear install DB-1.7.14
+```
+
+
 ----
 
 ## php: make test
@@ -94,7 +107,7 @@ Tests failed    :   24 (  0.3%) (  0.4%)
 Expected fail   :    4 (  0.0%) (  0.1%)
 Tests passed    : 6821 ( 75.5%) ( 99.6%)
 ---------------------------------------------------------------------
-Time taken      :  211 seconds
+Time taken      :  237 seconds
 ```
 
 ```ruby
@@ -125,6 +138,7 @@ Test uniqid() function : basic functionality [ext/standard/tests/general_functio
 time_sleep_until() function - basic test for time_sleep_until() [ext/standard/tests/misc/time_sleep_until_basic.phpt]
 Bug #32001 (xml_parse*() goes into infinite loop when autodetection in effect), using UTF-* [ext/xml/tests/bug32001.phpt]
 ```
+
 
 ### centos7
 
