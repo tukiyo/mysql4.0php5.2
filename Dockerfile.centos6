@@ -114,6 +114,15 @@ RUN mv $BUILDROOT/SOURCES/local-pear.spec $BUILDROOT/SPECS/ \
  && rpmbuild -ba SPECS/local-pear.spec
 
 #---------
-# resuilt
+# ruby
 #---------
-RUN sh -c "find . | grep \.rpm$ | xargs ls -lh"
+WORKDIR $BUILDROOT/SOURCES/ruby/
+RUN yum install -y ruby ruby-devel
+
+# ruby-mysql
+RUN tar xzf mysql-ruby-2.8.2.tar.gz \
+ && cd mysql-ruby-2.8.2 \
+ && ruby extconf.rb --with-mysql-dir=/opt/mysql \
+ && make -s \
+ && make install \
+ && checkinstall -y -R --pkgname=ruby-mysql

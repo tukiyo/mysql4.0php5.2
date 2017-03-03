@@ -107,7 +107,7 @@ Tests failed    :   24 (  0.3%) (  0.4%)
 Expected fail   :    4 (  0.0%) (  0.1%)
 Tests passed    : 6821 ( 75.5%) ( 99.6%)
 ---------------------------------------------------------------------
-Time taken      :  237 seconds
+Time taken      :  273 seconds
 ```
 
 ```ruby
