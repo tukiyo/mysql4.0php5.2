@@ -1,14 +1,14 @@
-%define name mysql-ruby
-%define version 2.8.2
-%define unmangled_version 2.8.2
+%define name ruby-dbi
+%define version 0.4.3
+%define unmangled_version 0.4.3
 %define release 1
 %define _binaries_in_noarch_packages_terminate_build 0
 
-Summary: mysql-ruby
+Summary: ruby-dbi
 Name: %{name}
 Version: %{version}
 Release: %{release}
-License: Ruby's
+License: GPL
 Source0: %{name}-%{unmangled_version}.tar.gz
 Group: Applications/File
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -18,7 +18,7 @@ BuildArch: x86_64
 %define INSTALLDIR %{buildroot}
 
 %description
-http://tmtm.org/downloads/mysql/ruby/
+https://github.com/erikh/ruby-dbi/
 
 %prep
 
@@ -27,11 +27,15 @@ http://tmtm.org/downloads/mysql/ruby/
 %install
 rm -rf %{INSTALLDIR}
 mkdir -p %{INSTALLDIR}
-cp --parents /usr/lib64/ruby/site_ruby/1.8/x86_64-linux/mysql.so %{INSTALLDIR}
+cp --parents -a /usr/lib/ruby/site_ruby/1.8 %{INSTALLDIR}
+cp --parents /usr/bin/dbi %{INSTALLDIR}
+cp --parents /usr/bin/test_broken_dbi %{INSTALLDIR}
 
 %clean
 rm -rf %{buildroot}
 
 %files
-/usr/lib64/ruby/site_ruby/1.8/x86_64-linux/mysql.so
+/usr/bin/dbi
+/usr/bin/test_broken_dbi
+/usr/lib/ruby/site_ruby/1.8
 %defattr(-,root,root)
