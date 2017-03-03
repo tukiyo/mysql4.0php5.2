@@ -46,7 +46,8 @@ RUN fpm -s dir \
   -n opt-mysql-client \
   -p opt-mysql-client-4.0.30.el7.x86_64.rpm \
   -C /opt/mysql \
-  -a x86_64
+  -a x86_64 \
+  /opt/mysql
 
 # php
 WORKDIR /usr/local/src/
