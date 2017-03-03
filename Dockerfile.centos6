@@ -131,3 +131,17 @@ WORKDIR $BUILDROOT/
 COPY files.ruby/mysql-ruby.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/mysql-ruby-2.8.2.tar.gz /usr/lib64/ruby/site_ruby/1.8/x86_64-linux/mysql.so \
  && rpmbuild -ba SPECS/mysql-ruby.spec
+
+# mysql-dbi
+WORKDIR $BUILDROOT/SOURCES/ruby/
+COPY files.ruby/0.4.3_real.tar.gz .
+RUN tar xzf 0.4.3_real.tar.gz \
+ && cd ruby-dbi-0.4.3_real \
+ && ruby setup.rb config \
+ && ruby setup.rb setup \
+ && ruby setup.rb install
+# rpmbuild
+WORKDIR $BUILDROOT/
+COPY files.ruby/ruby-dbi.spec $BUILDROOT/SPECS/
+RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.4.3.tar.gz /usr/bin/dbi /usr/bin/test_broken_dbi /usr/lib/ruby/site_ruby/1.8 \
+ && rpmbuild -ba SPECS/ruby-dbi.spec
