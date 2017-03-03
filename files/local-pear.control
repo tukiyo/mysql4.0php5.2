@@ -1,0 +1,5 @@
+Package: local-pear
+Maintainer: tukiyo3
+Architecture: all
+Version: 1.0
+Description: pear::DB 1.7.4
