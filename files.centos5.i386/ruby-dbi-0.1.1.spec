@@ -1,6 +1,6 @@
 %define name ruby-dbi
-%define version 0.4.3
-%define unmangled_version 0.4.3
+%define version 0.1.1
+%define unmangled_version 0.1.1
 %define release 1
 %define _binaries_in_noarch_packages_terminate_build 0
 
@@ -13,7 +13,7 @@ Source0: %{name}-%{unmangled_version}.tar.gz
 Group: Applications/File
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
-BuildArch: x86_64
+BuildArch: i386
 
 %define INSTALLDIR %{buildroot}
 
@@ -28,14 +28,12 @@ https://github.com/erikh/ruby-dbi/
 rm -rf %{INSTALLDIR}
 mkdir -p %{INSTALLDIR}
 cp --parents -a /usr/lib/ruby/site_ruby/1.8 %{INSTALLDIR}
-cp --parents /usr/bin/dbi %{INSTALLDIR}
-cp --parents /usr/bin/test_broken_dbi %{INSTALLDIR}
+cp --parents /usr/bin/sqlsh.rb %{INSTALLDIR}
 
 %clean
 rm -rf %{buildroot}
 
 %files
-/usr/bin/dbi
-/usr/bin/test_broken_dbi
+/usr/bin/sqlsh.rb
 /usr/lib/ruby/site_ruby/1.8
 %defattr(-,root,root)

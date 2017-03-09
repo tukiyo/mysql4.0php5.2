@@ -116,11 +116,9 @@ tar xzf mysql-ruby-2.8.2.tar.gz \
 
 # rpmbuild
 cd $BUILDROOT/
-cp ~/mysql4.0php5.2/files.ruby/mysql-ruby.spec $BUILDROOT/SPECS/
+cp ~/mysql4.0php5.2/files.centos5.i386/mysql-ruby.spec $BUILDROOT/SPECS/
 tar czf $BUILDROOT/SOURCES/mysql-ruby-2.8.2.tar.gz /usr/lib/ruby/site_ruby/1.8/i386-linux/mysql.so \
- && rpmbuild -ba SPECS/mysql-ruby.spec # TODO
-
-exit 1
+ && rpmbuild -ba SPECS/mysql-ruby.spec
  
 # ruby-dbi 0.1.1
 cd $BUILDROOT/SOURCES/ruby/
@@ -132,6 +130,6 @@ tar xzf rel-0-1-1.tar.gz \
  && ruby setup.rb install
 # rpmbuild
 cd $BUILDROOT/
-cp ~/mysql4.0php5.2/files.ruby/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
+cp ~/mysql4.0php5.2/files.centos5.i386/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /usr/lib/ruby/site_ruby/1.8 /usr/bin/sqlsh.rb \
  && rpmbuild -ba SPECS/ruby-dbi-0.1.1.spec
