@@ -48,21 +48,21 @@ pear install DB-1.7.14
 ```ruby
 TEST RESULT SUMMARY
 ---------------------------------------------------------------------
-Exts skipped    :   48
-Exts tested     :   31
+Exts skipped    :   47
+Exts tested     :   32
 ---------------------------------------------------------------------
 
-Number of tests : 9031              6865
-Tests skipped   : 2166 ( 24.0%) --------
+Number of tests : 9031              6884
+Tests skipped   : 2147 ( 23.8%) --------
 Tests warned    :    0 (  0.0%) (  0.0%)
 Tests failed    :   24 (  0.3%) (  0.3%)
 Expected fail   :    4 (  0.0%) (  0.1%)
-Tests passed    : 6837 ( 75.7%) ( 99.6%)
+Tests passed    : 6856 ( 75.9%) ( 99.6%)
 ---------------------------------------------------------------------
-Time taken      :  301 seconds
-```
+Time taken      :  282 seconds
+=====================================================================
 
-```ruby
+=====================================================================
 FAILED TEST SUMMARY
 ---------------------------------------------------------------------
 Zend Multibyte and UTF-16 BOM [Zend/tests/multibyte/multibyte_encoding_003.phpt]
