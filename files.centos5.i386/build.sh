@@ -8,7 +8,7 @@ hostname cent511.i386
 export BUILDROOT="/usr/src/redhat"
 export CHECKINSTALL=/usr/local/sbin/checkinstall
 
-yum install -y -q gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which
+yum install -y -q gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel
 mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES $BUILDROOT/BUILD
 cd $BUILDROOT/SOURCES
 
@@ -34,7 +34,7 @@ cd "$BUILDROOT/SOURCES/mysql-4.0.30" \
  && make install
 $CHECKINSTALL -y -R --pkgname=opt-mysql4
 
-export PACKAGES="libmcrypt-devel flex httpd-devel libxml2-devel openssl-devel libjpeg-devel libpng-devel freetype-devel mhash-devel bison"
+export PACKAGES="libmcrypt-devel flex httpd-devel libxml2-devel libjpeg-devel libpng-devel freetype-devel mhash-devel bison"
 yum install -y -q $PACKAGES
 cd $BUILDROOT/SOURCES/
 
@@ -66,6 +66,7 @@ export PATH=$PATH:/usr/local/bin
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
+  --with-openssl \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \

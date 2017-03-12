@@ -1,7 +1,7 @@
 FROM centos:6
 
 ENV BUILDROOT="/root/rpmbuild"
-ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which"
+ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel"
 RUN yum install -y -q $PACKAGES \
  && yum clean all \
  && mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES
@@ -29,7 +29,7 @@ RUN tar xzf mysql-4.0.30.tar.gz \
 #----------
 # local-php
 #----------
-ENV PACKAGES="libmcrypt-devel httpd-devel libxml2-devel openssl-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel bison"
+ENV PACKAGES="libmcrypt-devel httpd-devel libxml2-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel bison"
 RUN yum install -y -q epel-release \
  && yum install -y -q $PACKAGES
 
@@ -74,6 +74,7 @@ RUN ./configure --quiet \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
+  --with-openssl \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
@@ -128,13 +129,12 @@ RUN tar xzf mysql-ruby-2.8.2.tar.gz \
 
 # rpmbuild
 WORKDIR $BUILDROOT/
-COPY files.ruby/mysql-ruby.spec $BUILDROOT/SPECS/
+COPY files.centos6/mysql-ruby.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/mysql-ruby-2.8.2.tar.gz /usr/lib64/ruby/site_ruby/1.8/x86_64-linux/mysql.so \
  && rpmbuild -ba SPECS/mysql-ruby.spec
 
 # ruby-dbi 0.1.1
 WORKDIR $BUILDROOT/SOURCES/ruby/
-COPY files.ruby/rel-0-1-1.tar.gz .
 RUN tar xzf rel-0-1-1.tar.gz \
  && cd ruby-dbi-rel-0-1-1 \
  && ruby setup.rb config --with=dbi,dbd_mysql \
@@ -142,6 +142,6 @@ RUN tar xzf rel-0-1-1.tar.gz \
  && ruby setup.rb install
 # rpmbuild
 WORKDIR $BUILDROOT/
-COPY files.ruby/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
+COPY files.centos6/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /usr/lib/ruby/site_ruby/1.8 /usr/bin/sqlsh.rb \
  && rpmbuild -ba SPECS/ruby-dbi-0.1.1.spec

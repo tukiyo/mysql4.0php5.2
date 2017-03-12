@@ -113,6 +113,7 @@ RUN ./configure --quiet \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
+  --with-openssl \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
@@ -191,7 +192,6 @@ RUN tar czf $BUILDROOT/SOURCES/mysql-ruby-2.8.2.tar.gz /opt/ruby/lib/ruby/site_r
 
 # ruby-dbi 0.1.1
 WORKDIR /usr/local/src/ruby
-COPY files.ruby/rel-0-1-1.tar.gz .
 RUN tar xzf rel-0-1-1.tar.gz \
  && cd ruby-dbi-rel-0-1-1 \
  && /opt/ruby/bin/ruby setup.rb config --with=dbi,dbd_mysql \
