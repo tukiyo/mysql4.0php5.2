@@ -3,7 +3,7 @@ FROM ubuntu:17.04
 # 1.mysql 4.0.30 ---------------------------------------------------------
 RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
  && apt-get update \
- && apt install -y libncurses5-dev checkinstall \
+ && apt install -y libncurses5-dev openssl-dev checkinstall \
  && apt-get clean
 WORKDIR /usr/local/src
 COPY ../mysql-4.0.30.tar.gz .
@@ -30,9 +30,9 @@ RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlcl
  && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
  && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu
 # CentOS7用と同じパッチ
-COPY ../php-5.2patch/gmp.patch ..
-COPY ../php-5.2patch/php-5.2.17.patch ..
-COPY ../php-5.2patch/php_functions.patch ..
+COPY ../php-patch/gmp.patch ..
+COPY ../php-patch/php-5.2.17.patch ..
+COPY ../php-patch/php_functions.patch ..
 RUN patch -p0 -b < ../php-5.2.17.patch \
  && patch -p0 -b < ../gmp.patch \
  && patch -p0 -b < ../php_functions.patch
@@ -40,7 +40,6 @@ RUN patch -p0 -b < ../php-5.2.17.patch \
 RUN ./configure \
   --prefix=/usr/local/php \
   --with-apxs2=/usr/bin/apxs \
-  --with-config-file-path=/etc/php \
   --with-pear=/usr/local/pear \
   --disable-cgi \
   --enable-zend-multibyte \
@@ -49,6 +48,7 @@ RUN ./configure \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
+  --with-openssl \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
@@ -63,9 +63,75 @@ RUN ./configure \
   --enable-gd-native-ttf \
   --enable-gd-jis-conv \
   \
+  --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
+  \
   --with-libdir=/lib/x86_64-linux-gnu
 #
 RUN make -s
 RUN apt install -y apache2 && apt-get clean
 RUN make install
 RUN checkinstall -y -D --pkgname=local-php
+
+#---------
+# local-pear
+#---------
+RUN /usr/local/php/bin/pear install DB-1.7.14 \
+ && /usr/local/php/bin/pear install Var_Dump
+
+# WORKDIR /usr/local
+# RUN tar czf $BUILDROOT/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
+#  && tar xzf $BUILDROOT/SOURCES/local-pear.tar.gz -C $BUILDROOT/BUILD/
+# 
+# WORKDIR $BUILDROOT/
+# RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
+#  && rpmbuild -ba SPECS/local-pear.spec
+# 
+# #---------------
+# # opt-ruby-1.8.7
+# #---------------
+# WORKDIR $BUILDROOT/SOURCES/
+# # http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
+# COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
+# RUN tar xf ruby-1.8.7-p374.tar.bz2
+# WORKDIR $BUILDROOT/SOURCES/ruby-1.8.7-p374
+# # https://www.ruby-forum.com/topic/142608
+# RUN yum install -y -q tk-devel tclx
+# RUN yum remove -y openssl-devel
+# RUN ./configure --prefix=/opt/ruby --enable-pthread \
+#  && make -s \
+#  && make test \
+#  && make install
+# RUN fpm -s dir \
+#   -v 1.8.7_p374 \
+#   -t rpm \
+#   -n opt-ruby \
+#   -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
+#   -C /opt/ruby \
+#   -a x86_64 \
+#   /opt/ruby
+# 
+# WORKDIR /usr/local/src/ruby
+# # mysql-ruby
+# RUN tar xzf mysql-ruby-2.8.2.tar.gz \
+#  && cd mysql-ruby-2.8.2 \
+#  && /opt/ruby/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
+#  && make -s \
+#  && make install
+# # rpmbuild
+# WORKDIR /usr/local/src/ruby
+# COPY files.centos7/mysql-ruby.spec $BUILDROOT/SPECS/
+# RUN tar czf $BUILDROOT/SOURCES/mysql-ruby-2.8.2.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8/x86_64-linux/mysql.so \
+#  && rpmbuild -ba $BUILDROOT/SPECS/mysql-ruby.spec
+# 
+# # ruby-dbi 0.1.1
+# WORKDIR /usr/local/src/ruby
+# RUN tar xzf rel-0-1-1.tar.gz \
+#  && cd ruby-dbi-rel-0-1-1 \
+#  && /opt/ruby/bin/ruby setup.rb config --with=dbi,dbd_mysql \
+#  && /opt/ruby/bin/ruby setup.rb setup \
+#  && /opt/ruby/bin/ruby setup.rb install
+# # rpmbuild
+# WORKDIR /usr/local/src/ruby
+# COPY files.centos7/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
+# RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
+#  && rpmbuild -ba $BUILDROOT/SPECS/ruby-dbi-0.1.1.spec
