@@ -1,5 +1,16 @@
 # tukiyo/mysql4.0php5.2
 
+|distro|mysql-server|php patch|ruby1.8.7|
+|:--|:--:|:--|:--|
+|centos5| o | - | 1.8.5 |
+|centos6| o | - | 1.8.7 |
+|centos7| x |要| 1.8.7 |
+|debian9| o |要| 未確認 |
+|fedora25| o |要| 未確認 |
+|ubuntu16.04| o |要| 未確認 |
+|ubuntu16.10| o |要| 未確認 |
+|ubuntu17.04| o |要| 挑戦中? |
+
 ## 参考
 
 * [CentOS7にphp5.2をインストール - blog.youyo.info](http://blog.youyo.info/post/2016/02/10/php52-centos7/)
