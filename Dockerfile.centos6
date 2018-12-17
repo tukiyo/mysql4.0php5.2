@@ -83,6 +83,7 @@ RUN ./configure --quiet \
   --with-gd=shared \
   --with-jpeg-dir=/usr \
   --with-png-dir=/usr \
+  --with-zlib \
   --with-zlib-dir=/usr \
   --with-ttf \
   --with-freetype-dir=/usr \
