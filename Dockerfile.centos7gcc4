@@ -21,9 +21,10 @@ RUN tar jxf gcc-4.9.4.tar.bz2
 WORKDIR "/root/rpmbuild/gcc-4.9.4"
 RUN ./configure --disable-multilib
 RUN make -j 4
+RUN make install
 
 # checkinstall
 COPY files.centos7/checkinstall-20170215-1.x86_64.rpm checkinstall-20170215-1.x86_64.rpm
 RUN rpm -ivh checkinstall-20170215-1.x86_64.rpm
 
-RUN checkinstall -y -R --pkgname=gcc-4.9.4
+RUN checkinstall -y -R --pkgname=local-gcc
