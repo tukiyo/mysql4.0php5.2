@@ -10,21 +10,7 @@ ENV PACKAGES="$PACKAGES bzip2-devel curl-devel db4-devel gmp-devel httpd-devel p
 ENV PACKAGES="$PACKAGES t1lib t1lib-devel libmhash-devel libmcrypt-devel readline-devel patch"
 RUN yum install -y -q $PACKAGES && yum clean all
 
-# checkinstall---------------------------------------------------------------
-RUN yum install -y -q git gettext which \
- && yum clean all
-WORKDIR /usr/local/src/
-RUN mkdir -p $BUILDROOT/SOURCES \
- && git clone http://checkinstall.izto.org/checkinstall.git \
- && cd /usr/local/src/checkinstall \
- && sed -i 's@CONFDIR=$(PREFIX)/lib/checkinstall@CONFDIR=$(PREFIX)@g' Makefile \
- && sed -i 's@EXCLUDE=""@EXCLUDE="/selinux"@g' checkinstallrc-dist \
- && sed -i 's@LIBDIR=$(PREFIX)/lib@LIBDIR=$(PREFIX)/lib64@g' installwatch/Makefile \
- && make -s \
- && make install \
- && checkinstall -y -R --pkgname=checkinstall
-
-# fpm (mysqlがなぜかcheckinstallでrpm作成に失敗したため) --------------------
+# fpm
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
 
@@ -45,13 +31,13 @@ WORKDIR /usr/local/src/mysql-4.0.30
 # eucjpとsjisを有効化
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
 
-RUN make -s
-RUN make install
-RUN fpm -s dir \
+RUN make -s \
+ && make install \
+ && fpm -s dir \
   -v 4.0.30 \
   -t rpm \
   -n opt-mysql4 \
-  -p opt-mysql-4.0.30.el7.x86_64.rpm \
+  -p opt-mysql4-4.0.30.el7.x86_64.rpm \
   -C /opt/mysql \
   -a x86_64 \
   /opt/mysql
@@ -68,7 +54,15 @@ RUN tar xzf re2c-0.16.tar.gz \
  && ./configure \
  && make -s \
  && make install \
- && checkinstall -y -R --pkgname=local-re2c
+ && make install DESTDIR=/opt/re2c \
+ && fpm -s dir \
+  -v 0.16 \
+  -t rpm \
+  -n local-re2c \
+  -p local-re2c-0.16.el7.x86_64.rpm \
+  -C /opt/re2c \
+  -a x86_64 \
+  /usr/local
 
 #-----
 # lemon
@@ -83,7 +77,16 @@ RUN yum install -y -q byacc && yum clean all \
  && cd flex-2.5.4 \
  && ./configure \
  && make -s \
- && make install
+ && make install \
+ && make install DESTDIR=/opt/flex \
+ && fpm -s dir \
+  -v 2.5.4a \
+  -t rpm \
+  -n local-flex \
+  -p local-flex-2.5.4a.el7.x86_64.rpm \
+  -C /opt/flex \
+  -a x86_64 \
+  /usr/local
 
 #------
 # bison
@@ -93,7 +96,15 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
  && ./configure \
  && make -s \
  && make install \
- && checkinstall -y -R --pkgname=local-bison
+ && make install DESTDIR=/opt/bison \
+ && fpm -s dir \
+  -v 2.4.1 \
+  -t rpm \
+  -n local-bison \
+  -p local-bison-2.4.1.el7.x86_64.rpm \
+  -C /opt/bison \
+  -a x86_64 \
+  /usr/local
 
 # php
 RUN tar jxf php-5.2.17.tar.bz2
@@ -144,8 +155,17 @@ RUN make -s
 RUN yum install -y -q autoconf
 RUN make test
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
-RUN make install
-RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/
+RUN make install \
+ && make install DESTDIR=/opt/php \
+ && fpm -s dir \
+  -v 5.2.17 \
+  -t rpm \
+  -n local-php \
+  -p local-php-5.2.17.el7.x86_64.rpm \
+  -C /opt/php \
+  -a x86_64 \
+  /usr/local/php
+
 
 #---------
 # local-pear
