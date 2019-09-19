@@ -28,8 +28,7 @@ COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
 # eucjpとsjisを有効化
-RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
- --without-server
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
 RUN make -s
 RUN make install
 RUN fpm -s dir \
