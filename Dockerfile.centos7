@@ -28,6 +28,12 @@ RUN mkdir -p $BUILDROOT/SOURCES \
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
 
+# gcc4.4
+ENV PACKAGES="compat-gcc-44 compat-gcc-44-c++"
+RUN yum install -y -q $PACKAGES && yum clean all
+ENV CC=/usr/bin/gcc44
+ENV CXX=/usr/bin/g++44
+
 #---------
 # mysql
 #---------
@@ -35,9 +41,10 @@ WORKDIR /usr/local/src/
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
+#RUN cp ../my_thr_init.c ./mysys/
 # eucjpとsjisを有効化
-RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
- --without-server
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
+
 RUN make -s
 RUN make install
 RUN fpm -s dir \
@@ -122,6 +129,7 @@ RUN ./configure --quiet \
   --with-gd=shared \
   --with-jpeg-dir=/usr \
   --with-png-dir=/usr \
+  --with-zlib \
   --with-zlib-dir=/usr \
   --with-ttf \
   --with-freetype-dir=/usr \
