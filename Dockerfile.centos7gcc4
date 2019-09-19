@@ -16,7 +16,8 @@ RUN yum install -y -q $PACKAGES && yum clean all
 WORKDIR "/root/rpmbuild"
 
 # gcc-4.9.4
-COPY files.centos7/gcc-4.9.4.tar.bz2 gcc-4.9.4.tar.bz2
+#COPY files.centos7/gcc-4.9.4.tar.bz2 gcc-4.9.4.tar.bz2
+RUN wget https://ftp.gnu.org/gnu/gcc/gcc-4.9.4/gcc-4.9.4.tar.bz2
 RUN tar jxf gcc-4.9.4.tar.bz2
 WORKDIR "/root/rpmbuild/gcc-4.9.4"
 RUN ./configure --disable-multilib
@@ -27,4 +28,6 @@ RUN make install
 COPY files.centos7/checkinstall-20170215-1.x86_64.rpm checkinstall-20170215-1.x86_64.rpm
 RUN rpm -ivh checkinstall-20170215-1.x86_64.rpm
 
-RUN checkinstall -y -R --pkgname=local-gcc
+RUN mkdir /root/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+RUN yum install -y less
+# RUN checkinstall -y -R --pkgname=local-gcc LIBDIR=/usr/local/lib
