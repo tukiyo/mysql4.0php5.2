@@ -50,8 +50,8 @@ RUN make install
 RUN fpm -s dir \
   -v 4.0.30 \
   -t rpm \
-  -n opt-mysql-client \
-  -p opt-mysql-client-4.0.30.el7.x86_64.rpm \
+  -n opt-mysql4 \
+  -p opt-mysql-4.0.30.el7.x86_64.rpm \
   -C /opt/mysql \
   -a x86_64 \
   /opt/mysql
