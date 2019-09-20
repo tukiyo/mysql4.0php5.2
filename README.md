@@ -4,7 +4,7 @@
 |:--|:--:|:--|:--|
 |centos5| o | - | 1.8.5 |
 |centos6| o | - | 1.8.7 |
-|centos7| x |要| 1.8.7 |
+|centos7| o |要| 1.8.7 |
 |debian9| o |要| 未確認 |
 |fedora25| o |要| 未確認 |
 |ubuntu16.04| o |要| 未確認 |
@@ -20,6 +20,7 @@
 
 ## buildメモ
 
+* centos7でmysqldをビルドするにはcompat-gccが必要だった。
 * 64bit 環境では --with-libdir=lib64 が 必要だった。
 
 * [php 5.2.17をCentOS7,Ubuntu16.04でビルド - Qiita](http://qiita.com/tukiyo3/items/23dac84a2dcb60c3bc1a)
@@ -31,11 +32,6 @@
  --enable-trans-sid \
  --enable-memory-limit \
 ```
-
-## mysql
-    * orbit-config not found.
-    * --with-named-thread-libs="-lpthread" つけても centos7 では mysql-serverをmakeできなかった。
-    * centos 7.1, 7.2, 7.3 全てで試した。
 
 ## pear::DB
 
@@ -156,18 +152,18 @@ Bug #32001 (xml_parse*() goes into infinite loop when autodetection in effect), 
 ```ruby
 TEST RESULT SUMMARY
 ---------------------------------------------------------------------
-Exts skipped    :   48
-Exts tested     :   31
+Exts skipped    :   47
+Exts tested     :   32
 ---------------------------------------------------------------------
 
-Number of tests : 9031              6854
-Tests skipped   : 2177 ( 24.1%) --------
+Number of tests : 9031              6863
+Tests skipped   : 2168 ( 24.0%) --------
 Tests warned    :    0 (  0.0%) (  0.0%)
-Tests failed    :   26 (  0.3%) (  0.4%)
+Tests failed    :   29 (  0.3%) (  0.4%)
 Expected fail   :    4 (  0.0%) (  0.1%)
-Tests passed    : 6824 ( 75.6%) ( 99.6%)
+Tests passed    : 6830 ( 75.6%) ( 99.5%)
 ---------------------------------------------------------------------
-Time taken      :  240 seconds
+Time taken      :  575 seconds
 ```
 
 ```ruby
@@ -184,15 +180,18 @@ DOMDocument::validate() should validate an external DTD declaration [ext/dom/tes
 DOMDocument::$validateOnParse - effectual determination (dom_document_validate_on_parse_read/dom_document_validate_on_parse_write) [ext/dom/tests/DOMDocument_validate_on_parse_variation.phpt]
 Test 7: DTD tests [ext/dom/tests/dom007.phpt]
 Bug #43073 (TrueType bounding box is wrong for angle<>0) [ext/gd/tests/bug43073.phpt]
-Bug #48801 (Problem with imagettfbbox) [ext/gd/tests/bug48801.phpt]
 Test imagecolorallocate() function : usage variations  - passing different data types to fourth argument [ext/gd/tests/imagecolorallocate_variation4.phpt]
 mhash() test [ext/mhash/tests/001.phpt]
 mhash_keygen_s2k() test [ext/mhash/tests/003.phpt]
+Bug #28382 (openssl_x509_parse extensions support) [ext/openssl/tests/bug28382.phpt]
+Bug #47828 (segfaults when a UTF-8 conversion fails openssl_x509_parse()) [ext/openssl/tests/bug47828.phpt]
 Bug #41125 (PDO mysql + quote() + prepare() can result in seg fault) [ext/pdo_mysql/tests/bug41125.phpt]
 Bug #44327 (PDORow::queryString property & numeric offsets / Crash) [ext/pdo_mysql/tests/bug44327.phpt]
 Test session_encode() function : error functionality [ext/session/tests/session_encode_error2.phpt]
 SimpleXML: XPath [ext/simplexml/tests/008.phpt]
 ext/sockets - socket_strerror - basic test [ext/sockets/tests/socket_strerror.phpt]
+SPL: DirectoryIterator test getGroup [ext/spl/tests/DirectoryIterator_getGroup_basic.phpt]
+SPL: Spl Directory Iterator test getOwner [ext/spl/tests/DirectoryIterator_getOwner_basic.phpt]
 Test lstat() and stat() functions: usage variations - effects of touch() on link [ext/standard/tests/file/lstat_stat_variation6.phpt]
 Bug #39322 (proc_terminate() loosing process resource) [ext/standard/tests/general_functions/bug39322.phpt]
 proc_open [ext/standard/tests/general_functions/proc_open02.phpt]
