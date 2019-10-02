@@ -16,22 +16,28 @@ RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
 
 # gcc4.4
 ENV PACKAGES="compat-gcc-44 compat-gcc-44-c++"
-RUN yum install -y -q $PACKAGES && yum clean all
+RUN yum install -y -q $PACKAGES && yum clean all \
+ && yum remove -y gcc gcc-c++ \
+ && update-alternatives \
+ --install /usr/bin/gcc gcc /usr/bin/gcc44 20 \
+ --slave   /usr/bin/g++ g++ /usr/bin/g++44
 ENV CC=/usr/bin/gcc44
 ENV CXX=/usr/bin/g++44
 
 #---------
 # mysql
 #---------
+ENV PACKAGES="ORBit2-devel"
+RUN yum install -y -q $PACKAGES && yum clean all
+
 WORKDIR /usr/local/src/
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
-#RUN cp ../my_thr_init.c ./mysys/
 # eucjpとsjisを有効化
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
 
-RUN make -s \
+RUN make -s 1>/dev/null \
  && make install \
  && fpm -s dir \
   -v 4.0.30 \
@@ -49,22 +55,8 @@ WORKDIR /usr/local/src/
 #-----
 # re2c
 #-----
-# phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
-RUN tar xzf re2c-0.16.tar.gz \
- && cd re2c-0.16 \
- && ./configure \
- && make -s \
- && make install \
- && make install DESTDIR=/opt/re2c \
- && fpm -s dir \
-  -v 0.16 \
-  -t rpm \
-  -n local-re2c \
-  -p local-re2c-0.16.el7.x86_64.rpm \
-  -C /opt/re2c \
-  --prefix /usr/local \
-  -a x86_64 \
-  .
+ENV PACKAGES="re2c"
+RUN yum install -y -q $PACKAGES && yum clean all
 
 #-----
 # lemon
@@ -152,10 +144,11 @@ RUN ./configure --quiet \
   \
   --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
   \
-  --with-libdir=lib64
+  --with-libdir=lib64 \
+  1>/dev/null
 
-RUN make -s
-RUN make test
+RUN make -s 1>/dev/null
+RUN make test 1>/dev/null
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
 RUN fpm -s dir \
