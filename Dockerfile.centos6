@@ -18,6 +18,7 @@ RUN yum install -y -q gettext \
 #---------
 # mysql
 #---------
+RUN yum install -y -q ORBit2-devel
 RUN tar xzf mysql-4.0.30.tar.gz \
  && cd "$BUILDROOT/SOURCES/mysql-4.0.30" \
  && ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
