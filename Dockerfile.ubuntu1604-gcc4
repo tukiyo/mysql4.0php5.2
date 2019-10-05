@@ -1,0 +1,52 @@
+FROM ubuntu:16.04
+
+RUN apt update
+ENV PACKAGES="build-essential"
+RUN apt install -y $PACKAGES
+
+RUN apt remove -y gcc
+
+ENV PACKAGES="libgmp-dev libmpfr-dev"
+RUN apt install -y $PACKAGES
+
+ENV PACKAGES="gcc-4.7"
+RUN apt install -y $PACKAGES
+
+ENV PACKAGES="g++-4.7"
+RUN apt install -y $PACKAGES
+
+ENV CC=/usr/bin/gcc-4.7
+ENV CXX=/usr/bin/g++-4.7
+
+
+#---------
+# gcc 4.4
+#---------
+COPY gcc-4.4.7.tar.gz gcc-4.4.7.tar.gz
+RUN tar xzf gcc-4.4.7.tar.gz
+WORKDIR gcc-4.4.7
+RUN ./configure --build=x86_64-linux-gnu --disable-multilib --enable-languages=c,c++
+RUN make -s
+RUN make install
+
+ENV CC=/usr/local/bin/gcc
+ENV CXX=/usr/local/bin/g++
+
+#---------
+# mysql
+#---------
+ENV PACKAGES="liborbit2-dev"
+RUN apt install -y $PACKAGES
+
+WORKDIR /usr/local/src/
+COPY files/ .
+RUN tar xzf mysql-4.0.30.tar.gz
+WORKDIR /usr/local/src/mysql-4.0.30
+
+ENV PACKAGES="libncurses-dev"
+RUN apt install -y $PACKAGES
+
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
+
+RUN make -s 1>/dev/null \
