@@ -31,6 +31,8 @@ WORKDIR /usr/local/src/mysql-4.0.30
 ENV PACKAGES="libncurses-dev"
 RUN apt install -y $PACKAGES
 
+RUN apt remove -y gcc-5 g++-5
+
 # eucjpとsjisを有効化
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
 
