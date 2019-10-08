@@ -1,0 +1,5 @@
+FROM centos:centos8
+
+RUN yum groupinstall -y -q "Development Tools" && yum clean all
+WORKDIR /usr/local/src/
+RUN yum install -y gmp-devel mpfr-devel wget
