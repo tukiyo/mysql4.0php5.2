@@ -2,8 +2,7 @@ FROM centos:centos8
 
 RUN yum groupinstall -y -q "Development Tools" && yum clean all
 WORKDIR /usr/local/src/
-RUN yum install -y gmp-devel mpfr-devel
-RUN yum install -y ncurses-devel
+RUN yum install -y gmp-devel mpfr-devel ncurses-devel wget wget zlib-devel
 
 
 #----------
@@ -18,13 +17,13 @@ RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
 COPY ./files.centos8/gcc-6.5.0.tar.gz gcc-6.5.0.tar.gz 
 RUN tar xzf gcc-6.5.0.tar.gz 
 WORKDIR /usr/local/src/gcc-6.5.0/
-RUN yum install -y wget zlib-devel
 RUN ./contrib/download_prerequisites
 
+# --disable-bootstrap
 RUN ./configure \
  --prefix=/opt/gcc-6.5.0 \
  --with-bugurl=http://bugzilla.redhat.com/bugzilla \
- --disable-bootstrap \
+ --enable-bootstrap \
  --enable-shared \
  --enable-threads=posix \
  --enable-checking=release \
@@ -53,3 +52,13 @@ RUN fpm -s dir \
   --prefix /opt/gcc-6.5.0 \
   -a x86_64 \
   .
+
+#-------------
+# alternatives
+#-------------
+RUN yum remove -y gcc gcc-c++ \
+ && update-alternatives \
+ --install /usr/bin/gcc gcc /opt/gcc-6.5.0/bin/gcc 20 \
+ --slave   /usr/bin/g++ g++ /opt/gcc-6.5.0/bin/g++
+ENV CC=/opt/gcc-6.5.0/bin/gcc
+ENV CXX=/opt/gcc-6.5.0/bin/g++
