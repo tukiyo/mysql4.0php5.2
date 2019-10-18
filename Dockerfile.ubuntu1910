@@ -9,6 +9,7 @@ RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.li
  && apt-get clean
 ENV CC=/usr/bin/gcc-4.4
 ENV CXX=/usr/bin/g++-4.4
+# ENV CXXFLAGS="-std=c++98"
 
 # 1.mysql 4.0.30 ---------------------------------------------------------
 WORKDIR /usr/local/src
