@@ -202,8 +202,11 @@ RUN fpm -s dir \
 #---------
 # local-pear
 #---------
-RUN /usr/local/php/bin/pear install DB-1.7.14 \
- && /usr/local/php/bin/pear install Var_Dump
+# RUN /usr/local/php/bin/pear install DB-1.7.14 \
+#  && /usr/local/php/bin/pear install Var_Dump
+COPY files/pear/ .
+RUN /usr/local/php/bin/pear install ./DB-1.7.14.tgz
+RUN /usr/local/php/bin/pear install ./Var_Dump-1.0.4.tgz
 
 WORKDIR /usr/local
 RUN mkdir -p /root/rpmbuild/SOURCES /root/rpmbuild/BUILD /root/rpmbuild/SPECS \
