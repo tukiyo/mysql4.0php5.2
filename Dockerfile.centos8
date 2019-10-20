@@ -6,52 +6,54 @@ ENV CXXFLAGS="-std=c++98"
 RUN yum install -y -q epel-release && yum clean all
 
 #RUN yum install -y aspell-devel
-RUN yum install -y bzip2-devel
-RUN yum install -y curl-devel
-RUN yum install -y cyrus-sasl-devel
 #RUN yum install -y db4-devel
 #RUN yum install -y enchant-devel
-RUN yum install -y freetype-devel
-RUN yum install -y gcc
-RUN yum install -y gcc-c++
-RUN yum install -y glibc-devel
-RUN yum install -y gmp-devel
-RUN yum install -y httpd-devel
-RUN yum install -y krb5-devel
-RUN yum install -y libXpm-devel
-RUN yum install -y libc-client-devel
 #RUN yum install -y libedit-devel
-RUN yum install -y libicu-devel
-RUN yum install -y libjpeg-devel
-RUN yum install -y libmcrypt-devel
-RUN yum install -y libmhash-devel
-RUN yum install -y libpng-devel
 #RUN yum install -y libtidy-devel
-RUN yum install -y libtool
-RUN yum install -y libtool-ltdl-devel
-RUN yum install -y libxml2-devel
-RUN yum install -y libxslt-devel
-RUN yum install -y make
-RUN yum install -y mysql-devel
-RUN yum install -y ncurses-devel
-RUN yum install -y net-snmp-devel
-RUN yum install -y openldap-devel
-RUN yum install -y openssl-devel
-RUN yum install -y pam-devel
-RUN yum install -y patch
-RUN yum install -y pcre-devel
-RUN yum install -y postgresql-devel
-RUN yum install -y readline-devel
 #RUN yum install -y recode-devel
-RUN yum install -y rpm-build
-RUN yum install -y smtpdaemon
-RUN yum install -y sqlite-devel
 #RUN yum install -y t1lib
 #RUN yum install -y t1lib-devel
-RUN yum install -y unixODBC-devel
-RUN yum install -y wget
-RUN yum install -y which
-RUN yum install -y zlib-devel
+
+RUN yum install -y \
+  bzip2-devel \
+  curl-devel \
+  cyrus-sasl-devel \
+  freetype-devel \
+  gcc \
+  gcc-c++ \
+  glibc-devel \
+  gmp-devel \
+  httpd-devel \
+  krb5-devel \
+  libXpm-devel \
+  libc-client-devel \
+  libicu-devel \
+  libjpeg-devel \
+  libmcrypt-devel \
+  libmhash-devel \
+  libpng-devel \
+  libtool \
+  libtool-ltdl-devel \
+  libxml2-devel \
+  libxslt-devel \
+  make \
+  mysql-devel \
+  ncurses-devel \
+  net-snmp-devel \
+  openldap-devel \
+  openssl-devel \
+  pam-devel \
+  patch \
+  pcre-devel \
+  postgresql-devel \
+  readline-devel \
+  rpm-build \
+  smtpdaemon \
+  sqlite-devel \
+  unixODBC-devel \
+  wget \
+  which \
+  zlib-devel
 
 # fpm
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
@@ -142,12 +144,13 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
 #--------
 # openssl
 #--------
-COPY files/openssl/openssl-1.0.2t.tar.gz .
+COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
 RUN ./config --prefix=/opt/openssl-1.0.2t shared
 RUN make -s
 RUN make install
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
 RUN fpm -s dir \
   -v 1.0.2t \
   -t rpm \
@@ -158,7 +161,6 @@ RUN fpm -s dir \
   -a x86_64 \
   .
 
-
 # php
 WORKDIR /usr/local/src/
 RUN tar jxf php-5.2.17.tar.bz2
@@ -166,8 +168,7 @@ RUN tar jxf php-5.2.17.tar.bz2
 # configureを通すため。
 RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
  && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
- && ln -s /opt/mysql/lib /opt/mysql/lib64 \
- && ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
+ && ln -s /opt/mysql/lib /opt/mysql/lib64
 
 # patch
 WORKDIR /usr/local/src/php-5.2.17
@@ -236,6 +237,27 @@ WORKDIR $BUILDROOT/
 RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
  && rpmbuild -ba SPECS/local-pear.spec
 
+#----------------
+# openssl 0.9.8zh
+#----------------
+WORKDIR /usr/local/src/
+COPY files/openssl/openssl-0.9.8zh.tar.gz openssl-0.9.8zh.tar.gz
+RUN tar xzf openssl-0.9.8zh.tar.gz
+WORKDIR /usr/local/src/openssl-0.9.8zh
+RUN ./config --prefix=/opt/openssl-0.9.8zh shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-0.9.8zh/lib /opt/openssl-0.9.8zh/lib64
+RUN fpm -s dir \
+  -v 0.9.8zh \
+  -t rpm \
+  -n local-openssl \
+  -p local-openssl-0.9.8zh.el8.x86_64.rpm \
+  -C /opt/openssl-0.9.8zh \
+  --prefix /usr/openssl-0.9.8zh \
+  -a x86_64 \
+  .
+
 #---------------
 # opt-ruby-1.8.7
 #---------------
@@ -250,10 +272,13 @@ RUN yum install -y -q tk-devel
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
+#RUN ./configure --prefix=/opt/ruby --enable-pthread --with-openssl=/opt/openssl-0.9.8zh \
 RUN ./configure --prefix=/opt/ruby --enable-pthread \
- && make -s \
- && make test \
- && make install
+ --with-opt-dir=/opt/openssl-1.0.2t
+#--with-opt-dir=/opt/openssl-0.9.8zh
+RUN make -s
+#RUN make test
+RUN make install
 RUN fpm -s dir \
   -v 1.8.7_p374 \
   -t rpm \
