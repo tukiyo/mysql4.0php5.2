@@ -1,10 +1,11 @@
 FROM debian:9
 
+WORKDIR /usr/local/src
+
 # 1.mysql 4.0.30 ---------------------------------------------------------
 RUN apt-get update \
  && apt install -y libncurses5-dev checkinstall \
  && apt-get clean
-WORKDIR /usr/local/src
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
@@ -18,6 +19,7 @@ RUN checkinstall -y -D --pkgname=opt-mysql4
 #--------
 # openssl
 #--------
+WORKDIR /usr/local/src
 COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
