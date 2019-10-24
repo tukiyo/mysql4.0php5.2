@@ -27,7 +27,7 @@ RUN ./config --prefix=/opt/openssl-1.0.2t shared
 RUN make -s
 RUN make install
 RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib/x86_64-linux-gnu
-RUN checkinstall -y -D --pkgname=local-openssl-1.0.2t
+RUN checkinstall -y -D --pkgname=local-openssl
 
 # 2.php 5.2.17 -----------------------------------------------------------
 WORKDIR /usr/local/src
