@@ -1,5 +1,8 @@
 FROM ubuntu:19.10
 
+# ENV CXXFLAGS="-std=c++98"
+WORKDIR /usr/local/src
+
 # gcc 4.4 ---------------------------------------------------------
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main universe" >> /etc/apt/sources.list
 RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
@@ -9,7 +12,6 @@ RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.li
  && apt-get clean
 ENV CC=/usr/bin/gcc-4.4
 ENV CXX=/usr/bin/g++-4.4
-# ENV CXXFLAGS="-std=c++98"
 
 # 1.mysql 4.0.30 ---------------------------------------------------------
 WORKDIR /usr/local/src
@@ -21,6 +23,18 @@ RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sj
 RUN make -s 1>/dev/null
 RUN make install
 RUN checkinstall -y -D --pkgname=opt-mysql4
+
+#--------
+# openssl
+#--------
+COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
+RUN tar xzf openssl-1.0.2t.tar.gz
+WORKDIR /usr/local/src/openssl-1.0.2t
+RUN ./config --prefix=/opt/openssl-1.0.2t shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib/x86_64-linux-gnu
+RUN checkinstall -y -D --pkgname=local-openssl-1.0.2t
 
 # 2.php 5.2.17 -----------------------------------------------------------
 WORKDIR /usr/local/src
@@ -55,7 +69,7 @@ RUN ./configure \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
-  #--with-openssl \
+  --with-openssl=/opt/openssl-1.0.2t \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
