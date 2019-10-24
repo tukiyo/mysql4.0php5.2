@@ -96,7 +96,7 @@ WORKDIR /usr/local/src/openssl-1.0.2t
 RUN ./config --prefix=/opt/openssl-1.0.2t shared
 RUN make -s
 RUN make install
-RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/x86_64-linux-gnu
 RUN fpm -s dir \
   -v 1.0.2t \
   -t deb \
@@ -111,66 +111,74 @@ RUN fpm -s dir \
 WORKDIR /usr/local/src/
 RUN tar jxf php-5.2.17.tar.bz2
 
-# WORKDIR /usr/local/src/php-5.2.17
-# RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
-#  && apt-get clean
-# # configureを通すため。
-# RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
-#  && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
-#  && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu
-# # CentOS7用と同じパッチ
-# RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
-#  && patch -p0 -b < ../php-patch/gmp.patch \
-#  && patch -p0 -b < ../php-patch/php_functions.patch
-# #
-# RUN ./configure \
-#   --prefix=/usr/local/php \
-#   --with-apxs2=/usr/bin/apxs \
-#   --with-config-file-path=/etc/php \
-#   --with-pear=/usr/local/pear \
-#   --disable-cgi \
-#   --enable-zend-multibyte \
-#   --enable-mbstring \
-#   \
-#   --with-mysql=shared,/opt/mysql \
-#   --with-pdo-mysql=shared,/opt/mysql \
-#   \
-#   --with-mhash=shared,/usr \
-#   --with-mcrypt=shared,/usr \
-#   --enable-sockets \
-#   --enable-pcntl \
-#   --enable-sigchild \
-#   --with-gd=shared \
-#   --with-jpeg-dir=/usr \
-#   --with-png-dir=/usr \
-#   --with-zlib-dir=/usr \
-#   --with-ttf \
-#   --with-freetype-dir=/usr \
-#   --enable-gd-native-ttf \
-#   --enable-gd-jis-conv \
-#   \
-#   --with-libdir=/lib/x86_64-linux-gnu
-# #
-# RUN make -s
-# RUN apt install -y apache2 && apt-get clean
-# RUN make install
-# RUN checkinstall -y -D --pkgname=local-php
-# 
-# #---------
-# # local-pear
-# #---------
-# RUN /usr/local/php/bin/pear install DB-1.7.14 \
-#  && /usr/local/php/bin/pear install Var_Dump
-# 
-# WORKDIR /usr/local/
-# RUN tar czf local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
-#  && mkdir -p /tmp/deb/usr/local /tmp/deb/DEBIAN \
-#  && cd /tmp/deb/usr/local \
-#  && tar xzf /usr/local/local-pear.tar.gz \
-#  && cd /tmp/deb \
-#  && cp /usr/local/src/local-pear.control DEBIAN/control \
-#  && fakeroot dpkg-deb --build . \
-#  && mv ..deb local-pear.deb
-# 
-# #RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
-# # && rpmbuild -ba SPECS/local-pear.spec
+WORKDIR /usr/local/src/php-5.2.17
+RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
+ && apt-get clean
+# configureを通すため。
+RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
+ && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
+ && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu
+# CentOS7用と同じパッチ
+RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
+ && patch -p0 -b < ../php-patch/gmp.patch \
+ && patch -p0 -b < ../php-patch/php_functions.patch
+#
+RUN ./configure \
+  --prefix=/usr/local/php \
+  --with-apxs2=/usr/bin/apxs \
+  --with-config-file-path=/etc/php \
+  --with-pear=/usr/local/pear \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+ --with-openssl=/opt/openssl-1.0.2t \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-libdir=/lib/x86_64-linux-gnu
+#
+RUN make -s > /dev/null
+RUN apt install -y apache2 && apt-get clean
+RUN make test > /dev/null
+RUN make install
+RUN fpm -s dir \
+  -v 5.2.17 \
+  -t deb \
+  -n local-php \
+  -p local-php-5.2.17_amd64.rpm \
+  -C /usr/local \
+  --prefix /usr/local \
+  -a x86_64 \
+  php pear
+
+
+#---------
+# local-pear
+#---------
+RUN /usr/local/php/bin/pear install DB-1.7.14 \
+ && /usr/local/php/bin/pear install Var_Dump
+
+WORKDIR /usr/local/
+RUN tar czf local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
+ && mkdir -p /tmp/deb/usr/local /tmp/deb/DEBIAN \
+ && cd /tmp/deb/usr/local \
+ && tar xzf /usr/local/local-pear.tar.gz \
+ && cd /tmp/deb \
+ && cp /usr/local/src/local-pear.control DEBIAN/control \
+ && fakeroot dpkg-deb --build . \
+ && mv ..deb local-pear.deb
