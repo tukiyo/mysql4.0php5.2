@@ -4,11 +4,55 @@ ENV BUILDROOT="/root/rpmbuild"
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
-ENV PACKAGES="gcc gcc-c++ glibc-devel ncurses-devel make rpm-build wget which"
-ENV PACKAGES="$PACKAGES libedit-devel libtool-ltdl-devel libtidy-devel recode-devel libicu-devel enchant-devel"
-ENV PACKAGES="$PACKAGES bzip2-devel curl-devel db4-devel gmp-devel httpd-devel pam-devel openssl-devel sqlite-devel zlib-devel pcre-devel smtpdaemon libtool krb5-devel libc-client-devel cyrus-sasl-devel openldap-devel mysql-devel postgresql-devel unixODBC-devel libxml2-devel net-snmp-devel libxslt-devel libXpm-devel libjpeg-devel libpng-devel freetype-devel aspell-devel"
-ENV PACKAGES="$PACKAGES t1lib t1lib-devel libmhash-devel libmcrypt-devel readline-devel patch"
-RUN yum install -y -q $PACKAGES && yum clean all
+RUN yum install -y \
+    aspell-devel \
+    bzip2-devel \
+    curl-devel \
+    cyrus-sasl-devel \
+    db4-devel \
+    enchant-devel \
+    freetype-devel \
+    gcc \
+    gcc-c++ \
+    glibc-devel \
+    gmp-devel \
+    httpd-devel \
+    krb5-devel \
+    libXpm-devel \
+    libc-client-devel \
+    libedit-devel \
+    libicu-devel \
+    libjpeg-devel \
+    libmcrypt-devel \
+    libmhash-devel \
+    libpng-devel \
+    libtidy-devel \
+    libtool \
+    libtool-ltdl-devel \
+    libxml2-devel \
+    libxslt-devel \
+    make \
+    mysql-devel \
+    ncurses-devel \
+    net-snmp-devel \
+    openldap-devel \
+    openssl-devel \
+    pam-devel \
+    patch \
+    pcre-devel \
+    postgresql-devel \
+    readline-devel \
+    recode-devel \
+    rpm-build \
+    smtpdaemon \
+    sqlite-devel \
+    t1lib \
+    t1lib-devel \
+    unixODBC-devel \
+    wget \
+    which \
+    zlib-devel \
+  && yum clean all
 
 # fpm
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
@@ -37,9 +81,10 @@ WORKDIR /usr/local/src/mysql-4.0.30
 # eucjpとsjisを有効化
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
 
-RUN make -s 1>/dev/null \
- && make install \
- && fpm -s dir \
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+RUN fpm -s dir \
   -v 4.0.30 \
   -t rpm \
   -n opt-mysql4 \
@@ -78,7 +123,7 @@ RUN yum install -y -q byacc && yum clean all \
   -n local-flex \
   -p local-flex-2.5.4a.el7.x86_64.rpm \
   -C /opt/flex \
-  --prefix /usr/local \
+  --prefix /opt/flex \
   -a x86_64 \
   . \
  && rpm -ivh local-flex-2.5.4a.el7.x86_64.rpm
@@ -98,7 +143,7 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
   -n local-bison \
   -p local-bison-2.4.1.el7.x86_64.rpm \
   -C /opt/bison \
-  --prefix /usr/local \
+  --prefix /opt/bison \
   -a x86_64 \
   .
 
@@ -200,7 +245,7 @@ RUN fpm -s dir \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
   -C /opt/ruby \
-  --prefix / \
+  --prefix /opt/ruby \
   -a x86_64 \
   .
 
