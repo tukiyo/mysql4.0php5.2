@@ -3,7 +3,7 @@ export BUILD="docker build . --no-cache=false -f "
 #$BUILD Dockerfile.centos5 -t tukiyo/mysql4php52:centos5
 #$BUILD Dockerfile.centos6 -t tukiyo/mysql4php52:centos6
 #$BUILD Dockerfile.centos7 -t tukiyo/mysql4php52:centos7
-$BUILD Dockerfile.centos8 -t tukiyo/mysql4php52:centos8
+#$BUILD Dockerfile.centos8 -t tukiyo/mysql4php52:centos8
 
 #$BUILD Dockerfile.fc25 -t tukiyo/mysql4php52:fc25
 
@@ -14,3 +14,6 @@ $BUILD Dockerfile.centos8 -t tukiyo/mysql4php52:centos8
 #$BUILD Dockerfile.ubuntu1910 -t tukiyo/mysql4php52:ubuntu1910
 
 #$BUILD Dockerfile.debian9 -t tukiyo/mysql4php52:debian9
+$BUILD Dockerfile.debian10 -t tukiyo/mysql4php52:debian10
+
+#$BUILD Dockerfile.centos8-gcc -t tukiyo/mysql4php52:centos8-gcc

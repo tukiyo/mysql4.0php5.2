@@ -1,22 +1,36 @@
 FROM debian:10
 
-# 1.mysql 4.0.30 ---------------------------------------------------------
+ENV CXXFLAGS="-std=c++98"
+WORKDIR /usr/local/src
+
+# fpm
 RUN apt-get update \
- && apt install -y build-essential libncurses5-dev \
+ && apt install -y build-essential libncurses5-dev procps ruby-dev \
  && apt-get clean
+RUN gem install fpm --no-rdoc --no-ri
+
+# 1.mysql 4.0.30 ---------------------------------------------------------
 WORKDIR /usr/local/src
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
-RUN apt install -y procps
 # eucjpとsjisを有効化
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis
 
-ENV CXXFLAGS="-std=c++98"
-
 RUN make -s
-# RUN make install
-# RUN checkinstall -y -D --pkgname=opt-mysql4
+RUN make install
+RUN fpm -s dir \
+  -v 4.0.30 \
+  -t deb \
+  -n opt-mysql4 \
+  -p opt-mysql4-4.0.30_amd64.deb \
+  -C /opt/mysql \
+  --prefix /opt/mysql \
+  -a x86_64 \
+  .
+
+
+
 # 
 # # 2.php 5.2.17 -----------------------------------------------------------
 # WORKDIR /usr/local/src
