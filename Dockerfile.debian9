@@ -15,6 +15,18 @@ RUN make -s
 RUN make install
 RUN checkinstall -y -D --pkgname=opt-mysql4
 
+#--------
+# openssl
+#--------
+COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
+RUN tar xzf openssl-1.0.2t.tar.gz
+WORKDIR /usr/local/src/openssl-1.0.2t
+RUN ./config --prefix=/opt/openssl-1.0.2t shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib/x86_64-linux-gnu
+RUN checkinstall -y -D --pkgname=local-openssl-1.0.2t
+
 # 2.php 5.2.17 -----------------------------------------------------------
 WORKDIR /usr/local/src
 RUN apt install -y libxml2-dev apache2-dev libssl-dev \
@@ -84,6 +96,7 @@ RUN ./configure \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
+  --with-openssl=/opt/openssl-1.0.2t \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
