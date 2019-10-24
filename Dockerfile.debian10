@@ -96,7 +96,7 @@ WORKDIR /usr/local/src/openssl-1.0.2t
 RUN ./config --prefix=/opt/openssl-1.0.2t shared
 RUN make -s
 RUN make install
-RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/x86_64-linux-gnu
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib/x86_64-linux-gnu
 RUN fpm -s dir \
   -v 1.0.2t \
   -t deb \
