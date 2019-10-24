@@ -29,54 +29,88 @@ RUN fpm -s dir \
   -a x86_64 \
   .
 
+# 2.php 5.2.17 -----------------------------------------------------------
+WORKDIR /usr/local/src
+RUN apt install -y libxml2-dev apache2-dev libssl-dev \
+ && apt-get clean
 
+#-----
+# re2c
+#-----
+# phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
+RUN tar xzf re2c-0.16.tar.gz \
+ && cd re2c-0.16 \
+ && ./configure \
+ && make -s \
+ && make install
 
-# 
-# # 2.php 5.2.17 -----------------------------------------------------------
-# WORKDIR /usr/local/src
-# RUN apt install -y libxml2-dev apache2-dev libssl-dev \
-#  && apt-get clean
-# 
-# #-----
-# # re2c
-# #-----
-# # phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
-# RUN tar xzf re2c-0.16.tar.gz \
-#  && cd re2c-0.16 \
-#  && ./configure \
-#  && make -s \
-#  && make install \
-#  && checkinstall -y -D --pkgname=local-re2c
-# 
-# #-----
-# # lemon
-# #-----
-# RUN gcc -o /usr/local/bin/lemon lemon.c
-# 
-# #-----
-# # flex
-# #-----
-# RUN apt install -y -q byacc \
-#  && tar xzf flex-2.5.4a.tar.gz \
-#  && cd flex-2.5.4 \
-#  && ./configure \
-#  && make -s \
-#  && make install \
-#  && checkinstall -y -D --pkgname=local-flex
-# 
-# #------
-# # bison
-# #------
-# RUN tar jxf bison-2.4.1.tar.bz2 \
-#  && cd bison-2.4.1 \
-#  && ./configure \
-#  && make -s \
-#  && make install \
-#  && checkinstall -y -D --pkgname=local-bison
-# 
-# # php
-# RUN tar jxf php-5.2.17.tar.bz2
-# 
+#-----
+# lemon
+#-----
+RUN gcc -o /usr/local/bin/lemon lemon.c
+
+#-----
+# flex
+#-----
+RUN apt install -y -q byacc \
+ && tar xzf flex-2.5.4a.tar.gz \
+ && cd flex-2.5.4 \
+ && ./configure --prefix=/opt/flex \
+ && make -s \
+ && make install \
+ && fpm -s dir \
+  -v 2.5.4a \
+  -t deb \
+  -n local-flex \
+  -p local-flex-2.5.4a_amd64.rpm \
+  -C /opt/flex \
+  --prefix /opt/flex \
+  -a x86_64 \
+  .
+
+#------
+# bison
+#------
+RUN tar jxf bison-2.4.1.tar.bz2 \
+ && cd bison-2.4.1 \
+ && ./configure \
+ && make -s \
+ && make install \
+ && make install DESTDIR=/opt/bison \
+ && fpm -s dir \
+  -v 2.4.1 \
+  -t deb \
+  -n local-bison \
+  -p local-bison-2.4.1_amd64.rpm \
+  -C /opt/bison \
+  --prefix /opt/bison \
+  -a x86_64 \
+  .
+
+#--------
+# openssl
+#--------
+COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
+RUN tar xzf openssl-1.0.2t.tar.gz
+WORKDIR /usr/local/src/openssl-1.0.2t
+RUN ./config --prefix=/opt/openssl-1.0.2t shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
+RUN fpm -s dir \
+  -v 1.0.2t \
+  -t deb \
+  -n local-openssl \
+  -p local-openssl-1.0.2t_amd64.rpm \
+  -C /opt/openssl-1.0.2t \
+  --prefix /usr/openssl-1.0.2t \
+  -a x86_64 \
+  .
+
+# php
+WORKDIR /usr/local/src/
+RUN tar jxf php-5.2.17.tar.bz2
+
 # WORKDIR /usr/local/src/php-5.2.17
 # RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
 #  && apt-get clean
