@@ -5,14 +5,15 @@ ENV CXXFLAGS="-std=c++98"
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
-#RUN yum install -y aspell-devel
-#RUN yum install -y db4-devel
-#RUN yum install -y enchant-devel
-#RUN yum install -y libedit-devel
-#RUN yum install -y libtidy-devel
-#RUN yum install -y recode-devel
-#RUN yum install -y t1lib
-#RUN yum install -y t1lib-devel
+# 以下パッケージはCentOS8では見当たらなかった
+#RUN yum install -y aspell-devel \
+#  db4-devel \
+#  enchant-devel \
+#  libedit-devel \
+#  libtidy-devel \
+#  recode-devel \
+#  t1lib \
+#  t1lib-devel
 
 RUN yum install -y \
   bzip2-devel \
@@ -62,10 +63,9 @@ RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
 #---------
 # mysql
 #---------
-#ENV PACKAGES="ORBit2-devel"
-#RUN yum install -y -q $PACKAGES && yum clean all
-
 WORKDIR /usr/local/src/
+# 以下パッケージはCentOS8では見当たらなかった
+#RUN yum install -y -q ORBit2-devel && yum clean all
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
@@ -84,7 +84,9 @@ RUN make -s 1>/dev/null \
   -a x86_64 \
   .
 
+#---------------
 # php
+#---------------
 WORKDIR /usr/local/src/
 
 #-----
@@ -141,9 +143,9 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
   -a x86_64 \
   .
 
-#--------
-# openssl
-#--------
+#---------------
+# openssl 1.0.2
+#---------------
 COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
@@ -158,6 +160,27 @@ RUN fpm -s dir \
   -p local-openssl-1.0.2t.el8.x86_64.rpm \
   -C /opt/openssl-1.0.2t \
   --prefix /usr/openssl-1.0.2t \
+  -a x86_64 \
+  .
+
+#---------------
+# openssl 0.9.8
+#---------------
+WORKDIR /usr/local/src/
+COPY files/openssl/openssl-0.9.8zh.tar.gz openssl-0.9.8zh.tar.gz
+RUN tar xzf openssl-0.9.8zh.tar.gz
+WORKDIR /usr/local/src/openssl-0.9.8zh
+RUN ./config --prefix=/opt/openssl-0.9.8zh shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-0.9.8zh/lib /opt/openssl-0.9.8zh/lib64
+RUN fpm -s dir \
+  -v 0.9.8zh \
+  -t rpm \
+  -n local-openssl \
+  -p local-openssl-0.9.8zh.el8.x86_64.rpm \
+  -C /opt/openssl-0.9.8zh \
+  --prefix /usr/openssl-0.9.8zh \
   -a x86_64 \
   .
 
@@ -236,27 +259,6 @@ RUN mkdir -p /root/rpmbuild/SOURCES /root/rpmbuild/BUILD /root/rpmbuild/SPECS \
 WORKDIR $BUILDROOT/
 RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
  && rpmbuild -ba SPECS/local-pear.spec
-
-#----------------
-# openssl 0.9.8zh
-#----------------
-WORKDIR /usr/local/src/
-COPY files/openssl/openssl-0.9.8zh.tar.gz openssl-0.9.8zh.tar.gz
-RUN tar xzf openssl-0.9.8zh.tar.gz
-WORKDIR /usr/local/src/openssl-0.9.8zh
-RUN ./config --prefix=/opt/openssl-0.9.8zh shared
-RUN make -s
-RUN make install
-RUN ln -s /opt/openssl-0.9.8zh/lib /opt/openssl-0.9.8zh/lib64
-RUN fpm -s dir \
-  -v 0.9.8zh \
-  -t rpm \
-  -n local-openssl \
-  -p local-openssl-0.9.8zh.el8.x86_64.rpm \
-  -C /opt/openssl-0.9.8zh \
-  --prefix /usr/openssl-0.9.8zh \
-  -a x86_64 \
-  .
 
 #---------------
 # opt-ruby-1.8.7
