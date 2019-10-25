@@ -1,7 +1,14 @@
 FROM centos:8
 
 ENV BUILDROOT="/root/rpmbuild"
+# これがないとmysql4.0がmake通らなかった
 ENV CXXFLAGS="-std=c++98"
+# 警告を抑制 m(__)m
+ENV CFLAGS="-Wno-implicit-function-declaration -Wno-deprecated-declarations -Wno-stringop-overflow -Wno-incompatible-pointer-types"
+ENV CFLAGS="$CFLAGS -Wno-unused-const-variable -Wno-stringop-truncation"
+ENV CFLAGS="$CFLAGS -Wno-discarded-qualifiers -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-implicit-int"
+ENV CXXFLAGS="$CXXFLAGS -Wno-int-to-pointer-cast -Wno-class-memaccess -Wno-conversion -Wno-sign-conversion"
+
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
@@ -261,6 +268,7 @@ WORKDIR $BUILDROOT/
 RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
  && rpmbuild -ba SPECS/local-pear.spec
 
+
 #---------------
 # opt-ruby-1.8.7
 #---------------
@@ -275,10 +283,11 @@ RUN yum install -y -q tk-devel
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
-#RUN ./configure --prefix=/opt/ruby --enable-pthread --with-openssl=/opt/openssl-0.9.8zh \
-RUN ./configure --prefix=/opt/ruby --enable-pthread \
- --with-opt-dir=/opt/openssl-1.0.2t
-#--with-opt-dir=/opt/openssl-0.9.8zh
+
+ENV CXXFLAGS="-std=c++98"
+ENV CFLAGS=""
+
+RUN ./configure --prefix=/opt/ruby --enable-pthread --with-openssl=/opt/openssl-1.0.2t
 RUN make -s
 #RUN make test
 RUN make install
