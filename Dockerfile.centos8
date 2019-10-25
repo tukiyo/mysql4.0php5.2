@@ -1,7 +1,14 @@
 FROM centos:8
 
 ENV BUILDROOT="/root/rpmbuild"
+# これがないとmysql4.0がmake通らなかった
 ENV CXXFLAGS="-std=c++98"
+# 警告を抑制 m(__)m
+ENV CFLAGS="-Wno-implicit-function-declaration -Wno-deprecated-declarations -Wno-stringop-overflow -Wno-incompatible-pointer-types"
+ENV CFLAGS="$CFLAGS -Wno-unused-const-variable -Wno-stringop-truncation"
+ENV CFLAGS="$CFLAGS -Wno-discarded-qualifiers -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-implicit-int"
+ENV CXXFLAGS="$CXXFLAGS -Wno-int-to-pointer-cast -Wno-class-memaccess -Wno-conversion -Wno-sign-conversion"
+
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
@@ -60,14 +67,6 @@ RUN yum install -y \
 # fpm
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
-
-#-----------
-# 警告を抑制
-#-----------
-ENV CFLAGS="-Wno-implicit-function-declaration -Wno-deprecated-declarations -Wno-stringop-overflow -Wno-incompatible-pointer-types"
-ENV CFLAGS="$CFLAGS -Wno-unused-const-variable -Wno-stringop-truncation"
-ENV CFLAGS="$CFLAGS -Wno-discarded-qualifiers -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast"
-ENV CXXFLAGS="$CXXFLAGS -Wno-int-to-pointer-cast -Wno-class-memaccess -Wno-conversion -Wno-sign-conversion"
 
 #---------
 # mysql
