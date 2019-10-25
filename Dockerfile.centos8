@@ -54,7 +54,8 @@ RUN yum install -y \
   unixODBC-devel \
   wget \
   which \
-  zlib-devel
+  zlib-devel \
+  && yum clean all
 
 # fpm
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
@@ -316,3 +317,17 @@ WORKDIR /usr/local/src/ruby
 COPY files.centos7/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
  && rpmbuild -ba $BUILDROOT/SPECS/ruby-dbi-0.1.1.spec
+
+#---------------
+# mod_ssl
+#---------------
+WORKDIR /usr/local/src
+COPY files.centos8/httpd-2.4.41.tar.bz2 httpd-2.4.41.tar.bz2
+RUN tar xf httpd-2.4.41.tar.bz2
+WORKDIR /usr/local/src/httpd-2.4.41
+RUN ./configure \
+  --prefix=/opt/httpd-2.4 \
+  --enable-ssl --with-ssl=/opt/openssl-1.0.2t
+RUN make -s
+RUN make install \
+ && ls -lh /opt/httpd-2.4/modules/mod_ssl.so

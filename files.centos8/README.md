@@ -1,1 +1,1 @@
-* http://vault.centos.org/centos/7.7.1908/os/Source/SPackages/compat-gcc-44-4.4.7-8.el7.src.rpm
+http://ftp.kddilabs.jp/infosystems/apache/httpd/httpd-2.4.41.tar.bz2
