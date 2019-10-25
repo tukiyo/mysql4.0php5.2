@@ -1,7 +1,11 @@
 FROM centos:8
 
 ENV BUILDROOT="/root/rpmbuild"
-ENV CXXFLAGS="-std=c++98"
+# 互換この指定がないとmake成功しない
+ENV CXXFLAGS="-std=c++98w"
+
+WORKDIR /usr/local/src/
+
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
@@ -61,6 +65,12 @@ RUN yum install -y \
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
 
+#-----------
+# 警告を抑制
+#-----------
+ENV CFLAGS="-Wno-implicit-function-declaration -Wno-deprecated-declarations -Wno-stringop-overflow -Wno-incompatible-pointer-types"
+ENV CXXFLAGS="$CXXFLAGS -Wno-int-to-pointer-cast -Wno-class-memaccess -Wno-conversion -Wno-sign-conversion"
+
 #---------
 # mysql
 #---------
@@ -70,12 +80,12 @@ WORKDIR /usr/local/src/
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
+
 # eucjpとsjisを有効化
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
-
-RUN make -s 1>/dev/null \
- && make install \
- && fpm -s dir \
+RUN make -s 1>/dev/null
+RUN make install
+RUN fpm -s dir \
   -v 4.0.30 \
   -t rpm \
   -n opt-mysql4 \
