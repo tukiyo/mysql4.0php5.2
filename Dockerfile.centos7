@@ -312,3 +312,12 @@ RUN ./configure \
 RUN make -s
 RUN make install \
  && ls -lh /opt/httpd-2.4/modules/mod_ssl.so
+RUN fpm -s dir \
+  -v 1.0.2t \
+  -t rpm \
+  -n local-mod_ssl \
+  -p local-mod_ssl-1.0.2t.el7.x86_64.rpm \
+  -C /opt/httpd-2.4/modules/ \
+  --prefix /opt/httpd-2.4/modules/ \
+  -a x86_64 \
+  mod_ssl.so
