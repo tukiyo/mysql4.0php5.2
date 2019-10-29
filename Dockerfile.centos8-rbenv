@@ -274,66 +274,66 @@ RUN yum install -y -q tk-devel
 RUN yum install -y git subversion
 RUN git clone https://github.com/sstephenson/rbenv.git /root/.rbenv
 RUN git clone https://github.com/sstephenson/ruby-build.git /root/.rbenv/plugins/ruby-build
-RUN /root/.rbenv/bin/rbenv install --list | grep 1.8.7
-#RUN rm -rf /opt/ruby
+COPY files.centos8/ruby-build /root/.rbenv/plugins/ruby-build/bin/ruby-build
+#RUN /root/.rbenv/bin/rbenv install --list | grep 1.8.7
 RUN RUBY_CONFIGURE_OPTS="--enable-pthread --with-openssl-dir=/opt/openssl-1.0.2t" \
-  /root/.rbenv/bin/rbenv install 1.8.7-p375
-RUN cp -a /root/.rbenv/version/1.8.7-p375/ /opt/ruby/
-RUN fpm -s dir \
-  -v 1.8.7_p374 \
-  -t rpm \
-  -n opt-ruby \
-  -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
-  -C /opt/ruby \
-  --prefix /opt/ruby \
-  -a x86_64 \
-  .
-
-WORKDIR /usr/local/src/ruby
-# mysql-ruby
-RUN tar xzf mysql-ruby-2.8.2.tar.gz \
- && cd mysql-ruby-2.8.2 \
- && /opt/ruby/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
- && make -s \
- && make install
-# rpmbuild
-WORKDIR /usr/local/src/ruby
-COPY files.centos7/mysql-ruby.spec $BUILDROOT/SPECS/
-RUN tar czf $BUILDROOT/SOURCES/mysql-ruby-2.8.2.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8/x86_64-linux/mysql.so \
- && rpmbuild -ba $BUILDROOT/SPECS/mysql-ruby.spec
-
-# ruby-dbi 0.1.1
-WORKDIR /usr/local/src/ruby
-RUN tar xzf rel-0-1-1.tar.gz \
- && cd ruby-dbi-rel-0-1-1 \
- && /opt/ruby/bin/ruby setup.rb config --with=dbi,dbd_mysql \
- && /opt/ruby/bin/ruby setup.rb setup \
- && /opt/ruby/bin/ruby setup.rb install
-# rpmbuild
-WORKDIR /usr/local/src/ruby
-COPY files.centos7/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
-RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
- && rpmbuild -ba $BUILDROOT/SPECS/ruby-dbi-0.1.1.spec
-
-#---------------
-# mod_ssl
-#---------------
-WORKDIR /usr/local/src
-COPY files.centos8/httpd-2.4.41.tar.bz2 httpd-2.4.41.tar.bz2
-RUN tar xf httpd-2.4.41.tar.bz2
-WORKDIR /usr/local/src/httpd-2.4.41
-RUN ./configure \
-  --prefix=/opt/httpd-2.4 \
-  --enable-ssl --with-ssl=/opt/openssl-1.0.2t
-RUN make -s
-RUN make install \
- && ls -lh /opt/httpd-2.4/modules/mod_ssl.so
-RUN fpm -s dir \
-  -v 1.0.2t \
-  -t rpm \
-  -n local-mod_ssl \
-  -p local-mod_ssl-1.0.2t.el8.x86_64.rpm \
-  -C /opt/httpd-2.4/modules/ \
-  --prefix /opt/httpd-2.4/modules/ \
-  -a x86_64 \
-  mod_ssl.so
+  /root/.rbenv/bin/rbenv install 1.8.7-p375 -k
+# RUN cp -a /root/.rbenv/versions/1.8.7-p375/ /opt/ruby/
+# RUN fpm -s dir \
+#   -v 1.8.7_p374 \
+#   -t rpm \
+#   -n opt-ruby \
+#   -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
+#   -C /opt/ruby \
+#   --prefix /opt/ruby \
+#   -a x86_64 \
+#   .
+# 
+# WORKDIR /usr/local/src/ruby
+# # mysql-ruby
+# RUN tar xzf mysql-ruby-2.8.2.tar.gz \
+#  && cd mysql-ruby-2.8.2 \
+#  && /opt/ruby/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
+#  && make -s \
+#  && make install
+# # rpmbuild
+# WORKDIR /usr/local/src/ruby
+# COPY files.centos7/mysql-ruby.spec $BUILDROOT/SPECS/
+# RUN tar czf $BUILDROOT/SOURCES/mysql-ruby-2.8.2.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8/x86_64-linux/mysql.so \
+#  && rpmbuild -ba $BUILDROOT/SPECS/mysql-ruby.spec
+# 
+# # ruby-dbi 0.1.1
+# WORKDIR /usr/local/src/ruby
+# RUN tar xzf rel-0-1-1.tar.gz \
+#  && cd ruby-dbi-rel-0-1-1 \
+#  && /opt/ruby/bin/ruby setup.rb config --with=dbi,dbd_mysql \
+#  && /opt/ruby/bin/ruby setup.rb setup \
+#  && /opt/ruby/bin/ruby setup.rb install
+# # rpmbuild
+# WORKDIR /usr/local/src/ruby
+# COPY files.centos7/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
+# RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
+#  && rpmbuild -ba $BUILDROOT/SPECS/ruby-dbi-0.1.1.spec
+# 
+# #---------------
+# # mod_ssl
+# #---------------
+# WORKDIR /usr/local/src
+# COPY files.centos8/httpd-2.4.41.tar.bz2 httpd-2.4.41.tar.bz2
+# RUN tar xf httpd-2.4.41.tar.bz2
+# WORKDIR /usr/local/src/httpd-2.4.41
+# RUN ./configure \
+#   --prefix=/opt/httpd-2.4 \
+#   --enable-ssl --with-ssl=/opt/openssl-1.0.2t
+# RUN make -s
+# RUN make install \
+#  && ls -lh /opt/httpd-2.4/modules/mod_ssl.so
+# RUN fpm -s dir \
+#   -v 1.0.2t \
+#   -t rpm \
+#   -n local-mod_ssl \
+#   -p local-mod_ssl-1.0.2t.el8.x86_64.rpm \
+#   -C /opt/httpd-2.4/modules/ \
+#   --prefix /opt/httpd-2.4/modules/ \
+#   -a x86_64 \
+#   mod_ssl.so
