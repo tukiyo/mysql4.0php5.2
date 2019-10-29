@@ -258,11 +258,10 @@ RUN yum install -y -q tk-devel tclx
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
-RUN ./configure --prefix=/opt/ruby --enable-pthread \
- --with-opt-dir=/opt/openssl-1.0.2t \
- && make -s \
- && make test \
- && make install
+RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
+RUN make -s
+RUN make test
+RUN make install
 RUN fpm -s dir \
   -v 1.8.7_p374 \
   -t rpm \
