@@ -365,9 +365,7 @@ RUN git clone https://github.com/sstephenson/rbenv.git /root/.rbenv
 RUN git clone https://github.com/sstephenson/ruby-build.git /root/.rbenv/plugins/ruby-build
 WORKDIR /usr/local/src
 RUN /root/.rbenv/bin/rbenv install --list | grep 1.8.7
-RUN rm -rf /opt/ruby
-#RUN RUBY_CONFIGURE_OPTS="--prefix=/opt/ruby --enable-pthread --with-openssl-dir=/opt/openssl-1.0.2t" \
-#RUN RUBY_CONFIGURE_OPTS="--prefix=/opt/ruby --enable-pthread --with-ssl=/opt/openssl-1.0.2t" \
-#RUN RUBY_CONFIGURE_OPTS="--with-openssl-dir=/opt/openssl-1.0.2t" \
-RUN RUBY_CONFIGURE_OPTS="--prefix=/opt/ruby --with-openssl-dir=/opt/openssl-1.0.2t" \
+#RUN rm -rf /opt/ruby
+RUN RUBY_CONFIGURE_OPTS="--enable-pthread --with-openssl-dir=/opt/openssl-1.0.2t" \
   /root/.rbenv/bin/rbenv install 1.8.7-p375
+RUN du -sh /root/.rbenv/version/*
