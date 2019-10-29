@@ -274,7 +274,7 @@ RUN yum install -y -q tk-devel
 RUN yum install -y git subversion
 RUN git clone https://github.com/sstephenson/rbenv.git /root/.rbenv
 RUN git clone https://github.com/sstephenson/ruby-build.git /root/.rbenv/plugins/ruby-build
-COPY files.centos8/ruby-build /root/.rbenv/plugins/ruby-build/bin/ruby-build
+COPY files.centos8/rbenv/bin/ruby-build /root/.rbenv/plugins/ruby-build/bin/ruby-build
 #RUN /root/.rbenv/bin/rbenv install --list | grep 1.8.7
 RUN RUBY_CONFIGURE_OPTS="--enable-pthread --with-openssl-dir=/opt/openssl-1.0.2t" \
   /root/.rbenv/bin/rbenv install 1.8.7-p375 -k
