@@ -1,6 +1,6 @@
 FROM debian:10
 
-ENV CXXFLAGS="-std=c++98"
+ENV CXXFLAGS="-std=gnu++98"
 WORKDIR /usr/local/src
 
 # fpm

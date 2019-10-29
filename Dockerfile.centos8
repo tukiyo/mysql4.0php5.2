@@ -1,7 +1,12 @@
 FROM centos:8
 
 ENV BUILDROOT="/root/rpmbuild"
-ENV CXXFLAGS="-std=c++98"
+
+# CXXFLAGS
+ENV CXXFLAGS="-std=gnu++98"
+# ENV CXXFLAGS="-std=gnu++03"
+# ENV CXXFLAGS="-std=c++98"
+
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
