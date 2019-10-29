@@ -149,9 +149,31 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
   -a x86_64 \
   .
 
-#--------
-# openssl
-#--------
+#---------------
+# openssl 0.9.8
+#---------------
+WORKDIR /usr/local/src/
+COPY files/openssl/openssl-0.9.8zh.tar.gz openssl-0.9.8zh.tar.gz
+RUN tar xzf openssl-0.9.8zh.tar.gz
+WORKDIR /usr/local/src/openssl-0.9.8zh
+RUN ./config --prefix=/opt/openssl-0.9.8zh shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-0.9.8zh/lib /opt/openssl-0.9.8zh/lib64
+RUN fpm -s dir \
+  -v 0.9.8zh \
+  -t rpm \
+  -n local-openssl \
+  -p local-openssl-0.9.8zh.el7.x86_64.rpm \
+  -C /opt/openssl-0.9.8zh \
+  --prefix /usr/openssl-0.9.8zh \
+  -a x86_64 \
+  .
+
+#---------------
+# openssl 1.0.2
+#---------------
+WORKDIR /usr/local/src/
 COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
@@ -163,7 +185,7 @@ RUN fpm -s dir \
   -v 1.0.2t \
   -t rpm \
   -n local-openssl \
-  -p local-openssl-1.0.2t.el8.x86_64.rpm \
+  -p local-openssl-1.0.2t.el7.x86_64.rpm \
   -C /opt/openssl-1.0.2t \
   --prefix /usr/openssl-1.0.2t \
   -a x86_64 \
