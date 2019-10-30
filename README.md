@@ -14,6 +14,10 @@
 |ubuntu17.04| o |要| 挑戦中? | |
 |ubuntu18.04| o |要| - | |
 
+* CentOS 8 で ruby 1.8.7 p384 の `make test` が成功しない。
+    * GCC 6.5.0 : core dumped.
+    * GCC 8.2.1 : 10**80 が 0 になりエラー
+
 ## 参考
 
 * [CentOS7にphp5.2をインストール - blog.youyo.info](http://blog.youyo.info/post/2016/02/10/php52-centos7/)

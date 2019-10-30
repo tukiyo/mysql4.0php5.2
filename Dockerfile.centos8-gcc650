@@ -293,6 +293,8 @@ RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
 #---------------
 # opt-ruby-1.8.7
 #---------------
+RUN echo "[start] --- opt-ruby-1.8.7"
+ENV CXXFLAGS="-std=gnu89"
 WORKDIR $BUILDROOT/SOURCES/
 # http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
 COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
