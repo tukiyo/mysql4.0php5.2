@@ -67,27 +67,26 @@ RUN yum install -y \
   zlib-devel \
   && yum clean all
 
-# gcc remove
-RUN yum remove -y  gcc g++
-COPY files.centos8/opt-gcc-4.4.7.compat447.el7.x86_64.rpm opt-gcc-4.4.7.el7.x86_64.rpm 
-RUN rpm -ivh opt-gcc-4.4.7.el7.x86_64.rpm 
+COPY files.centos8/compat-gcc-44-4.4.7-8.el7.x86_64.rpm compat-gcc-44-4.4.7-8.el7.x86_64.rpm
+COPY files.centos8/compat-gcc-44-c++-4.4.7-8.el7.x86_64.rpm compat-gcc-44-c++-4.4.7-8.el7.x86_64.rpm
+COPY files.centos8/libstdc++-4.8.5-39.el7.x86_64.rpm libstdc++-4.8.5-39.el7.x86_64.rpm
+RUN rpm -ivh --force compat-gcc-44-4.4.7-8.el7.x86_64.rpm compat-gcc-44-c++-4.4.7-8.el7.x86_64.rpm libstdc++-4.8.5-39.el7.x86_64.rpm
 
 #-------------
 # alternatives
 #-------------
 RUN yum remove -y gcc gcc-c++ \
  && update-alternatives \
- --install /usr/bin/gcc gcc /opt/gcc-4.4.7/bin/gcc 20 \
- --slave   /usr/bin/g++ g++ /opt/gcc-4.4.7/bin/g++
-ENV CC=/opt/gcc-4.4.7/bin/gcc
-ENV CXX=/opt/gcc-4.4.7/bin/g++
+ --install /usr/bin/gcc gcc /usr/bin/gcc44 20 \
+ --slave   /usr/bin/g++ g++ /usr/bin/g++44
+ENV CC=/usr/bin/gcc44
+ENV CXX=/usr/bin/g++44
 
 # CXXFLAGS
 # RUN echo "-std=gnu++98"
 # ENV CXXFLAGS="-std=gnu++98"
 # ENV CXXFLAGS="-std=gnu++03"
 # ENV CXXFLAGS="-std=c++98"
-
 
 #---------
 # mysql
@@ -308,7 +307,7 @@ RUN ./configure --prefix=/opt/ruby --enable-pthread \
  --with-opt-dir=/opt/openssl-1.0.2t
 #--with-opt-dir=/opt/openssl-0.9.8zh
 RUN make -s
-#RUN make test
+RUN make test
 RUN make install
 RUN fpm -s dir \
   -v 1.8.7_p374 \
