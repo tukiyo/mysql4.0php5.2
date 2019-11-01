@@ -47,7 +47,7 @@ RUN fpm -s dir \
   -n local-openssl \
   -p local-openssl-1.0.2t_amd64.deb \
   -C /opt/openssl-1.0.2t \
-  --prefix /usr/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
   -a x86_64 \
   .
 

@@ -166,7 +166,7 @@ RUN fpm -s dir \
   -n local-openssl \
   -p local-openssl-0.9.8zh.el7.x86_64.rpm \
   -C /opt/openssl-0.9.8zh \
-  --prefix /usr/openssl-0.9.8zh \
+  --prefix /opt/openssl-0.9.8zh \
   -a x86_64 \
   .
 
@@ -187,7 +187,7 @@ RUN fpm -s dir \
   -n local-openssl \
   -p local-openssl-1.0.2t.el7.x86_64.rpm \
   -C /opt/openssl-1.0.2t \
-  --prefix /usr/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
   -a x86_64 \
   .
 

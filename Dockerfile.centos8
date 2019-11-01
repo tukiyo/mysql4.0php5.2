@@ -165,7 +165,7 @@ RUN fpm -s dir \
   -n local-openssl \
   -p local-openssl-1.0.2t.el8.x86_64.rpm \
   -C /opt/openssl-1.0.2t \
-  --prefix /usr/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
   -a x86_64 \
   .
 
@@ -186,7 +186,7 @@ RUN fpm -s dir \
   -n local-openssl \
   -p local-openssl-0.9.8zh.el8.x86_64.rpm \
   -C /opt/openssl-0.9.8zh \
-  --prefix /usr/openssl-0.9.8zh \
+  --prefix /opt/openssl-0.9.8zh \
   -a x86_64 \
   .
 
@@ -266,6 +266,24 @@ WORKDIR $BUILDROOT/
 RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
  && rpmbuild -ba SPECS/local-pear.spec
 
+
+#-------------
+# Ruby1.8.7用
+#-------------
+WORKDIR $BUILDROOT/SOURCES/
+COPY files.centos8/compat-gcc-44-4.4.7-8.el7.x86_64.rpm compat-gcc-44-4.4.7-8.el7.x86_64.rpm
+COPY files.centos8/compat-gcc-44-c++-4.4.7-8.el7.x86_64.rpm compat-gcc-44-c++-4.4.7-8.el7.x86_64.rpm
+COPY files.centos8/libstdc++-4.8.5-39.el7.x86_64.rpm libstdc++-4.8.5-39.el7.x86_64.rpm
+RUN rpm -ivh --force compat-gcc-44-4.4.7-8.el7.x86_64.rpm compat-gcc-44-c++-4.4.7-8.el7.x86_64.rpm libstdc++-4.8.5-39.el7.x86_64.rpm
+
+RUN yum remove -y gcc gcc-c++ \
+ && update-alternatives \
+ --install /usr/bin/gcc gcc /usr/bin/gcc44 20 \
+ --slave   /usr/bin/g++ g++ /usr/bin/g++44
+ENV CC=/usr/bin/gcc44
+ENV CXX=/usr/bin/g++44
+ENV CXXFLAGS=
+
 #---------------
 # opt-ruby-1.8.7
 #---------------
@@ -280,12 +298,10 @@ RUN yum install -y -q tk-devel
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
-#RUN ./configure --prefix=/opt/ruby --enable-pthread --with-openssl=/opt/openssl-0.9.8zh \
-RUN ./configure --prefix=/opt/ruby --enable-pthread \
- --with-opt-dir=/opt/openssl-1.0.2t
+RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
 #--with-opt-dir=/opt/openssl-0.9.8zh
 RUN make -s
-#RUN make test
+RUN make test
 RUN make install
 RUN fpm -s dir \
   -v 1.8.7_p374 \
@@ -345,3 +361,5 @@ RUN fpm -s dir \
   --prefix /opt/httpd-2.4/modules/ \
   -a x86_64 \
   mod_ssl.so
+
+RUN yum install -y -q perl-DBD-MySQL
