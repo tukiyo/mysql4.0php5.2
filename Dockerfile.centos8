@@ -169,27 +169,6 @@ RUN fpm -s dir \
   -a x86_64 \
   .
 
-#---------------
-# openssl 0.9.8
-#---------------
-WORKDIR /usr/local/src/
-COPY files/openssl/openssl-0.9.8zh.tar.gz openssl-0.9.8zh.tar.gz
-RUN tar xzf openssl-0.9.8zh.tar.gz
-WORKDIR /usr/local/src/openssl-0.9.8zh
-RUN ./config --prefix=/opt/openssl-0.9.8zh shared
-RUN make -s
-RUN make install
-RUN ln -s /opt/openssl-0.9.8zh/lib /opt/openssl-0.9.8zh/lib64
-RUN fpm -s dir \
-  -v 0.9.8zh \
-  -t rpm \
-  -n local-openssl \
-  -p local-openssl-0.9.8zh.el8.x86_64.rpm \
-  -C /opt/openssl-0.9.8zh \
-  --prefix /opt/openssl-0.9.8zh \
-  -a x86_64 \
-  .
-
 # php
 WORKDIR /usr/local/src/
 RUN tar jxf php-5.2.17.tar.bz2
@@ -299,7 +278,6 @@ COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
 RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
-#--with-opt-dir=/opt/openssl-0.9.8zh
 RUN make -s
 RUN make test
 RUN make install
@@ -338,28 +316,5 @@ WORKDIR /usr/local/src/ruby
 COPY files.centos7/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
  && rpmbuild -ba $BUILDROOT/SPECS/ruby-dbi-0.1.1.spec
-
-#---------------
-# mod_ssl
-#---------------
-WORKDIR /usr/local/src
-COPY files.centos8/httpd-2.4.41.tar.bz2 httpd-2.4.41.tar.bz2
-RUN tar xf httpd-2.4.41.tar.bz2
-WORKDIR /usr/local/src/httpd-2.4.41
-RUN ./configure \
-  --prefix=/opt/httpd-2.4 \
-  --enable-ssl --with-ssl=/opt/openssl-1.0.2t
-RUN make -s
-RUN make install \
- && ls -lh /opt/httpd-2.4/modules/mod_ssl.so
-RUN fpm -s dir \
-  -v 1.0.2t \
-  -t rpm \
-  -n local-mod_ssl \
-  -p local-mod_ssl-1.0.2t.el8.x86_64.rpm \
-  -C /opt/httpd-2.4/modules/ \
-  --prefix /opt/httpd-2.4/modules/ \
-  -a x86_64 \
-  mod_ssl.so
 
 RUN yum install -y -q perl-DBD-MySQL
