@@ -83,8 +83,8 @@ RUN make -s 1>/dev/null \
  && fpm -s dir \
   -v 4.0.30 \
   -t rpm \
-  -n opt-mysql4 \
-  -p opt-mysql4-4.0.30.el8.x86_64.rpm \
+  -n opt-mysql \
+  -p opt-mysql-4.0.30.el8.x86_64.rpm \
   -C /opt/mysql \
   --prefix /opt/mysql \
   -a x86_64 \
