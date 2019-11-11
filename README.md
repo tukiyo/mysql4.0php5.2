@@ -3,15 +3,15 @@
 |distro|mysql-server|php patch|ruby1.8.7| gcc |
 |:--|:--:|:--|:--|:--|
 |centos5| o | - | 1.8.5 | | 
-|centos6| o | - | 1.8.7 | | 
-|centos7| o |要| 1.8.7 | | 
-|centos8| o |要| 1.8.7 | | 
-|debian9| o |要| 未確認 | 6.3.0-4 |
+|centos6| o | - | 1.8.7 | 4.4.7 | 
+|centos7| o |要| 1.8.7 | compat-gcc-44 | 
+|centos8| o |要| 1.8.7 | compat-gcc-44.el7 | 
+|debian9| o |要| - | 6.3.0-4 |
 |debian10| x | - | - | - |
-|fedora25| x |要| 未確認 | 6.4.1 |
-|ubuntu16.04| o |要| 未確認 | 5.3.1 (4.4 挑戦中) |
-|ubuntu16.10| o |要| 未確認 | |
-|ubuntu17.04| o |要| 挑戦中? | |
+|fedora25| x |要| - | 6.4.1 |
+|ubuntu16.04| o |要| - | 5.3.1 (4.4 挑戦中) |
+|ubuntu16.10| o |要| - | |
+|ubuntu17.04| o |要| - | |
 |ubuntu18.04| o |要| - | |
 
 * CentOS 8
