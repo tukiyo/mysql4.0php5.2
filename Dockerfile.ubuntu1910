@@ -22,7 +22,7 @@ WORKDIR /usr/local/src/mysql-4.0.30
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis
 RUN make -s 1>/dev/null
 RUN make install
-RUN checkinstall -y -D --pkgname=opt-mysql4
+RUN checkinstall -y -D --pkgname=opt-mysql
 
 #--------
 # openssl
