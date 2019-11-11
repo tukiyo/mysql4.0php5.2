@@ -122,13 +122,13 @@ RUN yum install -y -q byacc && yum clean all \
  && fpm -s dir \
   -v 2.5.4a \
   -t rpm \
-  -n local-flex \
-  -p local-flex-2.5.4a.el8.x86_64.rpm \
+  -n opt-flex \
+  -p opt-flex-2.5.4a.el8.x86_64.rpm \
   -C /opt/flex \
   --prefix /opt/flex \
   -a x86_64 \
   . \
- && rpm -ivh local-flex-2.5.4a.el8.x86_64.rpm
+ && rpm -ivh opt-flex-2.5.4a.el8.x86_64.rpm
 
 #------
 # bison
@@ -142,8 +142,8 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
  && fpm -s dir \
   -v 2.4.1 \
   -t rpm \
-  -n local-bison \
-  -p local-bison-2.4.1.el8.x86_64.rpm \
+  -n opt-bison \
+  -p opt-bison-2.4.1.el8.x86_64.rpm \
   -C /opt/bison \
   --prefix /opt/bison \
   -a x86_64 \
@@ -162,8 +162,8 @@ RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
 RUN fpm -s dir \
   -v 1.0.2t \
   -t rpm \
-  -n local-openssl \
-  -p local-openssl-1.0.2t.el8.x86_64.rpm \
+  -n opt-openssl \
+  -p opt-openssl-1.0.2t.el8.x86_64.rpm \
   -C /opt/openssl-1.0.2t \
   --prefix /opt/openssl-1.0.2t \
   -a x86_64 \
