@@ -5,14 +5,16 @@
 |centos5| o | - | 1.8.5 | | 
 |centos6| o | - | 1.8.7 | 4.4.7 | 
 |centos7| o |要| 1.8.7 | compat-gcc-44 | 
-|centos8| o |要| 1.8.7 | compat-gcc-44.el7 | 
+|centos8| o |要| 1.8.7 | compat-gcc-44.el7 -std=gnu++98 | 
 |debian9| o |要| - | 6.3.0-4 |
-|debian10| x | - | - | - |
+|debian10| x | - | - | -std=gnu++98 |
 |fedora25| x |要| - | 6.4.1 |
 |ubuntu16.04| o |要| - | 5.3.1 (4.4 挑戦中) |
-|ubuntu16.10| o |要| - | |
-|ubuntu17.04| o |要| - | |
-|ubuntu18.04| o |要| - | |
+|ubuntu16.10| o |要| - | OS標準のGCC |
+|ubuntu17.04| o |要| - | OS標準のGCC |
+|ubuntu18.04| o |要| - | ubuntu 14.04 の gcc4.4 |
+|ubuntu18.10| o |- | - | ubuntu 14.04 の gcc4.4 |
+|ubuntu20.04| o |- | - | ubuntu 14.04 の gcc4.4 |
 
 * CentOS 8
     * GCC8.2.1でビルドした ruby 1.8.7 が `10**80`が 0 になりエラー
