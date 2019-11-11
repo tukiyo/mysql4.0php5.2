@@ -128,7 +128,7 @@ RUN yum install -y -q byacc && yum clean all \
   --prefix /opt/flex \
   -a x86_64 \
   . \
- && rpm -ivh local-flex-2.5.4a.el7.x86_64.rpm
+ && rpm -ivh opt-flex-2.5.4a.el7.x86_64.rpm
 
 #------
 # bison
