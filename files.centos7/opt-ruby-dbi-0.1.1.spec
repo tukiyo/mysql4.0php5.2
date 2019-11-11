@@ -1,4 +1,4 @@
-%define name ruby-dbi
+%define name opt-ruby-dbi
 %define version 0.1.1
 %define unmangled_version 0.1.1
 %define release 1
