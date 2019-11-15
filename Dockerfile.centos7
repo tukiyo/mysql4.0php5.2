@@ -329,6 +329,7 @@ WORKDIR /usr/local/src
 COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src
 RUN tar xzf tenshi-0.17.tar.gz
 WORKDIR /usr/local/src/tenshi-0.17
+RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
 RUN make install DESTDIR=/opt/tenshi
 RUN fpm -s dir \
   -v 0.17 \
