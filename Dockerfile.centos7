@@ -318,6 +318,26 @@ RUN fpm -s dir \
   -a x86_64 \
   .
 
+#-----------------------
+# perl-IO-BufferedSelect
+#-----------------------
+WORKDIR /usr/local/src
+COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src
+RUN tar xzf IO-BufferedSelect-1.0.tar.gz
+WORKDIR /usr/local/src/IO-BufferedSelect
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v 1.0 \
+  -t rpm \
+  -n local-perl-IO-BufferedSelect \
+  -p local-perl-IO-BufferedSelect-1.0.el7.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/IO/BufferedSelect.pm ./usr/local/share/man/man3/IO::BufferedSelect.3pm
+
 
 #-------
 # mysql-bench
