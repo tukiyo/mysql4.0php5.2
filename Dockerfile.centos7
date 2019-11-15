@@ -300,4 +300,15 @@ COPY files.centos7/opt-ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/opt-ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
  && rpmbuild -ba $BUILDROOT/SPECS/opt-ruby-dbi-0.1.1.spec
 
+#-------
+# tenshi
+#-------
+WORKDIR $BUILDROOT/SPECS/
+COPY files.centos7/tenshi-0.15.tar.gz $BUILDROOT/SOURCES/
+COPY files.centos7/tenshi.redhat-spec $BUILDROOT/SPECS/
+RUN rpmbuild -bb tenshi.redhat-spec --quiet
+
+#-------
+# mysql-bench
+#-------
 RUN yum install -y -q perl-DBD-MySQL
