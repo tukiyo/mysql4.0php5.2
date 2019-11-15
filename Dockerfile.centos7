@@ -300,23 +300,6 @@ COPY files.centos7/opt-ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/opt-ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
  && rpmbuild -ba $BUILDROOT/SPECS/opt-ruby-dbi-0.1.1.spec
 
-#-------
-# tenshi
-#-------
-WORKDIR /usr/local/src
-COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src
-RUN tar xzf tenshi-0.17.tar.gz
-WORKDIR /usr/local/src/tenshi-0.17
-RUN make install DESTDIR=/opt/tenshi
-RUN fpm -s dir \
-  -v 0.17 \
-  -t rpm \
-  -n opt-tenshi \
-  -p opt-tenshi-0.17.el7.x86_64.rpm \
-  -C /opt/tenshi \
-  --prefix /opt/tenshi \
-  -a x86_64 \
-  .
 
 #-----------------------
 # perl-IO-BufferedSelect
@@ -337,7 +320,26 @@ RUN fpm -s dir \
   --prefix / \
   -a x86_64 \
   ./usr/local/share/perl5/IO/BufferedSelect.pm ./usr/local/share/man/man3/IO::BufferedSelect.3pm
+RUN rpm -ivh local-perl-IO-BufferedSelect-1.0.el7.x86_64.rpm
 
+#-------
+# tenshi
+#-------
+WORKDIR /usr/local/src
+COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src
+RUN tar xzf tenshi-0.17.tar.gz
+WORKDIR /usr/local/src/tenshi-0.17
+RUN make install DESTDIR=/opt/tenshi
+RUN fpm -s dir \
+  -v 0.17 \
+  -t rpm \
+  -d "local-perl-IO-BufferedSelect" \
+  -n opt-tenshi \
+  -p opt-tenshi-0.17.el7.x86_64.rpm \
+  -C /opt/tenshi \
+  --prefix /opt/tenshi \
+  -a x86_64 \
+  .
 
 #-------
 # mysql-bench
