@@ -220,16 +220,6 @@ RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
-RUN fpm -s dir \
-  -v 5.2.17 \
-  -t rpm \
-  -n local-php \
-  -p local-php-5.2.17.el7.x86_64.rpm \
-  -C /usr/local \
-  --prefix /usr/local \
-  -a x86_64 \
-  php pear
-
 
 #---------
 # local-pear
@@ -237,14 +227,16 @@ RUN fpm -s dir \
 RUN /usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
 
-WORKDIR /usr/local
-RUN mkdir -p /root/rpmbuild/SOURCES /root/rpmbuild/BUILD /root/rpmbuild/SPECS \
- && tar czf $BUILDROOT/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
- && tar xzf $BUILDROOT/SOURCES/local-pear.tar.gz -C $BUILDROOT/BUILD/
-
-WORKDIR $BUILDROOT/
-RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
- && rpmbuild -ba SPECS/local-pear.spec
+RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
+ && fpm -s dir \
+  -v 5.2.17 \
+  -t rpm \
+  -n local-php \
+  -p local-php-5.2.17.el7.x86_64.rpm \
+  -C / \
+  --prefix /usr/local \
+  -a x86_64 \
+  /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/httpd/conf.modules.d/10-php52.conf
 
 #---------------
 # opt-ruby-1.8.7

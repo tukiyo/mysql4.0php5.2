@@ -150,7 +150,7 @@ RUN yum install -y -q byacc && yum clean all \
   --prefix /opt/flex \
   -a x86_64 \
   . \
- && rpm -ivh local-flex-2.5.4a.el8.x86_64.rpm
+ && rpm -ivh opt-flex-2.5.4a.el8.x86_64.rpm
 
 #------
 # bison
@@ -241,16 +241,6 @@ RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
-RUN fpm -s dir \
-  -v 5.2.17 \
-  -t rpm \
-  -n local-php \
-  -p local-php-5.2.17.el8.x86_64.rpm \
-  -C /usr/local \
-  --prefix /usr/local \
-  -a x86_64 \
-  php pear
-
 
 #---------
 # local-pear
@@ -258,14 +248,17 @@ RUN fpm -s dir \
 RUN /usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
 
-WORKDIR /usr/local
-RUN mkdir -p /root/rpmbuild/SOURCES /root/rpmbuild/BUILD /root/rpmbuild/SPECS \
- && tar czf $BUILDROOT/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
- && tar xzf $BUILDROOT/SOURCES/local-pear.tar.gz -C $BUILDROOT/BUILD/
+RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
+ && fpm -s dir \
+  -v 5.2.17 \
+  -t rpm \
+  -n local-php \
+  -p local-php-5.2.17.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/httpd/conf.modules.d/10-php52.conf
 
-WORKDIR $BUILDROOT/
-RUN cp /usr/local/src/local-pear.spec $BUILDROOT/SPECS/ \
- && rpmbuild -ba SPECS/local-pear.spec
 
 #---------------
 # opt-ruby-1.8.7
@@ -321,4 +314,49 @@ COPY files.centos7/opt-ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/opt-ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
  && rpmbuild -ba $BUILDROOT/SPECS/opt-ruby-dbi-0.1.1.spec
 
+#-----------------------
+# perl-IO-BufferedSelect
+#-----------------------
+WORKDIR /usr/local/src
+RUN yum install -y perl-ExtUtils-MakeMaker
+COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src
+RUN tar xzf IO-BufferedSelect-1.0.tar.gz
+WORKDIR /usr/local/src/IO-BufferedSelect
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v 1.0 \
+  -t rpm \
+  -n local-perl-IO-BufferedSelect \
+  -p local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/IO/BufferedSelect.pm ./usr/local/share/man/man3/IO::BufferedSelect.3pm
+RUN rpm -ivh local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm
+
+#-------
+# tenshi
+#-------
+WORKDIR /usr/local/src
+COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src
+RUN tar xzf tenshi-0.17.tar.gz
+WORKDIR /usr/local/src/tenshi-0.17
+RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
+RUN make install DESTDIR=/opt/tenshi
+RUN fpm -s dir \
+  -v 0.17 \
+  -t rpm \
+  -d "local-perl-IO-BufferedSelect" \
+  -n opt-tenshi \
+  -p opt-tenshi-0.17.el8.x86_64.rpm \
+  -C /opt/tenshi \
+  --prefix /opt/tenshi \
+  -a x86_64 \
+  .
+
+#-------
+# mysql-bench
+#-------
 RUN yum install -y -q perl-DBD-MySQL
