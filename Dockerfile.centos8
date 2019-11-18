@@ -237,6 +237,45 @@ RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d
   -a x86_64 \
   /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/httpd/conf.modules.d/10-php52.conf
 
+
+#--------------
+# perl-DBD-mysql
+#--------------
+RUN yum install -y perl-DBI
+# # perl-Devel-CheckLib
+# WORKDIR /usr/local/src
+# COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
+# RUN tar xzf Devel-CheckLib-1.14.tar.gz
+# WORKDIR /usr/local/src/Devel-CheckLib-1.14
+# RUN perl Makefile.PL
+# RUN make
+# RUN make install DESTDIR=/opt/cpan
+# RUN fpm -s dir \
+#   -v 1.0 \
+#   -t rpm \
+#   -n local-Devel-CheckLib \
+#   -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
+#   -C /opt/cpan \
+#   --prefix / \
+#   -a x86_64 \
+#   ./usr/local/share/perl5/Devel/CheckLib.pm ./usr/local/share/man/man3/Devel::CheckLib.3pm
+# RUN rpm -ivh local-Devel-CheckLib-1.14.el8.x86_64.rpm
+# # perl-DBD-mysql
+# # (gcc 4.4.7ではビルドできないため注意)
+# WORKDIR /usr/local/src
+# #COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
+# #RUN tar xzf DBD-mysql-4.050.tar.gz
+# #WORKDIR /usr/local/src/DBD-mysql-4.050
+# COPY files.centos8/DBD-mysql-4.022.tar.gz /usr/local/src
+# RUN tar xzf DBD-mysql-4.022.tar.gz
+# WORKDIR /usr/local/src/DBD-mysql-4.022
+# RUN perl Makefile.PL \
+#  --mysql_config=/opt/mysql/bin/mysql_config
+# #--libs="-L/opt/mysql/lib/mysql" --nossl
+# # --libs="-L/opt/mysql/lib/mysql -lmysqlclient -lcrypt -lnsl -lm"
+# RUN make
+# RUN make install DESTDIR=/opt/cpan
+
 #-------------
 # Ruby1.8.7用
 #-------------
@@ -349,8 +388,3 @@ RUN fpm -s dir \
   --prefix /opt/tenshi \
   -a x86_64 \
   .
-
-#-------
-# mysql-bench
-#-------
-RUN yum install -y -q perl-DBD-MySQL
