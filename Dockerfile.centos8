@@ -2,13 +2,16 @@ FROM centos:8
 
 ENV BUILDROOT="/root/rpmbuild"
 
+RUN yum groupinstall -y "Development Tools" \
+ && yum install -y cmake ncurses-devel libevent-devel libev-libevent-devel \
+ && yum install -y -q epel-release \
+ && yum install -y screen \
+ && yum clean all
+
 # CXXFLAGS
 ENV CXXFLAGS="-std=gnu++98"
 # ENV CXXFLAGS="-std=gnu++03"
 # ENV CXXFLAGS="-std=c++98"
-
-# libmcryptがepelで配布
-RUN yum install -y -q epel-release && yum clean all
 
 # 以下パッケージはCentOS8では見当たらなかった
 #RUN yum install -y aspell-devel \

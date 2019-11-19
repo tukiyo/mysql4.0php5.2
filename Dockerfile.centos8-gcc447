@@ -1,10 +1,13 @@
 FROM centos:8
 
-#------------
-# GCC default
-#------------
-RUN yum group install -y -q "Development Tools" && yum clean all
-WORKDIR /usr/local/src
+ENV BUILDROOT="/root/rpmbuild"
+
+RUN yum groupinstall -y "Development Tools" \
+ && yum install -y cmake ncurses-devel libevent-devel libev-libevent-devel \
+ && yum install -y -q epel-release \
+ && yum install -y screen \
+ && yum clean all
+
 
 #------------
 # fpm
@@ -13,9 +16,6 @@ RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
 
 ENV BUILDROOT="/root/rpmbuild"
-
-# libmcryptがepelで配布
-RUN yum install -y -q epel-release && yum clean all
 
 # 以下パッケージはCentOS8では見当たらなかった
 #RUN yum install -y aspell-devel \
