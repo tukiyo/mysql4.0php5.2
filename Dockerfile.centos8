@@ -225,7 +225,6 @@ RUN make install
 #---------
 RUN /usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
-
 RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
  && fpm -s dir \
   -v 5.2.17 \
@@ -236,69 +235,6 @@ RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d
   --prefix / \
   -a x86_64 \
   /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/httpd/conf.modules.d/10-php52.conf
-
-
-#--------------
-# perl-DBD-mysql
-#--------------
-RUN yum install -y perl-DBI
-# perl-Devel-CheckLib
-WORKDIR /usr/local/src
-COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
-RUN tar xzf Devel-CheckLib-1.14.tar.gz
-WORKDIR /usr/local/src/Devel-CheckLib-1.14
-RUN perl Makefile.PL
-RUN make
-RUN make install DESTDIR=/opt/cpan
-RUN fpm -s dir \
-  -v 1.0 \
-  -t rpm \
-  -n local-Devel-CheckLib \
-  -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
-  -C /opt/cpan \
-  --prefix / \
-  -a x86_64 \
-  ./usr/local/share/perl5/Devel/CheckLib.pm ./usr/local/share/man/man3/Devel::CheckLib.3pm
-RUN rpm -ivh local-Devel-CheckLib-1.14.el8.x86_64.rpm
-# perl-DBD-mysql
-# (gcc 4.4.7ではビルドできないため注意)
-WORKDIR /usr/local/src
-#COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
-#RUN tar xzf DBD-mysql-4.050.tar.gz
-#WORKDIR /usr/local/src/DBD-mysql-4.050
-COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
-RUN tar xzf DBD-mysql-4.050.tar.gz
-WORKDIR /usr/local/src/DBD-mysql-4.050
-
-#ENV CXXFLAGS="-std=gnu++98"
-#ENV CXXFLAGS=""
-#ENV CXXFLAGS="-std=c++98"
-#ENV CXXFLAGS="-std=gnu++03"
-#RUN echo $CXXFLAGS
-
-RUN perl Makefile.PL
-#RUN perl Makefile.PL \
-# --mysql_config=/opt/mysql/bin/mysql_config
-#--libs="-L/opt/mysql/lib/mysql" --nossl
-# --libs="-L/opt/mysql/lib/mysql -lmysqlclient -lcrypt -lnsl -lm"
-RUN make
-RUN make install DESTDIR=/opt/cpan
-RUN fpm -s dir \
-  -v 4.050 \
-  -t rpm \
-  -n local-perl-DBD-mysql \
-  -p local-perl-DBD-mysql-4.050.el8.x86_64.rpm \
-  -C /opt/cpan/usr/local \
-  --prefix /usr/local \
-  -a x86_64 \
-   ./lib64/perl5/auto/DBD/mysql/mysql.so \
-   ./lib64/perl5/DBD/mysql.pm \
-   ./lib64/perl5/DBD/mysql/GetInfo.pm \
-   ./lib64/perl5/DBD/mysql/INSTALL.pod \
-   ./lib64/perl5/Bundle/DBD/mysql.pm \
-   ./share/man/man3/Bundle::DBD::mysql.3pm \
-   ./share/man/man3/DBD::mysql::INSTALL.3pm \
-   ./share/man/man3/DBD::mysql.3pm
 
 #-------------
 # Ruby1.8.7用
