@@ -202,7 +202,7 @@ RUN fpm -s dir \
   -v 1.8.7_p374 \
   -t deb \
   -n opt-ruby \
-  -p opt-ruby-1.8.7_focal-gcc9_amd64.deb \
+  -p opt-ruby-1.8.7_focal-gcc44_amd64.deb \
   -C /opt/ruby \
   --prefix /opt/ruby \
   -a x86_64 \
