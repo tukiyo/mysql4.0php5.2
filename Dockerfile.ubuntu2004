@@ -146,6 +146,16 @@ RUN fpm -s dir \
   --prefix / \
   -a x86_64 \
   /opt/mariadb-5.5 /etc/ld.so.conf.d/opt-mariadb5.5.conf
+# 巨大なため、libのみ版も作る
+RUN fpm -s dir \
+  -v 5.5.66 \
+  -t deb \
+  -n opt-mariadb-lib \
+  -p opt-mariadb-lib-5.5.66_focal-gcc9_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mariadb-5.5/lib /etc/ld.so.conf.d/opt-mariadb5.5.conf
 
 
 # perl-DBD-mysql-4.050
