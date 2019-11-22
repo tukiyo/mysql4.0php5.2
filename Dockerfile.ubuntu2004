@@ -112,7 +112,7 @@ RUN make install
 RUN /usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
 
-RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
+RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apache2/mods-available/php52.load \
  && fpm -s dir \
   -v 5.2.17 \
   -t deb \
@@ -121,5 +121,4 @@ RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/htt
   -C / \
   --prefix / \
   -a x86_64 \
-  /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/httpd/conf.modules.d/10-php52.conf
-
+  /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5.so /etc/apache2/mods-available/php52.load
