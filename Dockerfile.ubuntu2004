@@ -1,17 +1,12 @@
 FROM ubuntu:20.04
 
-# ENV CXXFLAGS="-std=c++98"
-WORKDIR /usr/local/src
-
-# gcc 4.4 ---------------------------------------------------------
-RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main universe" >> /etc/apt/sources.list
-RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
- && apt-get update \
- && apt install -y libncurses5-dev checkinstall \
-   libcurl4-openssl-dev gcc-4.4 g++-4.4 \
+# fpm
+RUN apt-get update \
+ && apt install -y build-essential libncurses5-dev procps ruby-dev \
  && apt-get clean
-ENV CC=/usr/bin/gcc-4.4
-ENV CXX=/usr/bin/g++-4.4
+RUN gem install fpm --no-rdoc --no-ri
+
+ENV CXXFLAGS="-std=c++98"
 
 # 1.mysql 4.0.30 ---------------------------------------------------------
 WORKDIR /usr/local/src
@@ -22,11 +17,21 @@ WORKDIR /usr/local/src/mysql-4.0.30
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis
 RUN make -s 1>/dev/null
 RUN make install
-RUN checkinstall -y -D --pkgname=opt-mysql
+COPY files.ubuntu2004/ld.so.conf.d/opt-mysql40.conf /etc/ld.so.conf.d/opt-mysql40.conf
+COPY files.ubuntu2004/my.cnf /etc/my.cnf.sample
+RUN fpm -s dir \
+  -v 4.0.30 \
+  -t deb \
+  -n opt-mysql \
+  -p opt-mysql-4.0.30_focal-gcc9_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.sample
 
-#--------
-# openssl
-#--------
+#---------------
+# openssl-1.0.2t
+#---------------
 WORKDIR /usr/local/src
 COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
 RUN tar xzf openssl-1.0.2t.tar.gz
@@ -34,12 +39,20 @@ WORKDIR /usr/local/src/openssl-1.0.2t
 RUN ./config --prefix=/opt/openssl-1.0.2t shared
 RUN make -s
 RUN make install
-RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib/x86_64-linux-gnu
-RUN checkinstall -y -D --pkgname=local-openssl
+RUN fpm -s dir \
+  -v 1.0.2t \
+  -t deb \
+  -n opt-openssl \
+  -p opt-openssl-1.0.2t_focal-gcc9_amd64.deb \
+  -C /opt/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
+  -a x86_64 \
+  .
+
 
 # 2.php 5.2.17 -----------------------------------------------------------
 WORKDIR /usr/local/src
-RUN apt install -y libxml2-dev apache2-dev libssl-dev \
+RUN apt install -y libxml2-dev apache2 apache2-dev libssl-dev \
  && apt-get clean
 COPY files/php-5.2.17.tar.bz2 .
 RUN tar jxf php-5.2.17.tar.bz2
@@ -50,7 +63,8 @@ RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-
 # configureを通すため。
 RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
  && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
- && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu
+ && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu \
+ && (cd /opt/openssl-1.0.2t && cp -a lib x86_64-linux-gnu && mv x86_64-linux-gnu lib)
 # CentOS7用と同じパッチ
 COPY files/php-patch/gmp.patch ..
 COPY files/php-patch/php-5.2.17.patch ..
@@ -90,12 +104,22 @@ RUN ./configure \
   --with-libdir=/lib/x86_64-linux-gnu
 #
 RUN make -s
-RUN apt install -y apache2 && apt-get clean
 RUN make install
-RUN checkinstall -y -D --pkgname=local-php
 
 #---------
 # local-pear
 #---------
 RUN /usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
+
+RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
+ && fpm -s dir \
+  -v 5.2.17 \
+  -t deb \
+  -n local-php \
+  -p local-php-5.2.17_focal-gcc9_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/httpd/conf.modules.d/10-php52.conf
+
