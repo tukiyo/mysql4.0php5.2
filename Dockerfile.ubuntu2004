@@ -132,6 +132,7 @@ RUN tar xzf mariadb-5.5.66.tar.gz
 WORKDIR /usr/local/src/mariadb-5.5.66
 # build
 RUN apt install -y cmake
+ENV CXXFLAGS=""
 RUN cmake . -DCMAKE_INSTALL_PREFIX=/opt/mariadb-5.5
 RUN make -s 1>/dev/null
 RUN make install
