@@ -14,7 +14,8 @@ ENV CXXFLAGS="-std=gnu++98"
 # ENV CXXFLAGS="-std=c++98"
 
 # 以下パッケージはCentOS8では見当たらなかった
-#RUN yum install -y aspell-devel \
+#RUN yum install -y \
+#  aspell-devel \
 #  db4-devel \
 #  enchant-devel \
 #  libedit-devel \
