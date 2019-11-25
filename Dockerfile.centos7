@@ -94,7 +94,7 @@ RUN make -s 1>/dev/null
 RUN make install
 RUN fpm -s dir \
   -v 4.0.30 \
-  -t deb \
+  -t rpm \
   -n opt-mysql \
   -p opt-mysql-4.0.30.el7.x86_64.rpm \
   -C / \
