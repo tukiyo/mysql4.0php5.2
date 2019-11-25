@@ -88,7 +88,7 @@ WORKDIR /usr/local/src/mysql-4.0.30
 # eucjpとsjisを有効化
 RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
 RUN echo "/opt/mysql/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
-COPY files/my.cnf /etc/my.cnf
+COPY etc/my.cnf.sample /etc/my.cnf
 RUN make -s 1>/dev/null
 #RUN make test
 RUN make install
