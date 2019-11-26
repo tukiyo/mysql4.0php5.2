@@ -1,18 +1,25 @@
 FROM centos:7
 
 ENV BUILDROOT="/root/rpmbuild"
-WORKDIR /usr/local/src/
 
 # libmcryptがepelで配布
 RUN yum install -y -q epel-release && yum clean all
 
 RUN yum install -y \
     aspell-devel \
+    db4-devel \
+    enchant-devel \
+    libedit-devel \
+    libtidy-devel \
+    recode-devel \
+    t1lib \
+    t1lib-devel \
+#  && yum clean all
+
+RUN yum install -y \
     bzip2-devel \
     curl-devel \
     cyrus-sasl-devel \
-    db4-devel \
-    enchant-devel \
     freetype-devel \
     gcc \
     gcc-c++ \
@@ -22,13 +29,11 @@ RUN yum install -y \
     krb5-devel \
     libXpm-devel \
     libc-client-devel \
-    libedit-devel \
     libicu-devel \
     libjpeg-devel \
     libmcrypt-devel \
     libmhash-devel \
     libpng-devel \
-    libtidy-devel \
     libtool \
     libtool-ltdl-devel \
     libxml2-devel \
@@ -44,18 +49,9 @@ RUN yum install -y \
     pcre-devel \
     postgresql-devel \
     readline-devel \
-    recode-devel \
     rpm-build \
     smtpdaemon \
     sqlite-devel \
-    unixODBC-devel \
-    wget \
-    which \
-    zlib-devel \
-    smtpdaemon \
-    sqlite-devel \
-    t1lib \
-    t1lib-devel \
     unixODBC-devel \
     wget \
     which \
@@ -79,10 +75,9 @@ ENV CXX=/usr/bin/g++44
 #---------
 # mysql
 #---------
+WORKDIR /usr/local/src/
 ENV PACKAGES="ORBit2-devel"
 RUN yum install -y -q $PACKAGES && yum clean all
-
-WORKDIR /usr/local/src/
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
@@ -103,7 +98,9 @@ RUN fpm -s dir \
   -a x86_64 \
   /opt/mysql/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
 
+#---------------
 # php
+#---------------
 WORKDIR /usr/local/src/
 
 #-----

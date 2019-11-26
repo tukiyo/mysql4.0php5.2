@@ -15,55 +15,56 @@ ENV CXXFLAGS="-std=gnu++98"
 
 # 以下パッケージはCentOS8では見当たらなかった
 #RUN yum install -y \
-#  aspell-devel \
-#  db4-devel \
-#  enchant-devel \
-#  libedit-devel \
-#  libtidy-devel \
-#  recode-devel \
-#  t1lib \
-#  t1lib-devel
+#    aspell-devel \
+#    db4-devel \
+#    enchant-devel \
+#    libedit-devel \
+#    libtidy-devel \
+#    recode-devel \
+#    t1lib \
+#    t1lib-devel \
+#  && yum clean all
 
 RUN yum install -y \
-  bzip2-devel \
-  curl-devel \
-  cyrus-sasl-devel \
-  freetype-devel \
-  gcc \
-  gcc-c++ \
-  glibc-devel \
-  gmp-devel \
-  httpd-devel \
-  krb5-devel \
-  libXpm-devel \
-  libc-client-devel \
-  libicu-devel \
-  libjpeg-devel \
-  libmcrypt-devel \
-  libmhash-devel \
-  libpng-devel \
-  libtool \
-  libtool-ltdl-devel \
-  libxml2-devel \
-  libxslt-devel \
-  make \
-  mysql-devel \
-  ncurses-devel \
-  net-snmp-devel \
-  openldap-devel \
-  openssl-devel \
-  pam-devel \
-  patch \
-  pcre-devel \
-  postgresql-devel \
-  readline-devel \
-  rpm-build \
-  smtpdaemon \
-  sqlite-devel \
-  unixODBC-devel \
-  wget \
-  which \
-  zlib-devel \
+    bzip2-devel \
+    curl-devel \
+    cyrus-sasl-devel \
+    freetype-devel \
+    gcc \
+    gcc-c++ \
+    glibc-devel \
+    gmp-devel \
+    httpd-devel \
+    krb5-devel \
+    libXpm-devel \
+    libc-client-devel \
+    libicu-devel \
+    libjpeg-devel \
+    libmcrypt-devel \
+    libmhash-devel \
+    libpng-devel \
+    libtool \
+    libtool-ltdl-devel \
+    libxml2-devel \
+    libxslt-devel \
+    make \
+    mysql-devel \
+    ncurses-devel \
+    net-snmp-devel \
+    openldap-devel \
+    openssl-devel \
+    pam-devel \
+    patch \
+    pcre-devel \
+    postgresql-devel \
+    readline-devel \
+    rpm-build \
+    smtpdaemon \
+    sqlite-devel \
+    unixODBC-devel \
+    wget \
+    which \
+    zlib-devel \
   && yum clean all
 
 # fpm
@@ -139,6 +140,7 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
 #---------------
 # openssl 1.0.2
 #---------------
+WORKDIR /usr/local/src/
 COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
