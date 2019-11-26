@@ -261,7 +261,7 @@ RUN fpm -s dir \
   -v 1.8.7_p374 \
   -t rpm \
   -n opt-ruby \
-  -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
+  -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
   -C /opt/ruby \
   --prefix /opt/ruby \
   -a x86_64 \
