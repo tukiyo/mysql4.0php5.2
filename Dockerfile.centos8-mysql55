@@ -89,8 +89,8 @@ RUN fpm -s dir \
   -t rpm \
   -n local-perl-DBD-mysql55 \
   -p local-perl-DBD-mysql55-4.050.el8.x86_64.rpm \
-  -C / \
-  --prefix /usr/local \
+  -C /opt/perl-DBD-mysql \
+  --prefix / \
   -a x86_64 \
   .
 RUN rpm -ivh local-perl-DBD-mysql55-4.050.el8.x86_64.rpm
