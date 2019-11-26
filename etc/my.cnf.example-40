@@ -5,7 +5,7 @@ datadir=/var/lib/mysql
 default-character-set=sjis
 max_allowed_packet=512M # for insert big data
 
-log=/tmp/query.log
+#log=/tmp/query.log
 log-long-format
 
 log_slow_queries=/tmp/mysql-slow.log
