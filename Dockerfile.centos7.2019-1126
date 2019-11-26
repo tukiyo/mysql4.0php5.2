@@ -242,29 +242,14 @@ RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-
 RUN make -s
 RUN make test
 RUN make install
-RUN fpm -s dir \
-  -v 1.8.7_p374 \
-  -t rpm \
-  -n opt-ruby \
-  -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
-  -C /opt/ruby \
-  --prefix /opt/ruby \
-  -a x86_64 \
-  .
 
-WORKDIR /usr/local/src/ruby
 # mysql-ruby
+WORKDIR /usr/local/src/ruby
 RUN tar xzf mysql-ruby-2.8.2.tar.gz \
  && cd mysql-ruby-2.8.2 \
  && /opt/ruby/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
  && make -s \
  && make install
-# rpmbuild
-WORKDIR /usr/local/src/ruby
-RUN echo "opt-mysql-ruby"
-COPY files.centos7/opt-mysql-ruby.spec $BUILDROOT/SPECS/
-RUN tar czf $BUILDROOT/SOURCES/opt-mysql-ruby-2.8.2.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8/x86_64-linux/mysql.so \
- && rpmbuild -ba $BUILDROOT/SPECS/opt-mysql-ruby.spec
 
 # ruby-dbi 0.1.1
 WORKDIR /usr/local/src/ruby
@@ -273,12 +258,17 @@ RUN tar xzf rel-0-1-1.tar.gz \
  && /opt/ruby/bin/ruby setup.rb config --with=dbi,dbd_mysql \
  && /opt/ruby/bin/ruby setup.rb setup \
  && /opt/ruby/bin/ruby setup.rb install
-# rpmbuild
-WORKDIR /usr/local/src/ruby
-COPY files.centos7/opt-ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
-RUN tar czf $BUILDROOT/SOURCES/opt-ruby-dbi-0.1.1.tar.gz /opt/ruby/lib/ruby/site_ruby/1.8 /opt/ruby/bin/sqlsh.rb \
- && rpmbuild -ba $BUILDROOT/SPECS/opt-ruby-dbi-0.1.1.spec
 
+# rpm作成
+RUN fpm -s dir \
+  -v 1.8.7_p374 \
+  -t rpm \
+  -n opt-ruby \
+  -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
+  -C /opt/ruby \
+  --prefix /opt/ruby \
+  -a x86_64 \
+  .
 
 #-----------------------
 # perl-IO-BufferedSelect
