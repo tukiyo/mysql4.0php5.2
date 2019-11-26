@@ -13,15 +13,18 @@ RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
 
 #------------
-# mysql-5.5
+# mysql-4.1
 #------------
 WORKDIR /usr/local/src/
 COPY files.centos8/mysql-4.1.22.tar.gz mysql-4.1.22.tar.gz
 RUN tar xzf mysql-4.1.22.tar.gz
 WORKDIR /usr/local/src/mysql-4.1.22
-# build
-RUN cmake . -DCMAKE_INSTALL_PREFIX=/opt/mysql41
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-41
 RUN make -s 1>/dev/null
+#RUN make test
 RUN make install
 RUN echo "/opt/mysql41/lib" > /etc/ld.so.conf.d/opt-mysql41.conf
 RUN fpm -s dir \
