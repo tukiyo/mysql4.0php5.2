@@ -12,3 +12,4 @@ https://www.cpan.org/modules/by-module/Devel/Devel-CheckLib-1.14.tar.gz
 
 http://ftp.iij.ad.jp/pub/db/mysql/Downloads/MySQL-5.5/mysql-5.5.62.tar.gz
 # http://ftp.iij.ad.jp/pub/db/mysql/Downloads/MySQL-5.4/mysql-5.4.3-beta.tar.gz
+# http://mysql.localhost.net.ar/Downloads/MySQL-4.1/mysql-4.1.22.tar.gz
