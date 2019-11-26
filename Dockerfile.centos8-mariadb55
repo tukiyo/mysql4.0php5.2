@@ -34,6 +34,21 @@ RUN fpm -s dir \
   -a x86_64 \
   /opt/mariadb55 /etc/ld.so.conf.d/opt-mariadb55.conf
 
+# mariadb55-lib
+RUN mkdir -p /opt/mariadb55-lib/ \
+  && cp -a /opt/mariadb55/lib /opt/mariadb55-lib/ \
+  && echo "/opt/mariadb55-lib/lib" > /etc/ld.so.conf.d/opt-mariadb55-lib.conf
+RUN fpm -s dir \
+  -v 5.5.66 \
+  -t rpm \
+  -n opt-mariadb55-lib \
+  -p opt-mariadb55-lib-5.5.66.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mariadb55-lib/lib /etc/ld.so.conf.d/opt-mariadb55-lib.conf
+
+
 
 #--------------------
 # perl-Devel-CheckLib
