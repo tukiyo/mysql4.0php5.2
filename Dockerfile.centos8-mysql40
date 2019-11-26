@@ -103,6 +103,7 @@ RUN fpm -s dir \
 # perl-Devel-CheckLib
 #--------------------
 RUN yum install -y perl-DBI perl-ExtUtils-MakeMaker
+ENV CXXFLAGS="-std=gnu++11"
 # 
 WORKDIR /usr/local/src
 COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
