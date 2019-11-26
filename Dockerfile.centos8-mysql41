@@ -1,0 +1,96 @@
+FROM centos:8
+
+ENV BUILDROOT="/root/rpmbuild"
+
+RUN yum groupinstall -y "Development Tools" \
+ && yum install -y cmake ncurses-devel libev-libevent-devel \
+ && yum install -y -q epel-release \
+ && yum install -y screen \
+ && yum clean all
+
+# fpm
+RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
+ && gem install fpm --no-rdoc --no-ri
+
+#------------
+# mysql-5.5
+#------------
+WORKDIR /usr/local/src/
+COPY files.centos8/mysql-4.1.22.tar.gz mysql-4.1.22.tar.gz
+RUN tar xzf mysql-4.1.22.tar.gz
+WORKDIR /usr/local/src/mysql-4.1.22
+# build
+RUN cmake . -DCMAKE_INSTALL_PREFIX=/opt/mysql41
+RUN make -s 1>/dev/null
+RUN make install
+RUN echo "/opt/mysql41/lib" > /etc/ld.so.conf.d/opt-mysql41.conf
+RUN fpm -s dir \
+  -v 4.1.22 \
+  -t rpm \
+  -n opt-mysql41 \
+  -p opt-mysql41-4.1.22.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql41 /etc/ld.so.conf.d/opt-mysql41.conf
+
+# mysql41-lib
+RUN mkdir -p /opt/mysql41-lib/ \
+  && cp -a /opt/mysql41/lib /opt/mysql41-lib/ \
+  && echo "/opt/mysql41-lib/lib" > /etc/ld.so.conf.d/opt-mysql41-lib.conf
+RUN fpm -s dir \
+  -v 4.1.22 \
+  -t rpm \
+  -n opt-mysql41-lib \
+  -p opt-mysql41-lib-4.1.22.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql41-lib/lib /etc/ld.so.conf.d/opt-mysql41-lib.conf
+
+
+#--------------------
+# perl-Devel-CheckLib
+#--------------------
+RUN yum install -y perl-DBI perl-ExtUtils-MakeMaker
+# 
+WORKDIR /usr/local/src
+COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
+RUN tar xzf Devel-CheckLib-1.14.tar.gz
+WORKDIR /usr/local/src/Devel-CheckLib-1.14
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v 1.0 \
+  -t rpm \
+  -n local-Devel-CheckLib \
+  -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/Devel/CheckLib.pm ./usr/local/share/man/man3/Devel::CheckLib.3pm
+RUN rpm -ivh local-Devel-CheckLib-1.14.el8.x86_64.rpm
+
+#---------------------
+# perl-DBD-mysql-4.050
+#----------------------
+WORKDIR /usr/local/src
+COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
+RUN tar xzf DBD-mysql-4.050.tar.gz
+WORKDIR /usr/local/src/DBD-mysql-4.050
+RUN perl Makefile.PL \
+ --mysql_config=/opt/mysql41/bin/mysql_config
+RUN make
+RUN make install DESTDIR=/opt/perl-DBD-mysql
+RUN rm -f local-perl-DBD-mysql41-4.050.el8.x86_64.rpm
+RUN fpm -s dir \
+  -v 4.050 \
+  -t rpm \
+  -n local-perl-DBD-mysql41 \
+  -p local-perl-DBD-mysql41-4.050.el8.x86_64.rpm \
+  -C /opt/perl-DBD-mysql \
+  --prefix / \
+  -a x86_64 \
+  .
+RUN rpm -ivh local-perl-DBD-mysql41-4.050.el8.x86_64.rpm
