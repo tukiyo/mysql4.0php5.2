@@ -150,7 +150,7 @@ RUN make -s
 RUN make install
 RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
 RUN fpm -s dir \
-  -v 1.0.2t \
+  -v $(date "+%Y%m%d")_1.0.2t \
   -t rpm \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el7.x86_64.rpm \
@@ -217,7 +217,7 @@ RUN /usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
 RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
  && fpm -s dir \
-  -v 5.2.17 \
+  -v $(date "+%Y%m%d")_5.2.17 \
   -t rpm \
   -n local-php \
   -p local-php-5.2.17.el7.x86_64.rpm \
@@ -262,7 +262,7 @@ RUN tar xzf rel-0-1-1.tar.gz \
 
 # rpm作成
 RUN fpm -s dir \
-  -v 1.8.7_p374 \
+  -v $(date "+%Y%m%d")_1.8.7_p374 \
   -t rpm \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
@@ -282,7 +282,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v 1.0 \
+  -v $(date "+%Y%m%d")_1.0 \
   -t rpm \
   -n local-perl-IO-BufferedSelect \
   -p local-perl-IO-BufferedSelect-1.0.el7.x86_64.rpm \
@@ -302,7 +302,7 @@ WORKDIR /usr/local/src/tenshi-0.17
 RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
 RUN make install DESTDIR=/opt/tenshi
 RUN fpm -s dir \
-  -v 0.17 \
+  -v $(date "+%Y%m%d")_0.17 \
   -t rpm \
   -d "local-perl-IO-BufferedSelect" \
   -n opt-tenshi \
