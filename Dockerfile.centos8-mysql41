@@ -33,6 +33,7 @@ RUN echo "/opt/mysql41/lib" > /etc/ld.so.conf.d/opt-mysql41.conf
 RUN fpm -s dir \
   -v 4.1.22 \
   -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
   -n opt-mysql41 \
   -p opt-mysql41-4.1.22.el8.x86_64.rpm \
   -C / \

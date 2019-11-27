@@ -4,9 +4,12 @@ export BUILD="docker build . --no-cache=false -f "
 #$BUILD Dockerfile.centos6 -t tukiyo/mysql4php52:centos6
 #$BUILD Dockerfile.centos7-mysql40 -t tukiyo/mysql4php52:centos7-mysql40
 #$BUILD Dockerfile.centos7.2019-1126 -t tukiyo/mysql4php52:centos7-2019-1126
-#$BUILD Dockerfile.centos8 -t tukiyo/mysql4php52:centos8
+$BUILD Dockerfile.centos8 -t tukiyo/mysql4php52:centos8
+#$BUILD Dockerfile.centos8-mariadb55 -t tukiyo/mysql4php52:centos8-mariadb55
 #$BUILD Dockerfile.centos8-mysql55 -t tukiyo/mysql4php52:centos8-mysql55
-$BUILD Dockerfile.centos8-mariadb55 -t tukiyo/mysql4php52:centos8-mariadb55
+#$BUILD Dockerfile.centos8-mysql41 -t tukiyo/mysql4php52:centos8-mysql41
+#$BUILD Dockerfile.centos8-mysql40 -t tukiyo/mysql4php52:centos8-mysql40
+#$BUILD Dockerfile.centos8-mysql50 -t tukiyo/mysql4php52:centos8-mysql50
 
 #$BUILD Dockerfile.fc25 -t tukiyo/mysql4php52:fc25
 

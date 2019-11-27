@@ -33,6 +33,7 @@ RUN echo "/opt/mysql50/lib" > /etc/ld.so.conf.d/opt-mysql50.conf
 RUN fpm -s dir \
   -v 5.0.86 \
   -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
   -n opt-mysql50 \
   -p opt-mysql50-5.0.86.el8.x86_64.rpm \
   -C / \

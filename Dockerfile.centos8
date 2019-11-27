@@ -71,9 +71,9 @@ RUN yum install -y \
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
 
-#---------
-# mysql
-#---------
+#----------
+# mysql-4.0
+#----------
 WORKDIR /usr/local/src/
 # 以下パッケージはCentOS8では見当たらなかった
 #RUN yum install -y -q ORBit2-devel && yum clean all
@@ -81,8 +81,8 @@ COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
 # eucjpとsjisを有効化
-RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet
-RUN echo "/opt/mysql/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
+RUN ./configure --prefix=/opt/mysql40 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql40/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
 COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
 RUN make -s 1>/dev/null
 #RUN make test
@@ -96,7 +96,105 @@ RUN fpm -s dir \
   -C / \
   --prefix / \
   -a x86_64 \
-  /opt/mysql/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
+#------------
+# mysql-5.0
+#------------
+WORKDIR /usr/local/src/
+RUN yum install -y which
+COPY files.centos8/mysql-5.0.86.tar.gz mysql-5.0.86.tar.gz
+RUN tar xzf mysql-5.0.86.tar.gz
+WORKDIR /usr/local/src/mysql-5.0.86
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql50 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql50/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-50
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+RUN echo "/opt/mysql50/lib" > /etc/ld.so.conf.d/opt-mysql50.conf
+RUN fpm -s dir \
+  -v 5.0.86 \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql50 \
+  -p opt-mysql50-5.0.86.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50 /etc/ld.so.conf.d/opt-mysql50.conf /etc/my.cnf.example-50
+
+# mysql50-lib
+RUN mkdir -p /opt/mysql50-lib/ \
+  && cp -a /opt/mysql50/lib /opt/mysql50-lib/ \
+  && echo "/opt/mysql50-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50-lib.conf
+RUN fpm -s dir \
+  -v 5.0.86 \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql50-lib \
+  -p opt-mysql50-lib-5.0.86.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
+
+
+#-----
+# link
+#-----
+#RUN ln -s /opt/mysql50 /opt/mysql
+RUN ln -s /opt/mysql40 /opt/mysql
+
+
+#--------------------
+# perl-Devel-CheckLib
+#--------------------
+RUN yum install -y perl-DBI perl-ExtUtils-MakeMaker
+ENV CXXFLAGS="-std=gnu++11"
+# 
+WORKDIR /usr/local/src
+COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
+RUN tar xzf Devel-CheckLib-1.14.tar.gz
+WORKDIR /usr/local/src/Devel-CheckLib-1.14
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v 1.0 \
+  -t rpm \
+  -n local-Devel-CheckLib \
+  -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/Devel/CheckLib.pm ./usr/local/share/man/man3/Devel::CheckLib.3pm
+RUN rpm -ivh local-Devel-CheckLib-1.14.el8.x86_64.rpm
+
+#---------------------
+# perl-DBD-mysql-4.050
+#----------------------
+WORKDIR /usr/local/src
+COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
+RUN tar xzf DBD-mysql-4.050.tar.gz
+WORKDIR /usr/local/src/DBD-mysql-4.050
+RUN perl Makefile.PL \
+ --mysql_config=/opt/mysql50/bin/mysql_config
+RUN make
+RUN make install DESTDIR=/opt/perl-DBD-mysql
+RUN rm -f local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
+RUN fpm -s dir \
+  -v 4.050 \
+  -t rpm \
+  -n local-perl-DBD-mysql50 \
+  -p local-perl-DBD-mysql50-4.050.el8.x86_64.rpm \
+  -C /opt/perl-DBD-mysql \
+  --prefix / \
+  -a x86_64 \
+  .
+RUN rpm -ivh local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
+
 
 #---------------
 # php
