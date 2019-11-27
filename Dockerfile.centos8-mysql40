@@ -124,14 +124,14 @@ RUN fpm -s dir \
 RUN rpm -ivh local-Devel-CheckLib-1.14.el8.x86_64.rpm
 
 #---------------------
-# perl-DBD-mysql-4.050
+# perl-DBD-mysql-4.050 (mysql4.0ではビルド失敗する。mysql4.1では大丈夫だった)
 #----------------------
 WORKDIR /usr/local/src
 COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
 RUN tar xzf DBD-mysql-4.050.tar.gz
 WORKDIR /usr/local/src/DBD-mysql-4.050
 RUN perl Makefile.PL \
- --mysql_config=/opt/mysql/bin/mysql_config
+  --mysql_config=/opt/mysql/bin/mysql_config
 RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql40-4.050.el8.x86_64.rpm
