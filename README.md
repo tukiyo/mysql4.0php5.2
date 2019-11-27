@@ -6,9 +6,15 @@
 |centos6| o | - | 1.8.7 | 4.4.7 | 
 |centos7| o |要| 1.8.7 | compat-gcc-44 | 
 |centos8| o |要| 1.8.7 | compat-gcc-44.el7 -std=gnu++98 | 
+
+|distro|mysql-server|php patch|ruby1.8.7| gcc |
+|:--|:--:|:--|:--|:--|
 |debian9| o |要| - | 6.3.0-4 |
 |debian10| o | - | - | -std=gnu++98 |
 |fedora25| o |要| ? | 6.4.1 |
+
+|distro|mysql-server|php patch|ruby1.8.7| gcc |
+|:--|:--:|:--|:--|:--|
 |ubuntu16.04| o |要| - | 5.3.1 (4.4 挑戦中) |
 |ubuntu16.10| o |要| - | OS標準のGCC |
 |ubuntu17.04| o |要| - | OS標準のGCC |
@@ -16,9 +22,11 @@
 |ubuntu19.10| o |要| - | ubuntu 14.04 の gcc4.4 |
 |ubuntu20.04| o |要| - | ubuntu 14.04 の gcc4.4 |
 
-* CentOS 8
+* CentOS 8 について
     * GCC8.2.1でビルドした ruby 1.8.7 が `10**80`が 0 になりエラー
     * GCC4.4.7でビルドした ruby 1.8.7 は `10**80`が正常に動いた。
+    * mysql 4.0 はテストが通らなかった。(ATISなど)
+    * mysql 4.1 はテストが通った。
 
 ## 参考
 
