@@ -31,7 +31,7 @@ RUN make -s 1>/dev/null
 RUN make install
 RUN echo "/opt/mysql41/lib" > /etc/ld.so.conf.d/opt-mysql41.conf
 RUN fpm -s dir \
-  -v 4.1.22 \
+  -v $(date "+%Y%m%d")_4.1.22 \
   -t rpm \
   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
   -n opt-mysql41 \
@@ -46,7 +46,7 @@ RUN mkdir -p /opt/mysql41-lib/ \
   && cp -a /opt/mysql41/lib /opt/mysql41-lib/ \
   && echo "/opt/mysql41-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql41-lib.conf
 RUN fpm -s dir \
-  -v 4.1.22 \
+  -v $(date "+%Y%m%d")_4.1.22 \
   -t rpm \
   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
   -n opt-mysql41-lib \
@@ -71,7 +71,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v 1.0 \
+  -v $(date "+%Y%m%d")_1.0 \
   -t rpm \
   -n local-Devel-CheckLib \
   -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
@@ -94,7 +94,7 @@ RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql41-4.050.el8.x86_64.rpm
 RUN fpm -s dir \
-  -v 4.050 \
+  -v $(date "+%Y%m%d")_4.050 \
   -t rpm \
   -n local-perl-DBD-mysql41 \
   -p local-perl-DBD-mysql41-4.050.el8.x86_64.rpm \

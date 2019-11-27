@@ -39,7 +39,7 @@ RUN mkdir -p /opt/mariadb55-lib/ \
   && cp -a /opt/mariadb55/lib /opt/mariadb55-lib/ \
   && echo "/opt/mariadb55-lib/lib" > /etc/ld.so.conf.d/opt-mariadb55-lib.conf
 RUN fpm -s dir \
-  -v 5.5.66 \
+  -v $(date "+%Y%m%d")_5.5.66 \
   -t rpm \
   -n opt-mariadb55-lib \
   -p opt-mariadb55-lib-5.5.66.el8.x86_64.rpm \
@@ -63,7 +63,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v 1.0 \
+  -v $(date "+%Y%m%d")_1.0 \
   -t rpm \
   -n local-Devel-CheckLib \
   -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
@@ -86,7 +86,7 @@ RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql55-4.050.el8.x86_64.rpm
 RUN fpm -s dir \
-  -v 4.050 \
+  -v $(date "+%Y%m%d")_4.050 \
   -t rpm \
   -n local-perl-DBD-mysql55 \
   -p local-perl-DBD-mysql55-4.050.el8.x86_64.rpm \
