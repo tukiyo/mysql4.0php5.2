@@ -141,7 +141,7 @@ RUN fpm -s dir \
   -n local-perl-DBD-mysql40 \
   -p local-perl-DBD-mysql40-4.050.el8.x86_64.rpm \
   -C /opt/perl-DBD-mysql \
-  --prefix /usr/local \
+  --prefix / \
   -a x86_64 \
   .
 RUN rpm -ivh local-perl-DBD-mysql40-4.050.el8.x86_64.rpm
