@@ -426,3 +426,17 @@ RUN fpm -s dir \
   --prefix /opt/tenshi \
   -a x86_64 \
   .
+
+#-------------
+# utils
+#-------------
+WORKDIR $BUILDROOT/SOURCES/
+RUN yum remove -y compat-gcc-44 compat-gcc-44-c++ libstdc++-4.8.5
+RUN yum install -y gcc
+ENV CC=/usr/bin/gcc
+ENV CXX=/usr/bin/g++
+ENV CXXFLAGS=
+# nkf
+COPY files.centos8/nkf-2.1.5.tar.gz .
+RUN tar xzf nkf-2.1.5.tar.gz
+WORKDIR $BUILDROOT/SOURCES/nkf-2.1.5
