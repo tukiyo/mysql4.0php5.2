@@ -71,6 +71,8 @@ RUN yum install -y \
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
  && gem install fpm --no-rdoc --no-ri
 
+ENV MY_VERSION=20191127
+
 #----------
 # mysql-4.0
 #----------
@@ -88,7 +90,7 @@ RUN make -s 1>/dev/null
 #RUN make test
 RUN make install
 RUN fpm -s dir \
-  -v $(date -I)_4.0.30 \
+  -v ${MY_VERSION}_4.0.30 \
   -t rpm \
   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
   -n opt-mysql40 \
@@ -115,7 +117,7 @@ RUN make -s 1>/dev/null
 RUN make install
 RUN echo "/opt/mysql50/lib" > /etc/ld.so.conf.d/opt-mysql50.conf
 RUN fpm -s dir \
-  -v $(date -I)_5.0.86 \
+  -v ${MY_VERSION}_5.0.86 \
   -t rpm \
   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
   -n opt-mysql50 \
@@ -130,7 +132,7 @@ RUN mkdir -p /opt/mysql50-lib/ \
   && cp -a /opt/mysql50/lib /opt/mysql50-lib/ \
   && echo "/opt/mysql50-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50-lib.conf
 RUN fpm -s dir \
-  -v $(date -I)_5.0.86 \
+  -v ${MY_VERSION}_5.0.86 \
   -t rpm \
   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
   -n opt-mysql50-lib \
@@ -162,7 +164,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v $(date -I)_1.0 \
+  -v ${MY_VERSION}_1.0 \
   -t rpm \
   -n local-Devel-CheckLib \
   -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
@@ -185,7 +187,7 @@ RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
 RUN fpm -s dir \
-  -v $(date -I)_4.050 \
+  -v ${MY_VERSION}_4.050 \
   -t rpm \
   -n local-perl-DBD-mysql50 \
   -p local-perl-DBD-mysql50-4.050.el8.x86_64.rpm \
@@ -248,7 +250,7 @@ RUN make -s
 RUN make install
 RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
 RUN fpm -s dir \
-  -v $(date -I)_1.0.2t \
+  -v ${MY_VERSION}_1.0.2t \
   -t rpm \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el8.x86_64.rpm \
@@ -315,7 +317,7 @@ RUN /usr/local/php/bin/pear install DB-1.7.14 \
  && /usr/local/php/bin/pear install Var_Dump
 RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
  && fpm -s dir \
-  -v $(date -I)_5.2.17 \
+  -v ${MY_VERSION}_5.2.17 \
   -t rpm \
   -n local-php \
   -p local-php-5.2.17.el8.x86_64.rpm \
@@ -376,7 +378,7 @@ RUN tar xzf rel-0-1-1.tar.gz \
 
 # rpm作成
 RUN fpm -s dir \
-  -v $(date -I)_1.8.7_p374 \
+  -v ${MY_VERSION}_1.8.7_p374 \
   -t rpm \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
@@ -397,7 +399,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v $(date -I)_1.0 \
+  -v ${MY_VERSION}_1.0 \
   -t rpm \
   -n local-perl-IO-BufferedSelect \
   -p local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm \
@@ -417,7 +419,7 @@ WORKDIR /usr/local/src/tenshi-0.17
 RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
 RUN make install DESTDIR=/opt/tenshi
 RUN fpm -s dir \
-  -v $(date -I)_0.17 \
+  -v ${MY_VERSION}_0.17 \
   -t rpm \
   -d "local-perl-IO-BufferedSelect" \
   -n opt-tenshi \
