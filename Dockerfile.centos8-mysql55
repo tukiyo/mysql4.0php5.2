@@ -1,22 +1,8 @@
-FROM centos:8
+FROM tukiyo3/centos8-build
 
-ENV BUILDROOT="/root/rpmbuild"
-
-RUN yum groupinstall -y "Development Tools" \
- && yum install -y -q epel-release \
- && yum install -y screen \
- && yum clean all
-
-RUN yum install -y cmake ncurses-devel libev-libevent-devel \
- && yum clean all
-
-# fpm
-RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
- && gem install fpm --no-rdoc --no-ri
-
-#------------
+#----------
 # mysql-5.5
-#------------
+#----------
 WORKDIR /usr/local/src/
 COPY files.centos8/mysql-5.5.62.tar.gz mysql-5.5.62.tar.gz
 RUN tar xzf mysql-5.5.62.tar.gz
@@ -55,8 +41,6 @@ RUN fpm -s dir \
 #--------------------
 # perl-Devel-CheckLib
 #--------------------
-RUN yum install -y perl-DBI perl-ExtUtils-MakeMaker
-# 
 WORKDIR /usr/local/src
 COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
 RUN tar xzf Devel-CheckLib-1.14.tar.gz

@@ -1,84 +1,11 @@
-FROM centos:8
+FROM tukiyo3/centos8-build
 
-ENV BUILDROOT="/root/rpmbuild"
-
-RUN yum groupinstall -y "Development Tools" \
- && yum install -y -q epel-release \
- && yum install -y screen \
- && yum clean all
-
-RUN yum install -y cmake ncurses-devel libev-libevent-devel \
- && yum clean all
-
-# CXXFLAGS
 ENV CXXFLAGS="-std=gnu++98"
-# ENV CXXFLAGS="-std=gnu++03"
-# ENV CXXFLAGS="-std=c++98"
-
-# 以下パッケージはCentOS8では見当たらなかった
-#RUN yum install -y \
-#    aspell-devel \
-#    db4-devel \
-#    enchant-devel \
-#    libedit-devel \
-#    libtidy-devel \
-#    recode-devel \
-#    t1lib \
-#    t1lib-devel \
-#  && yum clean all
-
-RUN yum install -y \
-    bzip2-devel \
-    curl-devel \
-    cyrus-sasl-devel \
-    freetype-devel \
-    gcc \
-    gcc-c++ \
-    glibc-devel \
-    gmp-devel \
-    httpd-devel \
-    krb5-devel \
-    libXpm-devel \
-    libc-client-devel \
-    libicu-devel \
-    libjpeg-devel \
-    libmcrypt-devel \
-    libmhash-devel \
-    libpng-devel \
-    libtool \
-    libtool-ltdl-devel \
-    libxml2-devel \
-    libxslt-devel \
-    make \
-    mysql-devel \
-    ncurses-devel \
-    net-snmp-devel \
-    openldap-devel \
-    openssl-devel \
-    pam-devel \
-    patch \
-    pcre-devel \
-    postgresql-devel \
-    readline-devel \
-    rpm-build \
-    smtpdaemon \
-    sqlite-devel \
-    unixODBC-devel \
-    wget \
-    which \
-    zlib-devel \
-  && yum clean all
-
-# fpm
-RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
- && gem install fpm --no-rdoc --no-ri
 
 #----------
 # mysql-4.0
 #----------
 WORKDIR /usr/local/src/
-# 以下パッケージはCentOS8では見当たらなかった
-#RUN yum install -y -q ORBit2-devel && yum clean all
 COPY files/ .
 RUN tar xzf mysql-4.0.30.tar.gz
 WORKDIR /usr/local/src/mysql-4.0.30
@@ -100,11 +27,9 @@ RUN fpm -s dir \
   -a x86_64 \
   /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
 
-
 #--------------------
 # perl-Devel-CheckLib
 #--------------------
-RUN yum install -y perl-DBI perl-ExtUtils-MakeMaker
 ENV CXXFLAGS="-std=gnu++11"
 # 
 WORKDIR /usr/local/src

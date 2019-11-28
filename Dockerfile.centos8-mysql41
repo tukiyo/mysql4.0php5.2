@@ -1,26 +1,11 @@
-FROM centos:8
+FROM tukiyo3/centos8-build
 
-ENV BUILDROOT="/root/rpmbuild"
-
-RUN yum groupinstall -y "Development Tools" \
- && yum install -y -q epel-release \
- && yum install -y screen \
- && yum clean all
-
-RUN yum install -y cmake ncurses-devel libev-libevent-devel \
- && yum clean all
-
-# CXXFLAGS
 ENV CXXFLAGS="-std=gnu++98"
-# fpm
-RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
- && gem install fpm --no-rdoc --no-ri
 
-#------------
+#----------
 # mysql-4.1
-#------------
+#----------
 WORKDIR /usr/local/src/
-RUN yum install -y which
 COPY files.centos8/mysql-4.1.22.tar.gz mysql-4.1.22.tar.gz
 RUN tar xzf mysql-4.1.22.tar.gz
 WORKDIR /usr/local/src/mysql-4.1.22
@@ -62,7 +47,6 @@ RUN fpm -s dir \
 #--------------------
 # perl-Devel-CheckLib
 #--------------------
-RUN yum install -y perl-DBI perl-ExtUtils-MakeMaker
 ENV CXXFLAGS="-std=gnu++11"
 # 
 WORKDIR /usr/local/src
