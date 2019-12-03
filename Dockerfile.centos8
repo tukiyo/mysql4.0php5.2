@@ -242,9 +242,9 @@ RUN mkdir -p /opt/php52/lib/httpd24/ \
 RUN /opt/php52/bin/pear install DB-1.7.14 \
  && /opt/php52/bin/pear install Var_Dump \
  && /opt/php52/bin/pear install PHP_Beautifier-0.1.15
-# idiorm
-RUN mkdir -p /usr/share/php
-COPY files/pear/idiorm.php /usr/share/php/idiorm.php
+# idiorm。include_pathに必ず含まれているようにpearフォルダに置いた
+RUN mkdir -p /opt/pear52/vendor/
+COPY files/pear/idiorm.php /opt/pear52/vendor/idiorm.php
 # beautifier
 COPY files/php/beautifier.sh /opt/php52/bin/beautifier.sh
 RUN chmod +x /opt/php52/bin/beautifier.sh
@@ -282,7 +282,6 @@ RUN fpm -s dir \
    /opt/php52 \
    /usr/local/pear \
    /usr/local/php \
-   /usr/share/php/idiorm.php \
    /var/lib/php/session
 
 #-------------
