@@ -270,7 +270,7 @@ RUN /opt/php52/bin/phpize \
 RUN fpm -s dir \
   -v $(date "+%Y%m%d")_5.2.17 \
   -t rpm \
-  -d "mhash libmcrypt libjpeg-turbo" \
+  -d "mhash libmcrypt libjpeg-turbo libtool-ltdl" \
   -n opt-php-5.2 \
   -p opt-php-5.2.17.el8.x86_64.rpm \
   -C / \
