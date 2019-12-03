@@ -1,0 +1,13 @@
+zend_extension="/usr/local/php/lib/php/extensions/xdebug.so"
+xdebug.remote_handler=dbgp
+xdebug.remote_port=9000
+xdebug.remote_autostart = on
+xdebug.remote_mode=req
+xdebug.dump.GET = *
+xdebug.dump.POST = *
+
+;xdebug.idekey="netbeans-xdebug"
+;xdebug.remote_host=192.168.xx.xx
+xdebug.remote_host=localhost
+;xdebug.remote_enable= on
+xdebug.remote_enable= off

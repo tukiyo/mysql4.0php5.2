@@ -198,9 +198,9 @@ RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
  && patch -p0 -b < ../php-patch/gmp.patch \
  && patch -p0 -b < ../php-patch/php_functions.patch
 RUN ./configure --quiet \
-  --prefix=/usr/local/php \
+  --prefix=/opt/php52 \
   --with-apxs2=/usr/bin/apxs \
-  --with-pear=/usr/local/pear \
+  --with-pear=/opt/pear52 \
   --disable-cgi \
   --enable-zend-multibyte \
   --enable-mbstring \
@@ -233,22 +233,57 @@ RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
+RUN mkdir -p /opt/php52/lib/httpd24/ \
+ && cp -a /usr/lib64/httpd/modules/libphp5.so /opt/php52/lib/httpd24/libphp52.so
 
-#---------
+#-----------
 # local-pear
-#---------
-RUN /usr/local/php/bin/pear install DB-1.7.14 \
- && /usr/local/php/bin/pear install Var_Dump
-RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
- && fpm -s dir \
+#-----------
+RUN /opt/php52/bin/pear install DB-1.7.14 \
+ && /opt/php52/bin/pear install Var_Dump \
+ && /opt/php52/bin/pear install PHP_Beautifier-0.1.15
+# idiorm
+RUN mkdir -p /usr/share/php
+COPY files/pear/idiorm.php /usr/share/php/idiorm.php
+# beautifier
+COPY files/php/beautifier.sh /opt/php52/bin/beautifier.sh
+RUN chmod +x /opt/php52/bin/beautifier.sh
+# http24's php module
+RUN echo "LoadModule php5_module /opt/php52/lib/httpd24/libphp52.so" > /etc/httpd/conf.modules.d/10-php52.conf
+RUN ln -s /opt/php52 /usr/local/php \
+ && ln -s /opt/pear52 /usr/local/pear \
+ && install -o apache -g apache -m 0755 -d /var/lib/php/session/
+COPY etc/php.ini /etc/php.ini
+COPY etc/php.d /etc/php.d
+
+# xdebug
+WORKDIR /usr/local/src/
+COPY files/xdebug-2.2.7.tgz .
+RUN tar xzf xdebug-2.2.7.tgz
+WORKDIR /usr/local/src/xdebug-2.2.7
+RUN /opt/php52/bin/phpize \
+ && ./configure --enable-xdebug --with-php-config=/opt/php52/bin/php-config \
+ && make -s \
+ && cp modules/xdebug.so /opt/php52/lib/php/extensions/xdebug.so
+
+# rpm
+RUN fpm -s dir \
   -v $(date "+%Y%m%d")_5.2.17 \
   -t rpm \
-  -n local-php \
-  -p local-php-5.2.17.el8.x86_64.rpm \
+  -n opt-php-5.2 \
+  -p opt-php-5.2.17.el8.x86_64.rpm \
   -C / \
   --prefix / \
   -a x86_64 \
-  /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/httpd/conf.modules.d/10-php52.conf
+   /etc/httpd/conf.modules.d/10-php52.conf \
+   /etc/php.d \
+   /etc/php.ini \
+   /opt/pear52 \
+   /opt/php52 \
+   /usr/local/pear \
+   /usr/local/php \
+   /usr/share/php/idiorm.php \
+   /var/lib/php/session
 
 #-------------
 # Ruby1.8.7用
@@ -274,16 +309,17 @@ WORKDIR $BUILDROOT/SOURCES/ruby-1.8.7-p374
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
-RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
+RUN ./configure --prefix=/opt/ruby18 --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
 RUN make -s
 RUN make test
 RUN make install
+RUN ln -s /opt/ruby18 /opt/ruby
 
 # mysql-ruby
 WORKDIR /usr/local/src/ruby
 RUN tar xzf mysql-ruby-2.8.2.tar.gz \
  && cd mysql-ruby-2.8.2 \
- && /opt/ruby/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
+ && /opt/ruby18/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
  && make -s \
  && make install
 
@@ -291,20 +327,20 @@ RUN tar xzf mysql-ruby-2.8.2.tar.gz \
 WORKDIR /usr/local/src/ruby
 RUN tar xzf rel-0-1-1.tar.gz \
  && cd ruby-dbi-rel-0-1-1 \
- && /opt/ruby/bin/ruby setup.rb config --with=dbi,dbd_mysql \
- && /opt/ruby/bin/ruby setup.rb setup \
- && /opt/ruby/bin/ruby setup.rb install
+ && /opt/ruby18/bin/ruby setup.rb config --with=dbi,dbd_mysql \
+ && /opt/ruby18/bin/ruby setup.rb setup \
+ && /opt/ruby18/bin/ruby setup.rb install
 
 # rpm作成
 RUN fpm -s dir \
   -v $(date "+%Y%m%d")_1.8.7_p374 \
   -t rpm \
-  -n opt-ruby \
+  -n opt-ruby-1.8 \
   -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
-  -C /opt/ruby \
-  --prefix /opt/ruby \
+  -C /opt \
+  --prefix /opt \
   -a x86_64 \
-  .
+  ruby18 ruby
 
 #-----------------------
 # perl-IO-BufferedSelect
