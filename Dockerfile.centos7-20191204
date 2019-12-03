@@ -147,7 +147,8 @@ RUN make install
 # local-pear
 #---------
 RUN /usr/local/php/bin/pear install DB-1.7.14 \
- && /usr/local/php/bin/pear install Var_Dump
+ && /usr/local/php/bin/pear install Var_Dump \
+ && /opt/php52/bin/pear install PHP_Beautifier-0.1.15
 RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
  && fpm -s dir \
   -v $(date "+%Y%m%d")_5.2.17 \
