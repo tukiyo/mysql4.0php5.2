@@ -9,5 +9,6 @@ IMAGE="tukiyo/mysql4php52:centos8"
 IMAGE="tukiyo3/centos7-build"
 IMAGE="tukiyo3/ubuntu-build:14.04"
 IMAGE="ubuntu:14.04"
+IMAGE="tukiyo/mysql4php52:latest"
 
 docker run --rm -v `pwd`:/host/  -it $IMAGE /bin/bash

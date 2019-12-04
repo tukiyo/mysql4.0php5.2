@@ -357,11 +357,11 @@ ENV CXXFLAGS=
 # opt-ruby-1.8.7
 WORKDIR $BUILDROOT/SOURCES/
 # http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
-COPY files.centos7/ruby-1.8.7-p374.tar.bz2 /usr/local/src/
+COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
 RUN tar xf ruby-1.8.7-p374.tar.bz2
 WORKDIR $BUILDROOT/SOURCES/ruby-1.8.7-p374
 # https://www.ruby-forum.com/topic/142608
-COPY files.centos7/ruby-1.8.7-p374-openssl.patch /usr/local/src/
+COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
 RUN ./configure --prefix=/opt/ruby18 --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
