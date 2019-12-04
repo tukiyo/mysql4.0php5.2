@@ -45,14 +45,14 @@ FROM tukiyo3/centos8-build as el8
 
 WORKDIR /usr/local/src/
 ENV CXXFLAGS="-std=gnu++98"
-COPY --from=el7mysql40 /usr/local/src/mysql-4.0.30/opt-mysql40-4.0.30.el8.x86_64.rpm .
+COPY --from=el7mysql40 /usr/local/src/mysql-4.0.30/opt-mysql40-4.0.30.el8.x86_64.rpm /usr/local/src/
 RUN yum localinstall --nogpgcheck -y opt-mysql40-4.0.30.el8.x86_64.rpm
 
 #------------
 # mysql-5.0
 #------------
 WORKDIR /usr/local/src/
-COPY files.centos8/mysql-5.0.86.tar.gz mysql-5.0.86.tar.gz
+COPY files.centos8/mysql-5.0.86.tar.gz /usr/local/src/
 RUN tar xzf mysql-5.0.86.tar.gz
 WORKDIR /usr/local/src/mysql-5.0.86
 # eucjpとsjisを有効化
@@ -153,6 +153,7 @@ WORKDIR /usr/local/src/
 # re2c
 #-----
 # phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
+COPY files/re2c-0.16.tar.gz /usr/local/src/
 RUN tar xzf re2c-0.16.tar.gz \
  && cd re2c-0.16 \
  && ./configure \
@@ -162,11 +163,13 @@ RUN tar xzf re2c-0.16.tar.gz \
 #-----
 # lemon
 #-----
+COPY files/lemon.c /usr/local/src/
 RUN gcc -o /usr/local/bin/lemon lemon.c
 
 #-----
 # flex
 #-----
+COPY files/flex-2.5.4a.tar.gz /usr/local/src/
 RUN tar xzf flex-2.5.4a.tar.gz \
  && cd flex-2.5.4 \
  && ./configure --prefix=/opt/flex \
@@ -176,6 +179,7 @@ RUN tar xzf flex-2.5.4a.tar.gz \
 #------
 # bison
 #------
+COPY files/bison-2.4.1.tar.bz2 /usr/local/src/
 RUN tar jxf bison-2.4.1.tar.bz2 \
  && cd bison-2.4.1 \
  && ./configure \
@@ -187,7 +191,7 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
 # openssl 1.0.2
 #---------------
 WORKDIR /usr/local/src/
-COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
+COPY files/openssl/openssl-1.0.2t.tar.gz /usr/local/src/
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
 RUN ./config --prefix=/opt/openssl-1.0.2t shared
@@ -279,7 +283,7 @@ COPY etc/php.d /etc/php.d
 
 # xdebug
 WORKDIR /usr/local/src/
-COPY files/xdebug-2.2.7.tgz .
+COPY files/xdebug-2.2.7.tgz /usr/local/src/
 RUN tar xzf xdebug-2.2.7.tgz
 WORKDIR /usr/local/src/xdebug-2.2.7
 RUN /opt/php52/bin/phpize \
@@ -323,11 +327,11 @@ ENV CXXFLAGS=
 # opt-ruby-1.8.7
 WORKDIR $BUILDROOT/SOURCES/
 # http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
-COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
+COPY files.centos7/ruby-1.8.7-p374.tar.bz2 /usr/local/src/
 RUN tar xf ruby-1.8.7-p374.tar.bz2
 WORKDIR $BUILDROOT/SOURCES/ruby-1.8.7-p374
 # https://www.ruby-forum.com/topic/142608
-COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
+COPY files.centos7/ruby-1.8.7-p374-openssl.patch /usr/local/src/
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
 RUN ./configure --prefix=/opt/ruby18 --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
@@ -368,7 +372,7 @@ RUN fpm -s dir \
 #-----------------------
 WORKDIR /usr/local/src
 RUN yum install -y perl-ExtUtils-MakeMaker
-COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src
+COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src/
 RUN tar xzf IO-BufferedSelect-1.0.tar.gz
 WORKDIR /usr/local/src/IO-BufferedSelect
 RUN perl Makefile.PL
@@ -389,7 +393,7 @@ RUN rpm -ivh local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm
 # tenshi
 #-------
 WORKDIR /usr/local/src
-COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src
+COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src/
 RUN tar xzf tenshi-0.17.tar.gz
 WORKDIR /usr/local/src/tenshi-0.17
 RUN sed -i -e 's/mail.log/maillog/' tenshi.conf

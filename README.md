@@ -34,6 +34,8 @@
         * mysql 5.0
         * mysql 5.5
         * mariadb 5.5
+* 2019-12-04
+    * CentOS 7 でビルドした mysql 4.0 を CentOS 8 で動かしたところ、テストが通った。
 
 ## 参考
 
