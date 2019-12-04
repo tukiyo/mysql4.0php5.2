@@ -46,7 +46,32 @@ FROM tukiyo3/centos8-build as el8
 WORKDIR /usr/local/src/
 ENV CXXFLAGS="-std=gnu++98"
 COPY --from=el7mysql40 /usr/local/src/mysql-4.0.30/opt-mysql40-4.0.30.el8.x86_64.rpm /usr/local/src/
-RUN yum localinstall --nogpgcheck -y opt-mysql40-4.0.30.el8.x86_64.rpm
+# RUN yum localinstall --nogpgcheck -y opt-mysql40-4.0.30.el8.x86_64.rpm
+
+#----------
+# mysql-4.0
+#----------
+WORKDIR /usr/local/src/
+COPY files/ .
+RUN tar xzf mysql-4.0.30.tar.gz
+WORKDIR /usr/local/src/mysql-4.0.30
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql40 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql40/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+# RUN fpm -s dir \
+#   -v $(date "+%Y%m%d")_4.0.30 \
+#   -t rpm \
+#   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+#   -n opt-mysql40 \
+#   -p opt-mysql40-4.0.30.el8.x86_64.rpm \
+#   -C / \
+#   --prefix / \
+#   -a x86_64 \
+#   /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
 
 #------------
 # mysql-5.0
@@ -73,6 +98,8 @@ RUN fpm -s dir \
   --prefix / \
   -a x86_64 \
   /opt/mysql50 /etc/ld.so.conf.d/opt-mysql50.conf /etc/my.cnf.example-50
+# 不要なため。必要になったらコメントアウトする
+RUN rm opt-mysql50-5.0.86.el8.x86_64.rpm 
 
 # mysql50-lib
 RUN mkdir -p /opt/mysql50-lib/ \
@@ -210,6 +237,7 @@ RUN fpm -s dir \
 
 # php
 WORKDIR /usr/local/src/
+COPY files/php-5.2.17.tar.bz2 /usr/local/src/
 RUN tar jxf php-5.2.17.tar.bz2
 
 # configureを通すため。
@@ -219,9 +247,11 @@ RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlcl
 
 # patch
 WORKDIR /usr/local/src/php-5.2.17
+COPY ./files/php-patch/ /usr/local/src/php-patch/
 RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
  && patch -p0 -b < ../php-patch/gmp.patch \
  && patch -p0 -b < ../php-patch/php_functions.patch
+RUN yum install --nogpgcheck -y libnsl
 RUN ./configure --quiet \
   --prefix=/opt/php52 \
   --with-apxs2=/usr/bin/apxs \
