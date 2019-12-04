@@ -1,0 +1,406 @@
+FROM tukiyo3/centos7-build as el7mysql40
+
+#----------
+# mysql-4.0
+#----------
+WORKDIR /usr/local/src/
+COPY files/ .
+RUN tar xzf mysql-4.0.30.tar.gz
+WORKDIR /usr/local/src/mysql-4.0.30
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql40 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql40/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+
+# centos7
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_4.0.30 \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql40 \
+  -p opt-mysql40-4.0.30.el7.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
+# centos8
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_4.0.30 \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL libnsl ncurses-compat-libs" \
+  -n opt-mysql40 \
+  -p opt-mysql40-4.0.30.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
+
+# -------------------------------------------------------------------------
+FROM tukiyo3/centos8-build as el8
+
+WORKDIR /usr/local/src/
+ENV CXXFLAGS="-std=gnu++98"
+COPY --from=el7mysql40 /usr/local/src/mysql-4.0.30/opt-mysql40-4.0.30.el8.x86_64.rpm .
+RUN yum localinstall --nogpgcheck -y opt-mysql40-4.0.30.el8.x86_64.rpm
+
+#------------
+# mysql-5.0
+#------------
+WORKDIR /usr/local/src/
+COPY files.centos8/mysql-5.0.86.tar.gz mysql-5.0.86.tar.gz
+RUN tar xzf mysql-5.0.86.tar.gz
+WORKDIR /usr/local/src/mysql-5.0.86
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql50 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql50/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-50
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+RUN echo "/opt/mysql50/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50.conf
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_5.0.86 \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql50 \
+  -p opt-mysql50-5.0.86.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50 /etc/ld.so.conf.d/opt-mysql50.conf /etc/my.cnf.example-50
+
+# mysql50-lib
+RUN mkdir -p /opt/mysql50-lib/ \
+  && cp -a /opt/mysql50/lib /opt/mysql50-lib/ \
+  && echo "/opt/mysql50-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50-lib.conf
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_5.0.86 \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql50-lib \
+  -p opt-mysql50-lib-5.0.86.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
+
+
+#-----
+# link
+#-----
+#RUN ln -s /opt/mysql50 /opt/mysql
+RUN ln -s /opt/mysql40 /opt/mysql
+
+
+#--------------------
+# perl-Devel-CheckLib
+#--------------------
+ENV CXXFLAGS="-std=gnu++11"
+# 
+WORKDIR /usr/local/src
+COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
+RUN tar xzf Devel-CheckLib-1.14.tar.gz
+WORKDIR /usr/local/src/Devel-CheckLib-1.14
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_1.0 \
+  -t rpm \
+  -n local-Devel-CheckLib \
+  -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/Devel/CheckLib.pm ./usr/local/share/man/man3/Devel::CheckLib.3pm
+RUN rpm -ivh local-Devel-CheckLib-1.14.el8.x86_64.rpm
+
+#---------------------
+# perl-DBD-mysql-4.050
+#----------------------
+WORKDIR /usr/local/src
+COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
+RUN tar xzf DBD-mysql-4.050.tar.gz
+WORKDIR /usr/local/src/DBD-mysql-4.050
+RUN perl Makefile.PL \
+ --mysql_config=/opt/mysql50/bin/mysql_config
+RUN make
+RUN make install DESTDIR=/opt/perl-DBD-mysql
+RUN rm -f local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_4.050 \
+  -t rpm \
+  -n local-perl-DBD-mysql50 \
+  -p local-perl-DBD-mysql50-4.050.el8.x86_64.rpm \
+  -C /opt/perl-DBD-mysql \
+  --prefix / \
+  -a x86_64 \
+  .
+RUN rpm -ivh local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
+
+
+#---------------
+# php
+#---------------
+WORKDIR /usr/local/src/
+
+#-----
+# re2c
+#-----
+# phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
+RUN tar xzf re2c-0.16.tar.gz \
+ && cd re2c-0.16 \
+ && ./configure \
+ && make -s \
+ && make install
+
+#-----
+# lemon
+#-----
+RUN gcc -o /usr/local/bin/lemon lemon.c
+
+#-----
+# flex
+#-----
+RUN tar xzf flex-2.5.4a.tar.gz \
+ && cd flex-2.5.4 \
+ && ./configure --prefix=/opt/flex \
+ && make -s \
+ && make install
+
+#------
+# bison
+#------
+RUN tar jxf bison-2.4.1.tar.bz2 \
+ && cd bison-2.4.1 \
+ && ./configure \
+ && make -s \
+ && make install \
+ && make install DESTDIR=/opt/bison
+
+#---------------
+# openssl 1.0.2
+#---------------
+WORKDIR /usr/local/src/
+COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
+RUN tar xzf openssl-1.0.2t.tar.gz
+WORKDIR /usr/local/src/openssl-1.0.2t
+RUN ./config --prefix=/opt/openssl-1.0.2t shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_1.0.2t \
+  -t rpm \
+  -n opt-openssl \
+  -p opt-openssl-1.0.2t.el8.x86_64.rpm \
+  -C /opt/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
+  -a x86_64 \
+  .
+
+# php
+WORKDIR /usr/local/src/
+RUN tar jxf php-5.2.17.tar.bz2
+
+# configureを通すため。
+RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
+ && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
+ && ln -s /opt/mysql/lib /opt/mysql/lib64
+
+# patch
+WORKDIR /usr/local/src/php-5.2.17
+RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
+ && patch -p0 -b < ../php-patch/gmp.patch \
+ && patch -p0 -b < ../php-patch/php_functions.patch
+RUN ./configure --quiet \
+  --prefix=/opt/php52 \
+  --with-apxs2=/usr/bin/apxs \
+  --with-pear=/opt/pear52 \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+  --with-openssl=/opt/openssl-1.0.2t \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
+  \
+  --with-libdir=lib64 \
+  1>/dev/null
+
+RUN make -s 1>/dev/null
+RUN make test 1>/dev/null
+# /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
+RUN make install
+RUN mkdir -p /opt/php52/lib/httpd24/ \
+ && cp -a /usr/lib64/httpd/modules/libphp5.so /opt/php52/lib/httpd24/libphp52.so
+
+#-----------
+# local-pear
+#-----------
+RUN /opt/php52/bin/pear install DB-1.7.14 \
+ && /opt/php52/bin/pear install Var_Dump \
+ && /opt/php52/bin/pear install PHP_Beautifier-0.1.15
+# idiorm。include_pathに必ず含まれているようにpearフォルダに置いた
+RUN mkdir -p /opt/pear52/vendor/
+COPY files/pear/idiorm.php /opt/pear52/vendor/idiorm.php
+# beautifier
+COPY files/php/beautifier.sh /opt/php52/bin/beautifier.sh
+RUN chmod +x /opt/php52/bin/beautifier.sh
+# http24's php module
+RUN echo "LoadModule php5_module /opt/php52/lib/httpd24/libphp52.so" > /etc/httpd/conf.modules.d/10-php52.conf
+RUN ln -s /opt/php52 /usr/local/php \
+ && ln -s /opt/pear52 /usr/local/pear \
+ && install -o apache -g apache -m 0755 -d /var/lib/php/session/
+COPY etc/php.ini /etc/php.ini
+COPY etc/php.d /etc/php.d
+
+# xdebug
+WORKDIR /usr/local/src/
+COPY files/xdebug-2.2.7.tgz .
+RUN tar xzf xdebug-2.2.7.tgz
+WORKDIR /usr/local/src/xdebug-2.2.7
+RUN /opt/php52/bin/phpize \
+ && ./configure --enable-xdebug --with-php-config=/opt/php52/bin/php-config \
+ && make -s \
+ && cp modules/xdebug.so /opt/php52/lib/php/extensions/xdebug.so
+
+# rpm
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_5.2.17 \
+  -t rpm \
+  -d "mhash libmcrypt libjpeg-turbo libtool-ltdl" \
+  -n opt-php-5.2 \
+  -p opt-php-5.2.17.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+   /etc/httpd/conf.modules.d/10-php52.conf \
+   /etc/php.d \
+   /etc/php.ini \
+   /opt/pear52 \
+   /opt/php52 \
+   /usr/local/pear \
+   /usr/local/php \
+   /var/lib/php/session
+
+#-------------
+# Ruby1.8.7用
+#-------------
+WORKDIR $BUILDROOT/SOURCES/
+RUN rpm -ivh --force /usr/local/src/rpms/*.rpm
+
+RUN yum remove -y gcc gcc-c++ \
+ && update-alternatives \
+ --install /usr/bin/gcc gcc /usr/bin/gcc44 20 \
+ --slave   /usr/bin/g++ g++ /usr/bin/g++44
+ENV CC=/usr/bin/gcc44
+ENV CXX=/usr/bin/g++44
+ENV CXXFLAGS=
+
+# opt-ruby-1.8.7
+WORKDIR $BUILDROOT/SOURCES/
+# http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
+COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
+RUN tar xf ruby-1.8.7-p374.tar.bz2
+WORKDIR $BUILDROOT/SOURCES/ruby-1.8.7-p374
+# https://www.ruby-forum.com/topic/142608
+COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
+# openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
+RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
+RUN ./configure --prefix=/opt/ruby18 --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
+RUN make -s
+RUN make test
+RUN make install
+RUN ln -s /opt/ruby18 /opt/ruby
+
+# mysql-ruby
+WORKDIR /usr/local/src/ruby
+RUN tar xzf mysql-ruby-2.8.2.tar.gz \
+ && cd mysql-ruby-2.8.2 \
+ && /opt/ruby18/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
+ && make -s \
+ && make install
+
+# ruby-dbi 0.1.1
+WORKDIR /usr/local/src/ruby
+RUN tar xzf rel-0-1-1.tar.gz \
+ && cd ruby-dbi-rel-0-1-1 \
+ && /opt/ruby18/bin/ruby setup.rb config --with=dbi,dbd_mysql \
+ && /opt/ruby18/bin/ruby setup.rb setup \
+ && /opt/ruby18/bin/ruby setup.rb install
+
+# rpm作成
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_1.8.7_p374 \
+  -t rpm \
+  -n opt-ruby-1.8 \
+  -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
+  -C /opt \
+  --prefix /opt \
+  -a x86_64 \
+  ruby18 ruby
+
+#-----------------------
+# perl-IO-BufferedSelect
+#-----------------------
+WORKDIR /usr/local/src
+RUN yum install -y perl-ExtUtils-MakeMaker
+COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src
+RUN tar xzf IO-BufferedSelect-1.0.tar.gz
+WORKDIR /usr/local/src/IO-BufferedSelect
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_1.0 \
+  -t rpm \
+  -n local-perl-IO-BufferedSelect \
+  -p local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/IO/BufferedSelect.pm ./usr/local/share/man/man3/IO::BufferedSelect.3pm
+RUN rpm -ivh local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm
+
+#-------
+# tenshi
+#-------
+WORKDIR /usr/local/src
+COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src
+RUN tar xzf tenshi-0.17.tar.gz
+WORKDIR /usr/local/src/tenshi-0.17
+RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
+RUN make install DESTDIR=/opt/tenshi
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_0.17 \
+  -t rpm \
+  -d "local-perl-IO-BufferedSelect" \
+  -n opt-tenshi \
+  -p opt-tenshi-0.17.el8.x86_64.rpm \
+  -C /opt/tenshi \
+  --prefix /opt/tenshi \
+  -a x86_64 \
+  .

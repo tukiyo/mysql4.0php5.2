@@ -3,16 +3,18 @@ export BUILD="docker build . --no-cache=false -f "
 # $BUILD Dockerfile.centos5 -t tukiyo/mysql4php52:centos5
 # $BUILD Dockerfile.centos6 -t tukiyo/mysql4php52:centos6
 # $BUILD Dockerfile.centos7-mysql40 -t tukiyo/mysql4php52:centos7-mysql40
-# $BUILD Dockerfile.centos7-20191127 -t tukiyo/mysql4php52:centos7-20191127
-$BUILD Dockerfile.centos8 -t tukiyo/mysql4php52:centos8
+# $BUILD Dockerfile.centos7-20191204 -t tukiyo/mysql4php52:centos7-20191204
+# $BUILD Dockerfile.centos8 -t tukiyo/mysql4php52:centos8
 # $BUILD Dockerfile.centos8-mariadb55 -t tukiyo/mysql4php52:centos8-mariadb55
 # $BUILD Dockerfile.centos8-mysql55 -t tukiyo/mysql4php52:centos8-mysql55
 # $BUILD Dockerfile.centos8-mysql41 -t tukiyo/mysql4php52:centos8-mysql41
 # $BUILD Dockerfile.centos8-mysql40 -t tukiyo/mysql4php52:centos8-mysql40
 # $BUILD Dockerfile.centos8-mysql50 -t tukiyo/mysql4php52:centos8-mysql50
+$BUILD Dockerfile -t tukiyo/mysql4php52
 
 # $BUILD Dockerfile.fc25 -t tukiyo/mysql4php52:fc25
 
+# $BUILD Dockerfile.ubuntu1404 -t tukiyo/mysql4php52:ubuntu1404
 # $BUILD Dockerfile.ubuntu1604 -t tukiyo/mysql4php52:ubuntu1604
 # $BUILD Dockerfile.ubuntu1610 -t tukiyo/mysql4php52:ubuntu1610
 # $BUILD Dockerfile.ubuntu1704 -t tukiyo/mysql4php52:ubuntu1704
