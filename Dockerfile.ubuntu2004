@@ -1,4 +1,34 @@
-FROM tukiyo3/ubuntu-build:20.04
+FROM tukiyo3/centos7-build as el7mysql40
+
+#----------
+# mysql-4.0
+#----------
+WORKDIR /usr/local/src/
+COPY files/ .
+RUN tar xzf mysql-4.0.30.tar.gz
+WORKDIR /usr/local/src/mysql-4.0.30
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql40 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql40/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+
+# ubuntu
+RUN fpm -s dir \
+  -v 4.0.30~$(date "+%Y%m%d") \
+  -t deb \
+  -d "libclass-dbi-mysql-perl" \
+  -n opt-mysql40 \
+  -p opt-mysql40-4.0.30_el7_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
+# -------------------------------------------------------------------------
+FROM tukiyo3/ubuntu-build:20.04 as ubuntu2004
 
 ENV CXXFLAGS="-std=gnu++98"
 
@@ -83,138 +113,138 @@ RUN fpm -s dir \
 RUN dpkg -i local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
 
 
-# #---------------
-# # openssl-1.0.2t
-# #---------------
-# WORKDIR /usr/local/src
-# COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
-# RUN tar xzf openssl-1.0.2t.tar.gz
-# WORKDIR /usr/local/src/openssl-1.0.2t
-# RUN ./config --prefix=/opt/openssl-1.0.2t shared
-# RUN make -s
-# RUN make install
-# RUN fpm -s dir \
-#   -v 1.0.2t~$(date "+%Y%m%d") \
-#   -t deb \
-#   -n opt-openssl \
-#   -p opt-openssl-1.0.2t_focal-gcc9_amd64.deb \
-#   -C /opt/openssl-1.0.2t \
-#   --prefix /opt/openssl-1.0.2t \
-#   -a x86_64 \
-#   .
-# 
-# 
-# # 2.php 5.2.17 -----------------------------------------------------------
-# WORKDIR /usr/local/src
-# RUN apt install -y libxml2-dev apache2 apache2-dev libssl-dev \
-#  && apt-get clean
-# COPY files/php-5.2.17.tar.bz2 .
-# RUN tar jxf php-5.2.17.tar.bz2
-# #
-# WORKDIR /usr/local/src/php-5.2.17
-# RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
-#  && apt-get clean
-# # configureを通すため。
-# RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
-#  && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
-#  && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu \
-#  && (cd /opt/openssl-1.0.2t && cp -a lib x86_64-linux-gnu && mv x86_64-linux-gnu lib)
-# # CentOS7用と同じパッチ
-# COPY files/php-patch/gmp.patch ..
-# COPY files/php-patch/php-5.2.17.patch ..
-# COPY files/php-patch/php_functions.patch ..
-# RUN patch -p0 -b < ../php-5.2.17.patch \
-#  && patch -p0 -b < ../gmp.patch \
-#  && patch -p0 -b < ../php_functions.patch
-# #
-# RUN ./configure \
-#   --prefix=/usr/local/php \
-#   --with-apxs2=/usr/bin/apxs \
-#   --with-pear=/usr/local/pear \
-#   --disable-cgi \
-#   --enable-zend-multibyte \
-#   --enable-mbstring \
-#   \
-#   --with-mysql=shared,/opt/mysql \
-#   --with-pdo-mysql=shared,/opt/mysql \
-#   \
-#   --with-openssl=/opt/openssl-1.0.2t \
-#   --with-mhash=shared,/usr \
-#   --with-mcrypt=shared,/usr \
-#   --enable-sockets \
-#   --enable-pcntl \
-#   --enable-sigchild \
-#   --with-gd=shared \
-#   --with-jpeg-dir=/usr \
-#   --with-png-dir=/usr \
-#   --with-zlib-dir=/usr \
-#   --with-ttf \
-#   --with-freetype-dir=/usr \
-#   --enable-gd-native-ttf \
-#   --enable-gd-jis-conv \
-#   \
-#   --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
-#   \
-#   --with-libdir=/lib/x86_64-linux-gnu
-# #
-# RUN make -s
-# RUN make install
-# 
-# #---------
-# # local-pear
-# #---------
-# RUN /usr/local/php/bin/pear install DB-1.7.14 \
-#  && /usr/local/php/bin/pear install Var_Dump
-# 
-# RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apache2/mods-available/php52.load \
-#  && fpm -s dir \
-#   -v 5.2.17~$(date "+%Y%m%d") \
-#   -t deb \
-#   -n local-php \
-#   -p local-php-5.2.17_focal-gcc9_amd64.deb \
-#   -C / \
-#   --prefix / \
-#   -a x86_64 \
-#   /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5.so /etc/apache2/mods-available/php52.load
+#---------------
+# openssl-1.0.2t
+#---------------
+WORKDIR /usr/local/src
+COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
+RUN tar xzf openssl-1.0.2t.tar.gz
+WORKDIR /usr/local/src/openssl-1.0.2t
+RUN ./config --prefix=/opt/openssl-1.0.2t shared
+RUN make -s
+RUN make install
+RUN fpm -s dir \
+  -v 1.0.2t~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-openssl \
+  -p opt-openssl-1.0.2t_focal-gcc9_amd64.deb \
+  -C /opt/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
+  -a x86_64 \
+  .
 
-# #---------------
-# # opt-ruby-1.8.7
-# #---------------
-# # gcc 4.4 ---------------------------------------------------------
-# RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main universe" >> /etc/apt/sources.list
-# RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
-#  && apt-get update \
-#  && apt install -y libncurses5-dev checkinstall \
-#    libcurl4-openssl-dev gcc-4.4 g++-4.4 \
-#  && apt-get clean
-# ENV CC=/usr/bin/gcc-4.4
-# ENV CXX=/usr/bin/g++-4.4
-# ENV CXXFLAGS=""
-# #
-# WORKDIR /usr/local/src
-# # http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
-# COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
-# RUN tar xf ruby-1.8.7-p374.tar.bz2
-# WORKDIR /usr/local/src/ruby-1.8.7-p374
-# # https://www.ruby-forum.com/topic/142608
-# #RUN yum install -y -q tk-devel
-# #RUN yum install -y -q tclx
-# COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
-# # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
-# RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
-# RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
-# RUN make -s
-# RUN make test
-# RUN make install
-# RUN fpm -s dir \
-#   -v 1.8.7_p374~$(date "+%Y%m%d") \
-#   -t deb \
-#   -n opt-ruby \
-#   -p opt-ruby-1.8.7_focal-gcc44_amd64.deb \
-#   -C /opt/ruby \
-#   --prefix /opt/ruby \
-#   -a x86_64 \
-#   .
-# 
-# # benchmark
-# RUN apt install -y libclass-dbi-mysql-perl
+
+# 2.php 5.2.17 -----------------------------------------------------------
+WORKDIR /usr/local/src
+RUN apt install -y libxml2-dev apache2 apache2-dev libssl-dev \
+ && apt-get clean
+COPY files/php-5.2.17.tar.bz2 .
+RUN tar jxf php-5.2.17.tar.bz2
+#
+WORKDIR /usr/local/src/php-5.2.17
+RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
+ && apt-get clean
+# configureを通すため。
+RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
+ && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
+ && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu \
+ && (cd /opt/openssl-1.0.2t && cp -a lib x86_64-linux-gnu && mv x86_64-linux-gnu lib)
+# CentOS7用と同じパッチ
+COPY files/php-patch/gmp.patch ..
+COPY files/php-patch/php-5.2.17.patch ..
+COPY files/php-patch/php_functions.patch ..
+RUN patch -p0 -b < ../php-5.2.17.patch \
+ && patch -p0 -b < ../gmp.patch \
+ && patch -p0 -b < ../php_functions.patch
+#
+RUN ./configure \
+  --prefix=/usr/local/php \
+  --with-apxs2=/usr/bin/apxs \
+  --with-pear=/usr/local/pear \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+  --with-openssl=/opt/openssl-1.0.2t \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
+  \
+  --with-libdir=/lib/x86_64-linux-gnu
+#
+RUN make -s
+RUN make install
+
+#---------
+# local-pear
+#---------
+RUN /usr/local/php/bin/pear install DB-1.7.14 \
+ && /usr/local/php/bin/pear install Var_Dump
+
+RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apache2/mods-available/php52.load \
+ && fpm -s dir \
+  -v 5.2.17~$(date "+%Y%m%d") \
+  -t deb \
+  -n local-php \
+  -p local-php-5.2.17_focal-gcc9_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5.so /etc/apache2/mods-available/php52.load
+
+#---------------
+# opt-ruby-1.8.7
+#---------------
+# gcc 4.4 ---------------------------------------------------------
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main universe" >> /etc/apt/sources.list
+RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
+ && apt-get update \
+ && apt install -y libncurses5-dev checkinstall \
+   libcurl4-openssl-dev gcc-4.4 g++-4.4 \
+ && apt-get clean
+ENV CC=/usr/bin/gcc-4.4
+ENV CXX=/usr/bin/g++-4.4
+ENV CXXFLAGS=""
+#
+WORKDIR /usr/local/src
+# http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
+COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
+RUN tar xf ruby-1.8.7-p374.tar.bz2
+WORKDIR /usr/local/src/ruby-1.8.7-p374
+# https://www.ruby-forum.com/topic/142608
+#RUN yum install -y -q tk-devel
+#RUN yum install -y -q tclx
+COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
+# openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
+RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
+RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
+RUN make -s
+RUN make test
+RUN make install
+RUN fpm -s dir \
+  -v 1.8.7_p374~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-ruby \
+  -p opt-ruby-1.8.7_focal-gcc44_amd64.deb \
+  -C /opt/ruby \
+  --prefix /opt/ruby \
+  -a x86_64 \
+  .
+
+# benchmark
+RUN apt install -y libclass-dbi-mysql-perl

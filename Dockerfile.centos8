@@ -1,6 +1,4 @@
-FROM tukiyo3/centos8-build
-
-ENV CXXFLAGS="-std=gnu++98"
+FROM tukiyo3/centos7-build as el7mysql40
 
 #----------
 # mysql-4.0
@@ -16,10 +14,24 @@ COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
 RUN make -s 1>/dev/null
 #RUN make test
 RUN make install
+
+# centos7
 RUN fpm -s dir \
   -v $(date "+%Y%m%d")_4.0.30 \
   -t rpm \
   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql40 \
+  -p opt-mysql40-4.0.30.el7.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
+# centos8
+RUN fpm -s dir \
+  -v $(date "+%Y%m%d")_4.0.30 \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL libnsl ncurses-compat-libs" \
   -n opt-mysql40 \
   -p opt-mysql40-4.0.30.el8.x86_64.rpm \
   -C / \
@@ -27,11 +39,45 @@ RUN fpm -s dir \
   -a x86_64 \
   /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
 
+
+# -------------------------------------------------------------------------
+FROM tukiyo3/centos8-build as el8
+
+WORKDIR /usr/local/src/
+ENV CXXFLAGS="-std=gnu++98"
+COPY --from=el7mysql40 /usr/local/src/mysql-4.0.30/opt-mysql40-4.0.30.el8.x86_64.rpm /usr/local/src/
+# RUN yum localinstall --nogpgcheck -y opt-mysql40-4.0.30.el8.x86_64.rpm
+
+#----------
+# mysql-4.0
+#----------
+WORKDIR /usr/local/src/
+COPY files/ .
+RUN tar xzf mysql-4.0.30.tar.gz
+WORKDIR /usr/local/src/mysql-4.0.30
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql40 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql40/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+# RUN fpm -s dir \
+#   -v $(date "+%Y%m%d")_4.0.30 \
+#   -t rpm \
+#   -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+#   -n opt-mysql40 \
+#   -p opt-mysql40-4.0.30.el8.x86_64.rpm \
+#   -C / \
+#   --prefix / \
+#   -a x86_64 \
+#   /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
 #------------
 # mysql-5.0
 #------------
 WORKDIR /usr/local/src/
-COPY files.centos8/mysql-5.0.86.tar.gz mysql-5.0.86.tar.gz
+COPY files.centos8/mysql-5.0.86.tar.gz /usr/local/src/
 RUN tar xzf mysql-5.0.86.tar.gz
 WORKDIR /usr/local/src/mysql-5.0.86
 # eucjpとsjisを有効化
@@ -52,6 +98,8 @@ RUN fpm -s dir \
   --prefix / \
   -a x86_64 \
   /opt/mysql50 /etc/ld.so.conf.d/opt-mysql50.conf /etc/my.cnf.example-50
+# 不要なため。必要になったらコメントアウトする
+RUN rm opt-mysql50-5.0.86.el8.x86_64.rpm 
 
 # mysql50-lib
 RUN mkdir -p /opt/mysql50-lib/ \
@@ -132,6 +180,7 @@ WORKDIR /usr/local/src/
 # re2c
 #-----
 # phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
+COPY files/re2c-0.16.tar.gz /usr/local/src/
 RUN tar xzf re2c-0.16.tar.gz \
  && cd re2c-0.16 \
  && ./configure \
@@ -141,11 +190,13 @@ RUN tar xzf re2c-0.16.tar.gz \
 #-----
 # lemon
 #-----
+COPY files/lemon.c /usr/local/src/
 RUN gcc -o /usr/local/bin/lemon lemon.c
 
 #-----
 # flex
 #-----
+COPY files/flex-2.5.4a.tar.gz /usr/local/src/
 RUN tar xzf flex-2.5.4a.tar.gz \
  && cd flex-2.5.4 \
  && ./configure --prefix=/opt/flex \
@@ -155,6 +206,7 @@ RUN tar xzf flex-2.5.4a.tar.gz \
 #------
 # bison
 #------
+COPY files/bison-2.4.1.tar.bz2 /usr/local/src/
 RUN tar jxf bison-2.4.1.tar.bz2 \
  && cd bison-2.4.1 \
  && ./configure \
@@ -166,7 +218,7 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
 # openssl 1.0.2
 #---------------
 WORKDIR /usr/local/src/
-COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
+COPY files/openssl/openssl-1.0.2t.tar.gz /usr/local/src/
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
 RUN ./config --prefix=/opt/openssl-1.0.2t shared
@@ -185,6 +237,7 @@ RUN fpm -s dir \
 
 # php
 WORKDIR /usr/local/src/
+COPY files/php-5.2.17.tar.bz2 /usr/local/src/
 RUN tar jxf php-5.2.17.tar.bz2
 
 # configureを通すため。
@@ -194,9 +247,11 @@ RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlcl
 
 # patch
 WORKDIR /usr/local/src/php-5.2.17
+COPY ./files/php-patch/ /usr/local/src/php-patch/
 RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
  && patch -p0 -b < ../php-patch/gmp.patch \
  && patch -p0 -b < ../php-patch/php_functions.patch
+RUN yum install --nogpgcheck -y libnsl
 RUN ./configure --quiet \
   --prefix=/opt/php52 \
   --with-apxs2=/usr/bin/apxs \
@@ -258,7 +313,7 @@ COPY etc/php.d /etc/php.d
 
 # xdebug
 WORKDIR /usr/local/src/
-COPY files/xdebug-2.2.7.tgz .
+COPY files/xdebug-2.2.7.tgz /usr/local/src/
 RUN tar xzf xdebug-2.2.7.tgz
 WORKDIR /usr/local/src/xdebug-2.2.7
 RUN /opt/php52/bin/phpize \
@@ -347,7 +402,7 @@ RUN fpm -s dir \
 #-----------------------
 WORKDIR /usr/local/src
 RUN yum install -y perl-ExtUtils-MakeMaker
-COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src
+COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src/
 RUN tar xzf IO-BufferedSelect-1.0.tar.gz
 WORKDIR /usr/local/src/IO-BufferedSelect
 RUN perl Makefile.PL
@@ -368,7 +423,7 @@ RUN rpm -ivh local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm
 # tenshi
 #-------
 WORKDIR /usr/local/src
-COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src
+COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src/
 RUN tar xzf tenshi-0.17.tar.gz
 WORKDIR /usr/local/src/tenshi-0.17
 RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
