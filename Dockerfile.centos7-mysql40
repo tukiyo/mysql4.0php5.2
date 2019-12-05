@@ -38,3 +38,16 @@ RUN fpm -s dir \
   --prefix / \
   -a x86_64 \
   /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
+# ubuntu
+RUN fpm -s dir \
+  -v 4.0.30~$(date "+%Y%m%d") \
+  -t deb \
+  -d "libclass-dbi-mysql-perl" \
+  -n opt-mysql40 \
+  -p opt-mysql40-4.0.30_el7_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+

@@ -8,8 +8,8 @@ IMAGE="tukiyo/mysql4php52:centos8-mysql55"
 IMAGE="tukiyo/mysql4php52:centos8"
 IMAGE="tukiyo3/centos7-build"
 IMAGE="tukiyo3/ubuntu-build:14.04"
-IMAGE="ubuntu:14.04"
 IMAGE="tukiyo/mysql4php52:latest"
 IMAGE="tukiyo/mysql4php52:ubuntu2004"
+IMAGE="ubuntu:20.04"
 
 docker run --rm -v `pwd`:/host/  -it $IMAGE /bin/bash

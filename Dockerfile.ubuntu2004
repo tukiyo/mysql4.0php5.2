@@ -2,6 +2,13 @@ FROM tukiyo3/ubuntu-build:20.04
 
 ENV CXXFLAGS="-std=gnu++98"
 
+RUN apt install -y gcc-8 g++-8 \
+ && update-alternatives \
+ --install /usr/bin/gcc gcc /usr/bin/gcc-8 20 \
+ --slave   /usr/bin/g++ g++ /usr/bin/g++-8
+ENV CC=/usr/bin/gcc-8
+ENV CXX=/usr/bin/g++-8
+
 #----------
 # mysql-4.0
 #----------
@@ -44,7 +51,7 @@ RUN mkdir -p /opt/mysql50-lib/ \
   && cp -a /opt/mysql50/lib /opt/mysql50-lib/ \
   && echo "/opt/mysql50-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50-lib.conf
 RUN fpm -s dir \
-  -v $(date "+%Y%m%d")_5.0.86 \
+  -v 5.0.86~$(date "+%Y%m%d") \
   -t deb \
   -n opt-mysql50-lib \
   -p opt-mysql50-lib-5.0.86_focal-gcc9_amd64.deb \
@@ -65,7 +72,7 @@ RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql-4.050.el8.x86_64.rpm
 RUN fpm -s dir \
-  -v 4.050 \
+  -v 4.050~$(date "+%Y%m%d") \
   -t deb \
   -n local-perl-DBD-mysql \
   -p local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb \
@@ -87,7 +94,7 @@ RUN dpkg -i local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
 # RUN make -s
 # RUN make install
 # RUN fpm -s dir \
-#   -v 1.0.2t \
+#   -v 1.0.2t~$(date "+%Y%m%d") \
 #   -t deb \
 #   -n opt-openssl \
 #   -p opt-openssl-1.0.2t_focal-gcc9_amd64.deb \
@@ -161,7 +168,7 @@ RUN dpkg -i local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
 # 
 # RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apache2/mods-available/php52.load \
 #  && fpm -s dir \
-#   -v 5.2.17 \
+#   -v 5.2.17~$(date "+%Y%m%d") \
 #   -t deb \
 #   -n local-php \
 #   -p local-php-5.2.17_focal-gcc9_amd64.deb \
@@ -200,7 +207,7 @@ RUN dpkg -i local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
 # RUN make test
 # RUN make install
 # RUN fpm -s dir \
-#   -v 1.8.7_p374 \
+#   -v 1.8.7_p374~$(date "+%Y%m%d") \
 #   -t deb \
 #   -n opt-ruby \
 #   -p opt-ruby-1.8.7_focal-gcc44_amd64.deb \
