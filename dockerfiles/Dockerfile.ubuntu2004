@@ -32,13 +32,6 @@ FROM tukiyo3/ubuntu-build:20.04 as ubuntu2004
 
 ENV CXXFLAGS="-std=gnu++98"
 
-RUN apt install -y gcc-8 g++-8 \
- && update-alternatives \
- --install /usr/bin/gcc gcc /usr/bin/gcc-8 20 \
- --slave   /usr/bin/g++ g++ /usr/bin/g++-8
-ENV CC=/usr/bin/gcc-8
-ENV CXX=/usr/bin/g++-8
-
 #----------
 # mysql-4.0
 #----------
@@ -95,7 +88,6 @@ RUN ln -s /opt/mysql40 /opt/mysql
 
 # perl-DBD-mysql-4.050
 WORKDIR /usr/local/src
-RUN apt install -y libdevel-checklib-perl libdbi-perl
 COPY files.centos8/DBD-mysql-4.050.tar.gz .
 RUN tar xzf DBD-mysql-4.050.tar.gz
 WORKDIR /usr/local/src/DBD-mysql-4.050
@@ -139,14 +131,10 @@ RUN fpm -s dir \
 
 # 2.php 5.2.17 -----------------------------------------------------------
 WORKDIR /usr/local/src
-RUN apt install -y libxml2-dev apache2 apache2-dev libssl-dev \
- && apt-get clean
 COPY files/php-5.2.17.tar.bz2 .
 RUN tar jxf php-5.2.17.tar.bz2
 #
 WORKDIR /usr/local/src/php-5.2.17
-RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
- && apt-get clean
 # configureを通すため。
 RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
  && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
@@ -214,12 +202,6 @@ RUN echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apa
 # opt-ruby-1.8.7
 #---------------
 # gcc 4.4 ---------------------------------------------------------
-RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main universe" >> /etc/apt/sources.list
-RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
- && apt-get update \
- && apt install -y libncurses5-dev checkinstall \
-   libcurl4-openssl-dev gcc-4.4 g++-4.4 \
- && apt-get clean
 ENV CC=/usr/bin/gcc-4.4
 ENV CXX=/usr/bin/g++-4.4
 ENV CXXFLAGS=""
@@ -248,6 +230,3 @@ RUN fpm -s dir \
   --prefix /opt/ruby \
   -a x86_64 \
   .
-
-# benchmark
-RUN apt install -y libclass-dbi-mysql-perl

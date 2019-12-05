@@ -1,0 +1,32 @@
+FROM ubuntu:20.04
+
+RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
+ && apt update \
+ && apt install -y \
+  build-essential \
+  libncurses5-dev libcurl4-openssl-dev \
+  procps libclass-dbi-mysql-perl \
+  libxml2-dev apache2 apache2-dev libssl-dev \
+  zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
+  bison flex re2c \
+  software-properties-common \
+  ruby-dev \
+ &&gem install fpm --no-rdoc --no-ri
+ENV CXXFLAGS="-std=gnu++98"
+
+RUN apt install -y \
+  libdevel-checklib-perl libdbi-perl \
+  libxml2-dev apache2 apache2-dev libssl-dev \
+  zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
+ && apt-get clean
+# gcc 4.4
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main universe" >> /etc/apt/sources.list \
+ && sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
+ && apt-get update \
+ && apt install -y gcc-4.4 g++-4.4 \
+ && apt-get clean
+#ENV CC=/usr/bin/gcc-4.4
+#ENV CXX=/usr/bin/g++-4.4
+#ENV CXXFLAGS=""
+
+WORKDIR /usr/local/src
