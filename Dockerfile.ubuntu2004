@@ -90,6 +90,9 @@ RUN fpm -s dir \
   -a x86_64 \
   /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
 
+# link
+RUN ln -s /opt/mysql40 /opt/mysql
+
 # perl-DBD-mysql-4.050
 WORKDIR /usr/local/src
 RUN apt install -y libdevel-checklib-perl libdbi-perl
