@@ -1,0 +1,38 @@
+FROM ubuntu:20.04
+
+WORKDIR /usr/local/src
+RUN apt update \
+ && apt install -y libclass-dbi-mysql-perl
+COPY deb/ .
+RUN dpkg -i *.deb \
+ && ldconfig
+
+RUN useradd mysql
+
+RUN ln -s /opt/mysql40/ /opt/mysql
+RUN cp -a /etc/my.cnf.example-40 /etc/my.cnf
+
+RUN mkdir -p /var/lib/mysql
+RUN chown mysql /var/lib/mysql
+
+RUN /opt/mysql/bin/mysql_install_db \
+  --datadir=/var/lib/mysql/ \
+  --user=mysql
+
+WORKDIR /opt/mysql/sql-bench
+
+# mysqldの起動
+# nohup /opt/mysql/bin/mysqld_safe \
+#   --defaults-file=/etc/my.cnf \
+#   --datadir=/var/lib/mysql/ \
+#   --user=mysql \
+#   &
+# 
+# # ベンチマークテスト
+# cd /opt/mysql/sql-bench
+# 
+# time ./run-all-tests \
+#  --user root \
+#  --connect-options=mysql_read_default_file=/etc/my.cnf \
+#  --small-test \
+#  --create-options=TYPE=InnoDB

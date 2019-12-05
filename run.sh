@@ -11,5 +11,6 @@ IMAGE="tukiyo3/ubuntu-build:14.04"
 IMAGE="tukiyo/mysql4php52:latest"
 IMAGE="tukiyo/mysql4php52:ubuntu2004"
 IMAGE="ubuntu:20.04"
+IMAGE="tukiyo/mysql4php52:ubuntu2004-sqlbench"
 
 docker run --rm -v `pwd`:/host/  -it $IMAGE /bin/bash
