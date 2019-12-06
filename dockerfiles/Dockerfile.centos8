@@ -48,6 +48,17 @@ ENV CXXFLAGS="-std=gnu++98"
 COPY --from=el7mysql40 /usr/local/src/mysql-4.0.30/opt-mysql40-4.0.30.el8.x86_64.rpm /usr/local/src/
 # RUN yum localinstall --nogpgcheck -y opt-mysql40-4.0.30.el8.x86_64.rpm
 
+RUN yum install --nogpgcheck -y libnsl
+
+# RUN yum --enablerepo=PowerTools install -y --nogpgcheck libnsl2-devel
+
+ENV CXXFLAGS="-std=gnu++98"
+RUN update-alternatives \
+ --install /usr/bin/gcc gcc /usr/bin/gcc44 20 \
+ --slave   /usr/bin/g++ g++ /usr/bin/g++44
+ENV CC=/usr/bin/gcc44
+ENV CXX=/usr/bin/g++44
+
 #----------
 # mysql-4.0
 #----------
