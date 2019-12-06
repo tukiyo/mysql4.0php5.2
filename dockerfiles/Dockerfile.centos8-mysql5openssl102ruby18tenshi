@@ -1,0 +1,222 @@
+FROM tukiyo3/centos8-build as el8
+
+WORKDIR /usr/local/src/
+ENV CXXFLAGS="-std=gnu++98"
+
+#------------
+# mysql-5.0
+#------------
+WORKDIR /usr/local/src/
+COPY files.centos8/mysql-5.0.86.tar.gz /usr/local/src/
+RUN tar xzf mysql-5.0.86.tar.gz
+WORKDIR /usr/local/src/mysql-5.0.86
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql50 --with-charset=ujis --with-extra-charsets=sjis --quiet
+RUN echo "/opt/mysql50/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50.conf
+COPY etc/my.cnf.example-40 /etc/my.cnf.example-50
+RUN make -s 1>/dev/null
+#RUN make test
+RUN make install
+RUN echo "/opt/mysql50/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50.conf
+
+# fpm
+RUN fpm -s dir \
+  -v 5.0.86~$(date "+%Y%m%d") \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql50 \
+  -p opt-mysql50-5.0.86.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50 /etc/ld.so.conf.d/opt-mysql50.conf /etc/my.cnf.example-50
+# 不要なため。必要になったらコメントアウトする
+RUN rm opt-mysql50-5.0.86.el8.x86_64.rpm 
+
+# mysql50-lib
+RUN mkdir -p /opt/mysql50-lib/ \
+  && cp -a /opt/mysql50/lib /opt/mysql50-lib/ \
+  && echo "/opt/mysql50-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50-lib.conf
+RUN fpm -s dir \
+  -v 5.0.86~$(date "+%Y%m%d") \
+  -t rpm \
+  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -n opt-mysql50-lib \
+  -p opt-mysql50-lib-5.0.86.el8.x86_64.rpm \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
+
+
+# link
+# RUN ln -s /opt/mysql40 /opt/mysql
+
+
+#--------------------
+# perl-Devel-CheckLib
+#--------------------
+ENV CXXFLAGS="-std=gnu++11"
+# 
+WORKDIR /usr/local/src
+COPY files.centos8/Devel-CheckLib-1.14.tar.gz /usr/local/src
+RUN tar xzf Devel-CheckLib-1.14.tar.gz
+WORKDIR /usr/local/src/Devel-CheckLib-1.14
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v 1.0~$(date "+%Y%m%d") \
+  -t rpm \
+  -n local-Devel-CheckLib \
+  -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/Devel/CheckLib.pm ./usr/local/share/man/man3/Devel::CheckLib.3pm
+RUN rpm -ivh local-Devel-CheckLib-1.14.el8.x86_64.rpm
+
+#---------------------
+# perl-DBD-mysql-4.050
+#----------------------
+WORKDIR /usr/local/src
+COPY files.centos8/DBD-mysql-4.050.tar.gz /usr/local/src
+RUN tar xzf DBD-mysql-4.050.tar.gz
+WORKDIR /usr/local/src/DBD-mysql-4.050
+RUN perl Makefile.PL \
+ --mysql_config=/opt/mysql50/bin/mysql_config
+RUN make
+RUN make install DESTDIR=/opt/perl-DBD-mysql
+RUN rm -f local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
+RUN fpm -s dir \
+  -v 4.050~$(date "+%Y%m%d") \
+  -t rpm \
+  -n local-perl-DBD-mysql50 \
+  -p local-perl-DBD-mysql50-4.050.el8.x86_64.rpm \
+  -C /opt/perl-DBD-mysql \
+  --prefix / \
+  -a x86_64 \
+  .
+RUN rpm -ivh local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
+
+
+#---------------
+# openssl 1.0.2
+#---------------
+WORKDIR /usr/local/src/
+COPY files/openssl/openssl-1.0.2t.tar.gz /usr/local/src/
+RUN tar xzf openssl-1.0.2t.tar.gz
+WORKDIR /usr/local/src/openssl-1.0.2t
+RUN ./config --prefix=/opt/openssl-1.0.2t shared
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
+RUN fpm -s dir \
+  -v 1.0.2t~$(date "+%Y%m%d") \
+  -t rpm \
+  -n opt-openssl \
+  -p opt-openssl-1.0.2t.el8.x86_64.rpm \
+  -C /opt/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
+  -a x86_64 \
+  .
+
+
+#-------------
+# Ruby1.8.7用
+#-------------
+WORKDIR $BUILDROOT/SOURCES/
+RUN rpm -ivh --force /usr/local/src/rpms/*.rpm
+
+RUN yum remove -y gcc gcc-c++ \
+ && update-alternatives \
+ --install /usr/bin/gcc gcc /usr/bin/gcc44 20 \
+ --slave   /usr/bin/g++ g++ /usr/bin/g++44
+ENV CC=/usr/bin/gcc44
+ENV CXX=/usr/bin/g++44
+ENV CXXFLAGS=
+
+# opt-ruby-1.8.7
+WORKDIR $BUILDROOT/SOURCES/
+# http://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.bz2
+COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
+RUN tar xf ruby-1.8.7-p374.tar.bz2
+WORKDIR $BUILDROOT/SOURCES/ruby-1.8.7-p374
+# https://www.ruby-forum.com/topic/142608
+COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
+# openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
+RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
+RUN ./configure --prefix=/opt/ruby18 --enable-pthread --with-opt-dir=/opt/openssl-1.0.2t
+RUN make -s
+RUN make test
+RUN make install
+RUN ln -s /opt/ruby18 /opt/ruby
+
+# mysql-ruby
+WORKDIR /usr/local/src/ruby
+RUN tar xzf mysql-ruby-2.8.2.tar.gz \
+ && cd mysql-ruby-2.8.2 \
+ && /opt/ruby18/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql50 \
+ && make -s \
+ && make install
+
+# ruby-dbi 0.1.1
+WORKDIR /usr/local/src/ruby
+RUN tar xzf rel-0-1-1.tar.gz \
+ && cd ruby-dbi-rel-0-1-1 \
+ && /opt/ruby18/bin/ruby setup.rb config --with=dbi,dbd_mysql \
+ && /opt/ruby18/bin/ruby setup.rb setup \
+ && /opt/ruby18/bin/ruby setup.rb install
+
+# rpm作成
+RUN fpm -s dir \
+  -v 1.8.7_p374~$(date "+%Y%m%d") \
+  -t rpm \
+  -n opt-ruby-1.8 \
+  -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
+  -C /opt \
+  --prefix /opt \
+  -a x86_64 \
+  ruby18 ruby
+
+#-----------------------
+# perl-IO-BufferedSelect
+#-----------------------
+WORKDIR /usr/local/src
+RUN yum install -y perl-ExtUtils-MakeMaker
+COPY files.centos7/IO-BufferedSelect-1.0.tar.gz /usr/local/src/
+RUN tar xzf IO-BufferedSelect-1.0.tar.gz
+WORKDIR /usr/local/src/IO-BufferedSelect
+RUN perl Makefile.PL
+RUN make
+RUN make install DESTDIR=/opt/cpan
+RUN fpm -s dir \
+  -v 1.0~$(date "+%Y%m%d") \
+  -t rpm \
+  -n local-perl-IO-BufferedSelect \
+  -p local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/IO/BufferedSelect.pm ./usr/local/share/man/man3/IO::BufferedSelect.3pm
+RUN rpm -ivh local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm
+
+#-------
+# tenshi
+#-------
+WORKDIR /usr/local/src
+COPY files.centos7/tenshi-0.17.tar.gz /usr/local/src/
+RUN tar xzf tenshi-0.17.tar.gz
+WORKDIR /usr/local/src/tenshi-0.17
+RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
+RUN make install DESTDIR=/opt/tenshi
+RUN fpm -s dir \
+  -v 0.17~$(date "+%Y%m%d") \
+  -t rpm \
+  -d "local-perl-IO-BufferedSelect" \
+  -n opt-tenshi \
+  -p opt-tenshi-0.17.el8.x86_64.rpm \
+  -C /opt/tenshi \
+  --prefix /opt/tenshi \
+  -a x86_64 \
+  .
