@@ -21,7 +21,7 @@ RUN echo "/opt/mysql50/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50.conf
 
 # fpm
 RUN fpm -s dir \
-  -v 5.0.86~$(date "+%Y%m%d")-el8 \
+  -v 5.0.86~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" \
   -n opt-mysql50 \
@@ -38,7 +38,7 @@ RUN mkdir -p /opt/mysql50-lib/ \
   && cp -a /opt/mysql50/lib /opt/mysql50-lib/ \
   && echo "/opt/mysql50-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50-lib.conf
 RUN fpm -s dir \
-  -v 5.0.86~$(date "+%Y%m%d")-el8 \
+  -v 5.0.86~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" \
   -n opt-mysql50-lib \
@@ -66,7 +66,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v 1.0~$(date "+%Y%m%d")-el8 \
+  -v 1.0~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n local-Devel-CheckLib \
   -p local-Devel-CheckLib-1.14.el8.x86_64.rpm \
@@ -89,7 +89,7 @@ RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
 RUN fpm -s dir \
-  -v 4.050~$(date "+%Y%m%d")-el8 \
+  -v 4.050~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n local-perl-DBD-mysql50 \
   -p local-perl-DBD-mysql50-4.050.el8.x86_64.rpm \
@@ -112,7 +112,7 @@ RUN make -s
 RUN make install
 RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
 RUN fpm -s dir \
-  -v 1.0.2t~$(date "+%Y%m%d")-el8 \
+  -v 1.0.2t~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el8.x86_64.rpm \
@@ -172,7 +172,7 @@ RUN tar xzf rel-0-1-1.tar.gz \
 
 # rpm作成
 RUN fpm -s dir \
-  -v 1.8.7_p374~$(date "+%Y%m%d")-el8 \
+  -v 1.8.7_p374~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n opt-ruby-1.8 \
   -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
@@ -193,7 +193,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v 1.0~$(date "+%Y%m%d")-el8 \
+  -v 1.0~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n local-perl-IO-BufferedSelect \
   -p local-perl-IO-BufferedSelect-1.0.el8.x86_64.rpm \
@@ -213,7 +213,7 @@ WORKDIR /usr/local/src/tenshi-0.17
 RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
 RUN make install DESTDIR=/opt/tenshi
 RUN fpm -s dir \
-  -v 0.17~$(date "+%Y%m%d")-el8 \
+  -v 0.17~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -d "local-perl-IO-BufferedSelect" \
   -n opt-tenshi \
@@ -231,7 +231,7 @@ WORKDIR /usr/local/src/
 
 # mysql50-lib
 RUN fpm -s dir \
-  -v 5.0.86~$(date "+%Y%m%d")-el8 \
+  -v 5.0.86~$(date "+%Y%m%d")_el8 \
   -t deb \
   -n opt-mysql50-lib \
   -p opt-mysql50-lib-5.0.86.el8.deb \
@@ -242,7 +242,7 @@ RUN fpm -s dir \
 
 # perl-Devel-CheckLib
 RUN fpm -s dir \
-  -v 1.0~$(date "+%Y%m%d")-el8 \
+  -v 1.0~$(date "+%Y%m%d")_el8 \
   -t deb \
   -n local-Devel-CheckLib \
   -p local-Devel-CheckLib-1.14.el8.deb \
@@ -253,7 +253,7 @@ RUN fpm -s dir \
 
 # perl-DBD-mysql-4.050
 RUN fpm -s dir \
-  -v 4.050~$(date "+%Y%m%d")-el8 \
+  -v 4.050~$(date "+%Y%m%d")_el8 \
   -t deb \
   -n local-perl-DBD-mysql50 \
   -p local-perl-DBD-mysql50-4.050.el8.deb \

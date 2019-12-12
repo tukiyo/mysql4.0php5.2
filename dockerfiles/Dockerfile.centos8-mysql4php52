@@ -17,7 +17,7 @@ RUN make install
 
 # centos7
 RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d")-el8 \
+  -v 4.0.30~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" \
   -n opt-mysql40 \
@@ -29,7 +29,7 @@ RUN fpm -s dir \
 
 # centos8
 RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d")-el8 \
+  -v 4.0.30~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" -d "libnsl" -d "ncurses-compat-libs" \
   -n opt-mysql40 \
@@ -41,7 +41,7 @@ RUN fpm -s dir \
 
 # ubuntu
 RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d")-el8 \
+  -v 4.0.30~$(date "+%Y%m%d")_el8 \
   -t deb \
   -d "libclass-dbi-mysql-perl" \
   -n opt-mysql40 \
@@ -96,7 +96,7 @@ RUN make -s
 RUN make install
 RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
 RUN fpm -s dir \
-  -v 1.0.2t~$(date "+%Y%m%d")-el8 \
+  -v 1.0.2t~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el7.x86_64.rpm \
@@ -185,7 +185,7 @@ RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d
 
 # el8
 RUN fpm -s dir \
-  -v 5.2.17~$(date "+%Y%m%d")-el8 \
+  -v 5.2.17~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n local-php \
   -p local-php-5.2.17.el8.x86_64.rpm \
@@ -229,7 +229,7 @@ RUN tar xzf rel-0-1-1.tar.gz \
 
 # rpm
 RUN fpm -s dir \
-  -v 1.8.7_p374~$(date "+%Y%m%d")-el8 \
+  -v 1.8.7_p374~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
@@ -246,7 +246,7 @@ WORKDIR /usr/local/src/
 
 # opt-mysql40
 RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d")-el8 \
+  -v 4.0.30~$(date "+%Y%m%d")_el8 \
   -t deb \
   -n opt-mysql40 \
   -p opt-mysql40-4.0.30.el8.deb \
@@ -257,7 +257,7 @@ RUN fpm -s dir \
 
 # openssl-1.0.2t
 RUN fpm -s dir \
-  -v 1.0.2t~$(date "+%Y%m%d")-el8 \
+  -v 1.0.2t~$(date "+%Y%m%d")_el8 \
   -t deb \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el8.deb \
@@ -268,7 +268,7 @@ RUN fpm -s dir \
 
 # php
 RUN fpm -s dir \
-  -v 5.2.17~$(date "+%Y%m%d")-el8 \
+  -v 5.2.17~$(date "+%Y%m%d")_el8 \
   -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libpng16-16" \
   -t deb \
   -n local-php \
@@ -280,7 +280,7 @@ RUN fpm -s dir \
 
 # ruby 1.8.7
 RUN fpm -s dir \
-  -v 1.8.7_p374~$(date "+%Y%m%d")-el8 \
+  -v 1.8.7_p374~$(date "+%Y%m%d")_el8 \
   -t deb \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el8.deb \
