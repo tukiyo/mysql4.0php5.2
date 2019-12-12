@@ -163,14 +163,8 @@ COPY etc/php.ini /etc/php.ini
 COPY etc/php.d/ /etc/php.d/
 # 互換性のため
 RUN /usr/local/php/bin/pear install DB-1.7.14
-# DB-1.7.14 の後継
-RUN /usr/local/php/bin/pear install MDB2
-RUN /usr/local/php/bin/pear install MDB2_Driver_sqlite
-RUN /usr/local/php/bin/pear install MDB2_Driver_mysql
 # メールデコードに便利
 RUN /usr/local/php/bin/pear install Mail
-# IPアドレスをサブネットで指定可能
-RUN /usr/local/php/bin/pear install Net_IPv4
 # phpのソースを整形
 RUN /usr/local/php/bin/pear install PHP_Beautifier-0.1.15
 # HTML Formをさくっとつくれる
@@ -227,6 +221,45 @@ RUN fpm -s dir \
   -t rpm \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
+  -C /opt/ruby \
+  --prefix /opt/ruby \
+  -a x86_64 \
+  .
+
+
+#-------
+# deb
+#-------
+WORKDIR /usr/local/src/
+
+# opt-mysql40
+RUN fpm -s dir \
+  -v 4.0.30~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-mysql40 \
+  -p opt-mysql40-4.0.30.el8.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
+
+# openssl-1.0.2t
+RUN fpm -s dir \
+  -v 1.0.2t~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-openssl \
+  -p opt-openssl-1.0.2t.el8.deb \
+  -C /opt/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
+  -a x86_64 \
+  .
+
+# ruby 1.8.7
+RUN fpm -s dir \
+  -v 1.8.7_p374~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-ruby \
+  -p opt-ruby-1.8.7-p374.el8.deb \
   -C /opt/ruby \
   --prefix /opt/ruby \
   -a x86_64 \
