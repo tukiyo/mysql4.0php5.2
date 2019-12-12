@@ -282,19 +282,21 @@ RUN fpm -s dir \
   /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
 
 # openssl-1.0.2t
+RUN echo "/opt/openssl-1.0.2t/lib" > /etc/ld.so.conf.d/opt-openssl-1.0.2.conf
 RUN fpm -s dir \
   -v 1.0.2t~$(date "+%Y%m%d") \
   -t deb \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el7.deb \
-  -C /opt/openssl-1.0.2t \
-  --prefix /opt/openssl-1.0.2t \
+  -C / \
+  --prefix / \
   -a x86_64 \
-  .
+  /opt/openssl-1.0.2t/ /etc/ld.so.conf.d/opt-openssl-1.0.2.conf
 
 # php
 RUN fpm -s dir \
   -v 5.2.17~$(date "+%Y%m%d") \
+  -d "opt-openssl" \
   -t deb \
   -n local-php \
   -p local-php-5.2.17.el7.deb \
