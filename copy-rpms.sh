@@ -4,3 +4,7 @@ cd /
 cp $(find / -type f -name "*\.rpm" | egrep -v "/host/|.src.rpm|checkinstall") /host/tmp/
 
 chmod 777 /host/tmp/
+
+# list
+find / -type f -name "*\.rpm" | egrep -v "/host/|.src.rpm|checkinstall"
+find / -type f -name "*\.deb" | egrep -v "/host/|.src.rpm|checkinstall"
