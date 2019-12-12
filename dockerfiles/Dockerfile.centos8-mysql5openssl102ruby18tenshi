@@ -154,6 +154,7 @@ RUN ln -s /opt/ruby18 /opt/ruby
 
 # mysql-ruby
 WORKDIR /usr/local/src/ruby
+COPY ./files/ruby/mysql-ruby-2.8.2.tar.gz .
 RUN tar xzf mysql-ruby-2.8.2.tar.gz \
  && cd mysql-ruby-2.8.2 \
  && /opt/ruby18/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql50 \
@@ -162,6 +163,7 @@ RUN tar xzf mysql-ruby-2.8.2.tar.gz \
 
 # ruby-dbi 0.1.1
 WORKDIR /usr/local/src/ruby
+COPY ./files/ruby/rel-0-1-1.tar.gz .
 RUN tar xzf rel-0-1-1.tar.gz \
  && cd ruby-dbi-rel-0-1-1 \
  && /opt/ruby18/bin/ruby setup.rb config --with=dbi,dbd_mysql \

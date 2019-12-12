@@ -159,9 +159,23 @@ RUN make install
 #---------
 # local-pear
 #---------
-RUN /usr/local/php/bin/pear install DB-1.7.14 \
- && /usr/local/php/bin/pear install Var_Dump \
- && /usr/local/php/bin/pear install PHP_Beautifier-0.1.15
+COPY etc/php.ini /etc/php.ini
+COPY etc/php.d/ /etc/php.d/
+# 互換性のため
+RUN /usr/local/php/bin/pear install DB-1.7.14
+# DB-1.7.14 の後継
+RUN /usr/local/php/bin/pear install MDB2
+RUN /usr/local/php/bin/pear install MDB2_Driver_sqlite
+RUN /usr/local/php/bin/pear install MDB2_Driver_mysql
+# メールデコードに便利
+RUN /usr/local/php/bin/pear install Mail
+# IPアドレスをサブネットで指定可能
+RUN /usr/local/php/bin/pear install Net_IPv4
+# phpのソースを整形
+RUN /usr/local/php/bin/pear install PHP_Beautifier-0.1.15
+# HTML Formをさくっとつくれる
+RUN /usr/local/php/bin/pear install HTML_QuickForm2
+
 RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf
 # el8
 RUN fpm -s dir \
