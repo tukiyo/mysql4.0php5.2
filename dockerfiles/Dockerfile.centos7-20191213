@@ -17,9 +17,9 @@ RUN make install
 
 # centos7
 RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d") \
+  -v 4.0.30~$(date "+%Y%m%d")-el7 \
   -t rpm \
-  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL" \
+  -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" \
   -n opt-mysql40 \
   -p opt-mysql40-4.0.30.el7.x86_64.rpm \
   -C / \
@@ -29,9 +29,9 @@ RUN fpm -s dir \
 
 # centos8
 RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d") \
+  -v 4.0.30~$(date "+%Y%m%d")-el7 \
   -t rpm \
-  -d "perl perl-CGI perl-DBI perl-Module-Pluggable perl-Pod-Escapes perl-Pod-Simple perl-libs perl-version perl-DBD-MySQL libnsl ncurses-compat-libs" \
+  -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" -d "libnsl" -d "ncurses-compat-libs" \
   -n opt-mysql40 \
   -p opt-mysql40-4.0.30.el8.x86_64.rpm \
   -C / \
@@ -83,7 +83,7 @@ RUN make -s
 RUN make install
 RUN ln -s /opt/openssl-1.0.2t/lib /opt/openssl-1.0.2t/lib64
 RUN fpm -s dir \
-  -v 1.0.2t~$(date "+%Y%m%d") \
+  -v 1.0.2t~$(date "+%Y%m%d")-el7 \
   -t rpm \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el7.x86_64.rpm \
@@ -170,7 +170,7 @@ RUN /usr/local/php/bin/phpize \
 
 RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf \
  && fpm -s dir \
-  -v 5.2.17~$(date "+%Y%m%d") \
+  -v 5.2.17~$(date "+%Y%m%d")-el7 \
   -t rpm \
   -n local-php \
   -p local-php-5.2.17.el7.x86_64.rpm \
@@ -214,7 +214,7 @@ RUN tar xzf rel-0-1-1.tar.gz \
 
 # rpm作成
 RUN fpm -s dir \
-  -v 1.8.7_p374~$(date "+%Y%m%d") \
+  -v 1.8.7_p374~$(date "+%Y%m%d")-el7 \
   -t rpm \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
@@ -234,7 +234,7 @@ RUN perl Makefile.PL
 RUN make
 RUN make install DESTDIR=/opt/cpan
 RUN fpm -s dir \
-  -v 1.0~$(date "+%Y%m%d") \
+  -v 1.0~$(date "+%Y%m%d")-el7 \
   -t rpm \
   -n local-perl-IO-BufferedSelect \
   -p local-perl-IO-BufferedSelect-1.0.el7.x86_64.rpm \
@@ -254,7 +254,7 @@ WORKDIR /usr/local/src/tenshi-0.17
 RUN sed -i -e 's/mail.log/maillog/' tenshi.conf
 RUN make install DESTDIR=/opt/tenshi
 RUN fpm -s dir \
-  -v 0.17~$(date "+%Y%m%d") \
+  -v 0.17~$(date "+%Y%m%d")-el7 \
   -t rpm \
   -d "local-perl-IO-BufferedSelect" \
   -n opt-tenshi \
@@ -272,7 +272,7 @@ WORKDIR /usr/local/src/
 
 # opt-mysql40
 RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d") \
+  -v 4.0.30~$(date "+%Y%m%d")-el7 \
   -t deb \
   -n opt-mysql40 \
   -p opt-mysql40-4.0.30.el7.deb \
@@ -284,7 +284,7 @@ RUN fpm -s dir \
 # openssl-1.0.2t
 RUN echo "/opt/openssl-1.0.2t/lib" > /etc/ld.so.conf.d/opt-openssl-1.0.2.conf
 RUN fpm -s dir \
-  -v 1.0.2t~$(date "+%Y%m%d") \
+  -v 1.0.2t~$(date "+%Y%m%d")-el7 \
   -t deb \
   -n opt-openssl \
   -p opt-openssl-1.0.2t.el7.deb \
@@ -296,8 +296,8 @@ RUN fpm -s dir \
 # php
 # TODO: 'gd.so' - libpng15.so.15 not found.
 RUN fpm -s dir \
-  -v 5.2.17~$(date "+%Y%m%d") \
-  -d "opt-openssl opt-mysql40 libmcrypt4" \
+  -v 5.2.17~$(date "+%Y%m%d")-el7 \
+  -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" \
   -t deb \
   -n local-php \
   -p local-php-5.2.17.el7.deb \
@@ -309,7 +309,7 @@ RUN fpm -s dir \
 
 # ruby 1.8.7
 RUN fpm -s dir \
-  -v 1.8.7_p374~$(date "+%Y%m%d") \
+  -v 1.8.7_p374~$(date "+%Y%m%d")-el7 \
   -t deb \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el7.deb \
