@@ -222,3 +222,42 @@ RUN fpm -s dir \
   --prefix /opt/tenshi \
   -a x86_64 \
   .
+
+
+#-------
+# deb
+#-------
+WORKDIR /usr/local/src/
+
+# mysql50-lib
+RUN fpm -s dir \
+  -v 5.0.86~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-mysql50-lib \
+  -p opt-mysql50-lib-5.0.86.el8.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
+
+# perl-Devel-CheckLib
+RUN fpm -s dir \
+  -v 1.0~$(date "+%Y%m%d") \
+  -t deb \
+  -n local-Devel-CheckLib \
+  -p local-Devel-CheckLib-1.14.el8.deb \
+  -C /opt/cpan \
+  --prefix / \
+  -a x86_64 \
+  ./usr/local/share/perl5/Devel/CheckLib.pm ./usr/local/share/man/man3/Devel::CheckLib.3pm
+
+# perl-DBD-mysql-4.050
+RUN fpm -s dir \
+  -v 4.050~$(date "+%Y%m%d") \
+  -t deb \
+  -n local-perl-DBD-mysql50 \
+  -p local-perl-DBD-mysql50-4.050.el8.deb \
+  -C /opt/perl-DBD-mysql \
+  --prefix / \
+  -a x86_64 \
+  .
