@@ -20,3 +20,7 @@ http://ftp.iij.ad.jp/pub/db/mysql/Downloads/MySQL-5.5/mysql-5.5.62.tar.gz
 # nkf
 # https://ja.osdn.net/projects/nkf/
 # https://ymu.dl.osdn.jp/nkf/70406/nkf-2.1.5.tar.gz
+
+# gd.so
+
+* CentOS8 でビルドしたもの
