@@ -12,7 +12,9 @@ IMAGE="tukiyo3/centos8-build"
 IMAGE="tukiyo3/centos7-build"
 
 #IMAGE="tukiyo/mysql4php52:centos7-20191213"
-IMAGE="tukiyo/mysql4php52:centos8-mysql4php52"
+
+IMAGE="tukiyo/mysql4php52:centos8-gd.so"
+#IMAGE="tukiyo/mysql4php52:centos8-mysql4php52"
 #IMAGE="tukiyo/mysql4php52:centos8-mysql5openssl102ruby18tenshi"
 
 docker run --rm -v `pwd`:/host/  -it $IMAGE /bin/bash

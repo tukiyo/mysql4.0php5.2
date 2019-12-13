@@ -137,6 +137,9 @@ RUN /usr/local/php/bin/phpize \
  && make -s \
  && cp /usr/local/src/xdebug-2.2.7/modules/xdebug.so /usr/local/php/lib/php/extensions/
 
+# CentOS8でビルドした gd.soで上書き
+COPY files.centos8/gd.so /usr/local/php/lib/php/extensions/no-debug-zts-20060613/
+
 RUN echo "LoadModule php5_module modules/libphp5.so" > /etc/httpd/conf.modules.d/10-php52.conf
 
 #---------------
