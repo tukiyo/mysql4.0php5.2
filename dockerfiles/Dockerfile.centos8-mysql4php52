@@ -232,6 +232,7 @@ RUN fpm -s dir \
 # opt-mysql40
 RUN fpm -s dir \
   -v 4.0.30~$(date "+%Y%m%d")-el7 \
+  -d "libclass-dbi-mysql-perl" \
   -t deb \
   -n opt-mysql40 \
   -p opt-mysql40-4.0.30.el8.deb \
