@@ -254,7 +254,7 @@ RUN fpm -s dir \
 # php
 RUN fpm -s dir \
   -v 5.2.17~$(date "+%Y%m%d")-el7 \
-  -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libpng16-16" \
+  -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libpng16-16" -d "libjpeg62" \
   -t deb \
   -n local-php \
   -p local-php-5.2.17.el8.deb \
