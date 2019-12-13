@@ -41,6 +41,7 @@ RUN tar xzf Devel-CheckLib-1.14.tar.gz
 WORKDIR /usr/local/src/Devel-CheckLib-1.14
 RUN perl Makefile.PL
 RUN make
+RUN make install
 RUN make install DESTDIR=/opt/cpan
 
 #---------------------
@@ -54,7 +55,6 @@ RUN perl Makefile.PL \
  --mysql_config=/opt/mysql50/bin/mysql_config
 RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
-RUN rm -f local-perl-DBD-mysql50-4.050.el8.x86_64.rpm
 
 #---------------
 # openssl 1.0.2t
