@@ -1,6 +1,14 @@
 # tukiyo/mysql4.0php5.2
 
-## 動くもの
+## Dockerfileについて
+
+* centos7用
+    * centos7-yyyymmdd
+* centos8用
+    * centos8-mysql4php52
+    * centos8-mysql5openssl102ruby18tenshi
+
+### CentOS8用について
 
 * centos7でビルド (CentOS8やUbuntu20.20用。共有ライブラリ libnsl.so.1 が張られている)
     * opt-mysql40
@@ -9,17 +17,12 @@
     * local-perl-IO-BufferedSelect-1.0
     * opt-ruby-1.8.7-p374
     * opt-tenshi-0.17
-* centos8でビルド (centos8-mysql5openssl102ruby18tenshi)
+
+* centos8でビルド
     * perl-DBD-mysql50 : mysqlのベンチマークに必要。(centos8標準のではmysql4.0に接続が出来ない)
     * opt-mysql50-lib : perl-DBD-mysql50 を用いる。
     * tenshi
     * local-perl-IO-BufferedSelect : tenshiに必要
-
-
-## 問題があるもの
-
-* centos8-mysql4php52 (共有ライブラリ libnsl.so.1 が張られていない)
-    * mysqlコマンドが応答を返さない (永遠に固まる)。
 
 ## メモ
 
