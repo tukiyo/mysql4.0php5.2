@@ -156,6 +156,8 @@ RUN fpm -s dir \
   --prefix / \
   -a x86_64 \
   /opt/mysql50 /etc/ld.so.conf.d/opt-mysql50.conf /etc/my.cnf.example-50
+# 今は不要
+RUN rm -f opt-mysql50-5.0.86.el8.x86_64.rpm
 
 # mysql50-lib
 RUN fpm -s dir \
