@@ -241,7 +241,7 @@ RUN fpm -s dir \
 
 # mysql50-lib
 RUN fpm -s dir \
-  -v 5.0.86~$(date "+%Y%m%d")_el8 \
+  -v 5.0.86~$(date "+%Y%m%d")-el8 \
   -t deb \
   -n opt-mysql50-lib \
   -p opt-mysql50-lib-5.0.86.el8.deb \
@@ -252,7 +252,7 @@ RUN fpm -s dir \
 
 # perl-Devel-CheckLib
 RUN fpm -s dir \
-  -v 1.0~$(date "+%Y%m%d")_el8 \
+  -v 1.0~$(date "+%Y%m%d")-el8 \
   -t deb \
   -n local-Devel-CheckLib \
   -p local-Devel-CheckLib-1.14.el8.deb \
@@ -263,7 +263,7 @@ RUN fpm -s dir \
 
 # perl-DBD-mysql-4.050
 RUN fpm -s dir \
-  -v 4.050~$(date "+%Y%m%d")_el8 \
+  -v 4.050~$(date "+%Y%m%d")-el8 \
   -t deb \
   -n local-perl-DBD-mysql50 \
   -p local-perl-DBD-mysql50-4.050.el8.deb \
