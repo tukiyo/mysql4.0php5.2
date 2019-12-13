@@ -5,7 +5,8 @@
 * centos7用
     * centos7-yyyymmdd
 * centos8用
-    * centos8-mysql4php52
+    * centos8-gd.so : gd.so をここで作成
+    * centos8-mysql4php52 : 上のgd.soで差し替え
     * centos8-mysql5openssl102ruby18tenshi
 
 ### CentOS8用について
