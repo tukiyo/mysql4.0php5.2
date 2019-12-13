@@ -21,7 +21,7 @@ RUN fpm -s dir \
   -t rpm \
   -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" \
   -n opt-mysql40 \
-  -p opt-mysql40-4.0.30.el7.x86_64.rpm \
+  -p opt-mysql40-4.0.30.el8.x86_64.rpm \
   -C / \
   --prefix / \
   -a x86_64 \
@@ -45,7 +45,7 @@ RUN fpm -s dir \
   -t deb \
   -d "libclass-dbi-mysql-perl" \
   -n opt-mysql40 \
-  -p opt-mysql40-4.0.30_el7_amd64.deb \
+  -p opt-mysql40-4.0.30_el8_amd64.deb \
   -C / \
   --prefix / \
   -a x86_64 \
