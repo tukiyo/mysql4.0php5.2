@@ -99,7 +99,7 @@ RUN fpm -s dir \
   -v 1.0.2t~$(date "+%Y%m%d")_el8 \
   -t rpm \
   -n opt-openssl \
-  -p opt-openssl-1.0.2t.el7.x86_64.rpm \
+  -p opt-openssl-1.0.2t.el8.x86_64.rpm \
   -C /opt/openssl-1.0.2t \
   --prefix /opt/openssl-1.0.2t \
   -a x86_64 \
