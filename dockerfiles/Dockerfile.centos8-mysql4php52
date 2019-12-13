@@ -180,18 +180,6 @@ WORKDIR /build/
 
 # [CentOS8用のrpm作成] --------------------------------------------------
 # opt-mysql40
-# for centos7
-RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d")_el7 \
-  -t rpm \
-  -d "perl" -d "perl-CGI" -d "perl-DBI" -d "perl-Module-Pluggable" -d "perl-Pod-Escapes" -d "perl-Pod-Simple" -d "perl-libs" -d "perl-version" -d "perl-DBD-MySQL" \
-  -n opt-mysql40 \
-  -p opt-mysql40-4.0.30.el7.x86_64.rpm \
-  -C / \
-  --prefix / \
-  -a x86_64 \
-  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
-# for centos8
 RUN fpm -s dir \
   -v 4.0.30~$(date "+%Y%m%d")_el7 \
   -t rpm \
@@ -208,7 +196,7 @@ RUN fpm -s dir \
   -v 1.0.2t~$(date "+%Y%m%d")_el7 \
   -t rpm \
   -n opt-openssl \
-  -p opt-openssl-1.0.2t.el7.x86_64.rpm \
+  -p opt-openssl-1.0.2t.el8.x86_64.rpm \
   -C /opt/openssl-1.0.2t \
   --prefix /opt/openssl-1.0.2t \
   -a x86_64 \
@@ -219,7 +207,7 @@ RUN fpm -s dir \
   -v 5.2.17~$(date "+%Y%m%d")_el7 \
   -t rpm \
   -n local-php \
-  -p local-php-5.2.17.el7.x86_64.rpm \
+  -p local-php-5.2.17.el8.x86_64.rpm \
   -C / \
   --prefix / \
   -a x86_64 \
@@ -230,7 +218,7 @@ RUN fpm -s dir \
   -v 1.8.7_p374~$(date "+%Y%m%d")_el7 \
   -t rpm \
   -n opt-ruby \
-  -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
+  -p opt-ruby-1.8.7-p374.el8.x86_64.rpm \
   -C /opt/ruby \
   --prefix /opt/ruby \
   -a x86_64 \
@@ -243,7 +231,7 @@ RUN fpm -s dir \
   -v 4.0.30~$(date "+%Y%m%d")_el7 \
   -t deb \
   -n opt-mysql40 \
-  -p opt-mysql40-4.0.30.el7.deb \
+  -p opt-mysql40-4.0.30.el8.deb \
   -C / \
   --prefix / \
   -a x86_64 \
@@ -254,7 +242,7 @@ RUN fpm -s dir \
   -v 1.0.2t~$(date "+%Y%m%d")_el7 \
   -t deb \
   -n opt-openssl \
-  -p opt-openssl-1.0.2t.el7.deb \
+  -p opt-openssl-1.0.2t.el8.deb \
   -C /opt/openssl-1.0.2t \
   --prefix /opt/openssl-1.0.2t \
   -a x86_64 \
@@ -266,7 +254,7 @@ RUN fpm -s dir \
   -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libpng16-16" \
   -t deb \
   -n local-php \
-  -p local-php-5.2.17.el7.deb \
+  -p local-php-5.2.17.el8.deb \
   -C / \
   --prefix / \
   -a x86_64 \
@@ -277,7 +265,7 @@ RUN fpm -s dir \
   -v 1.8.7_p374~$(date "+%Y%m%d")_el7 \
   -t deb \
   -n opt-ruby \
-  -p opt-ruby-1.8.7-p374.el7.deb \
+  -p opt-ruby-1.8.7-p374.el8.deb \
   -C /opt/ruby \
   --prefix /opt/ruby \
   -a x86_64 \
