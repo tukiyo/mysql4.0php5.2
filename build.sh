@@ -12,6 +12,7 @@ export BUILD="docker build . --no-cache=false -f "
 
 # $BUILD dockerfiles/Dockerfile.debian10 -t tukiyo/mysql4php52:debian10
 
-$BUILD dockerfiles/Dockerfile.centos7-20191213 -t tukiyo/mysql4php52:centos7-20191213
-$BUILD dockerfiles/Dockerfile.centos8-mysql4php52 -t tukiyo/mysql4php52:centos8-mysql4php52
-$BUILD dockerfiles/Dockerfile.centos8-mysql5openssl102ruby18tenshi -t tukiyo/mysql4php52:centos8-mysql5openssl102ruby18tenshi
+# $BUILD dockerfiles/Dockerfile.centos7-20191213 -t tukiyo/mysql4php52:centos7-20191213
+# $BUILD dockerfiles/Dockerfile.centos8-mysql4php52 -t tukiyo/mysql4php52:centos8-mysql4php52
+# $BUILD dockerfiles/Dockerfile.centos8-mysql5openssl102ruby18tenshi -t tukiyo/mysql4php52:centos8-mysql5openssl102ruby18tenshi
+$BUILD dockerfiles/Dockerfile.centos8-gd.so -t tukiyo/mysql4php52:centos8-gd.so
