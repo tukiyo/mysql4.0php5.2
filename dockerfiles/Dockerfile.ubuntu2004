@@ -98,6 +98,7 @@ RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql-4.050.el8.x86_64.rpm
 RUN fpm -s dir \
   -v 4.050~$(date "+%Y%m%d") \
+  -d "libdbd-mysql-perl" \
   -t deb \
   -n local-perl-DBD-mysql \
   -p local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb \
