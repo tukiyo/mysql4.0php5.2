@@ -8,6 +8,10 @@
     * centos8-gd.so : gd.so をここで作成
     * centos8-mysql4php52 : 上のgd.soで差し替え
     * centos8-mysql5openssl102ruby18tenshi
+* ubuntu 20.04用
+    * centos8用のものに以下を追加
+    * ubuntu2004 : local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
+
 
 ### CentOS8用について
 
@@ -57,12 +61,10 @@
     * mysql 5.0 はテスト未確認
     * DBD-mysql用
         * mysql 4.0 <= これはビルド通らなかった。
-        * mysql 4.1 <= これを使うこととしよう
-        * mysql 5.0
+        * mysql 4.1
+        * mysql 5.0 <= これを使うこととしよう
         * mysql 5.5
         * mariadb 5.5
-* 2019-12-04
-    * CentOS 7 でビルドした mysql 4.0 を CentOS 8 で動かしたところ、テストが通った。
 
 ## 参考
 
