@@ -2,16 +2,16 @@
 
 ## Dockerfileについて
 
+* ubuntu 20.04用
+    * ubuntu2004
+
 * centos7用
     * centos7-yyyymmdd
+
 * centos8用
     * centos8-gd.so : gd.so をここで作成
     * centos8-mysql4php52 : 上のgd.soで差し替え
     * centos8-mysql5openssl102ruby18tenshi
-* ubuntu 20.04用
-    * centos8用のものに以下を追加
-    * ubuntu2004 : local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
-
 
 ### CentOS8用について
 
