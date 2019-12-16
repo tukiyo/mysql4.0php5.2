@@ -239,15 +239,15 @@ RUN fpm -s dir \
   .
 
 
-# [deb] --------------------------------------------------
-
-# mysql50-lib
-RUN fpm -s dir \
-  -v 5.0.86~$(date "+%Y%m%d")-el8 \
-  -t deb \
-  -n opt-mysql50-lib \
-  -p opt-mysql50-lib-5.0.86.el8.deb \
-  -C / \
-  --prefix / \
-  -a x86_64 \
-  /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
+# # [deb] --------------------------------------------------
+# 
+# # mysql50-lib
+# RUN fpm -s dir \
+#   -v 5.0.86~$(date "+%Y%m%d")-el8 \
+#   -t deb \
+#   -n opt-mysql50-lib \
+#   -p opt-mysql50-lib-5.0.86.el8.deb \
+#   -C / \
+#   --prefix / \
+#   -a x86_64 \
+#   /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
