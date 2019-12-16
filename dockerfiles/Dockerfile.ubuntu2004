@@ -241,9 +241,10 @@ RUN mkdir -p /etc/apache2/mods-available/ /etc/apache2/mods-enabled/ \
  && echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apache2/mods-available/php52.conf \
  && (cd /etc/apache2/mods-enabled/ && ln -s ../mods-available/php52.conf php52.conf)
 
+## libjpeg8 は debian10にはない。ubuntu20.04にはある。
 RUN fpm -s dir \
   -v 5.2.17~$(date "+%Y%m%d") \
-  -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libmhash2" -d "libpng16-16" -d "libjpeg62" \
+  -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libmhash2" -d "libpng16-16" -d "libjpeg8" -d "libfreetype6" \
   -t deb \
   -n local-php \
   -p local-php-5.2.17_focal-gcc9_amd64.deb \
