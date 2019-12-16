@@ -50,7 +50,7 @@ RUN tar jxf bison-2.4.1.tar.bz2 \
  && make install DESTDIR=/opt/bison
 
 #---------------
-# openssl 1.0.2
+# openssl 1.0.2t
 #---------------
 WORKDIR /usr/local/src/
 COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
@@ -109,7 +109,6 @@ RUN ./configure --quiet \
 
 RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
-# /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
 
 #---------

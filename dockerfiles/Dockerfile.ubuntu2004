@@ -14,8 +14,7 @@ COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
 RUN make -s 1>/dev/null
 #RUN make test
 RUN make install
-
-# ubuntu
+# CentOS7でdeb作成
 RUN fpm -s dir \
   -v 4.0.30~$(date "+%Y%m%d") \
   -t deb \
@@ -44,17 +43,7 @@ RUN ./configure --prefix=/opt/mysql40 --with-charset=ujis --with-extra-charsets=
 RUN echo "/opt/mysql40/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql40.conf
 COPY etc/my.cnf.example-40 /etc/my.cnf.example-40
 RUN make -s 1>/dev/null
-#RUN make test
 RUN make install
-RUN fpm -s dir \
-  -v 4.0.30~$(date "+%Y%m%d") \
-  -t deb \
-  -n opt-mysql40 \
-  -p opt-mysql40-4.0.30_focal-gcc9_amd64.deb \
-  -C / \
-  --prefix / \
-  -a x86_64 \
-  /opt/mysql40/ /etc/ld.so.conf.d/opt-mysql40.conf /etc/my.cnf.example-40
 
 #------------
 # mysql-5.0
@@ -73,15 +62,6 @@ RUN make install
 RUN mkdir -p /opt/mysql50-lib/ \
   && cp -a /opt/mysql50/lib /opt/mysql50-lib/ \
   && echo "/opt/mysql50-lib/lib/mysql/" > /etc/ld.so.conf.d/opt-mysql50-lib.conf
-RUN fpm -s dir \
-  -v 5.0.86~$(date "+%Y%m%d") \
-  -t deb \
-  -n opt-mysql50-lib \
-  -p opt-mysql50-lib-5.0.86_focal-gcc9_amd64.deb \
-  -C / \
-  --prefix / \
-  -a x86_64 \
-  /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
 
 # link
 RUN ln -s /opt/mysql40 /opt/mysql
@@ -96,51 +76,31 @@ RUN perl Makefile.PL \
 RUN make
 RUN make install DESTDIR=/opt/perl-DBD-mysql
 RUN rm -f local-perl-DBD-mysql-4.050.el8.x86_64.rpm
-RUN fpm -s dir \
-  -v 4.050~$(date "+%Y%m%d") \
-  -d "libdbd-mysql-perl" \
-  -t deb \
-  -n local-perl-DBD-mysql \
-  -p local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb \
-  -C /opt/perl-DBD-mysql \
-  --prefix / \
-  -a x86_64 \
-  .
-RUN dpkg -i local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
 
 
 #---------------
-# openssl-1.0.2t
+# openssl 1.0.2t
 #---------------
-WORKDIR /usr/local/src
+WORKDIR /usr/local/src/
 COPY files/openssl/openssl-1.0.2t.tar.gz openssl-1.0.2t.tar.gz
 RUN tar xzf openssl-1.0.2t.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2t
 RUN ./config --prefix=/opt/openssl-1.0.2t shared
 RUN make -s
 RUN make install
-RUN fpm -s dir \
-  -v 1.0.2t~$(date "+%Y%m%d") \
-  -t deb \
-  -n opt-openssl \
-  -p opt-openssl-1.0.2t_focal-gcc9_amd64.deb \
-  -C /opt/openssl-1.0.2t \
-  --prefix /opt/openssl-1.0.2t \
-  -a x86_64 \
-  .
 
 
 # 2.php 5.2.17 -----------------------------------------------------------
-WORKDIR /usr/local/src
+WORKDIR /usr/local/src/
 COPY files/php-5.2.17.tar.bz2 .
 RUN tar jxf php-5.2.17.tar.bz2
-#
 WORKDIR /usr/local/src/php-5.2.17
 # configureを通すため。
 RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
  && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
  && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu \
  && (cd /opt/openssl-1.0.2t && cp -a lib x86_64-linux-gnu && mv x86_64-linux-gnu lib)
+
 # CentOS7用と同じパッチ
 COPY files/php-patch/gmp.patch ..
 COPY files/php-patch/php-5.2.17.patch ..
@@ -148,7 +108,6 @@ COPY files/php-patch/php_functions.patch ..
 RUN patch -p0 -b < ../php-5.2.17.patch \
  && patch -p0 -b < ../gmp.patch \
  && patch -p0 -b < ../php_functions.patch
-#
 RUN ./configure \
   --prefix=/usr/local/php \
   --with-apxs2=/usr/bin/apxs \
@@ -169,6 +128,7 @@ RUN ./configure \
   --with-gd=shared \
   --with-jpeg-dir=/usr \
   --with-png-dir=/usr \
+  --with-zlib \
   --with-zlib-dir=/usr \
   --with-ttf \
   --with-freetype-dir=/usr \
@@ -177,31 +137,37 @@ RUN ./configure \
   \
   --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
   \
-  --with-libdir=/lib/x86_64-linux-gnu
-#
-RUN make -s
+  --with-libdir=/lib/x86_64-linux-gnu \
+  1>/dev/null
+
+RUN make -s 1>/dev/null
+RUN make test 1>/dev/null
 RUN make install
 
 #---------
 # local-pear
 #---------
-RUN /usr/local/php/bin/pear install DB-1.7.14 \
- && /usr/local/php/bin/pear install Var_Dump
+COPY etc/php.ini /etc/php.ini
+COPY etc/php.d/ /etc/php.d/
 
-RUN mkdir -p /etc/apache2/mods-available/ /etc/apache2/mods-enabled/ \
- && echo "LoadModule php5_module /usr/lib64/httpd/modules/libphp5.so" > /etc/apache2/mods-available/php52.conf \
- && (cd /etc/apache2/mods-enabled/ && ln -s ../mods-available/php52.conf php52.conf)
+# 互換性のため
+RUN /usr/local/php/bin/pear install DB-1.7.14
+# メールデコードに便利
+RUN /usr/local/php/bin/pear install Mail
+# phpのソースを整形
+RUN /usr/local/php/bin/pear install PHP_Beautifier-0.1.15
+# HTML Formをさくっとつくれる
+RUN /usr/local/php/bin/pear install HTML_QuickForm2
 
-RUN fpm -s dir \
-  -v 5.2.17~$(date "+%Y%m%d")-el7 \
-  -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libpng16-16" -d "libjpeg62" \
-  -t deb \
-  -n local-php \
-  -p local-php-5.2.17_focal-gcc9_amd64.deb \
-  -C / \
-  --prefix / \
-  -a x86_64 \
-  /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/apache2 /etc/php.ini /etc/php.d/
+# xdebug
+WORKDIR /usr/local/src/
+COPY files/xdebug-2.2.7.tgz /usr/local/src/
+RUN tar xzf xdebug-2.2.7.tgz
+WORKDIR /usr/local/src/xdebug-2.2.7
+RUN /usr/local/php/bin/phpize \
+ && ./configure --enable-xdebug --with-php-config=/usr/local/php/bin/php-config \
+ && make -s \
+ && cp /usr/local/src/xdebug-2.2.7/modules/xdebug.so /usr/local/php/lib/php/extensions/
 
 #---------------
 # opt-ruby-1.8.7
@@ -217,8 +183,6 @@ COPY files.centos7/ruby-1.8.7-p374.tar.bz2 .
 RUN tar xf ruby-1.8.7-p374.tar.bz2
 WORKDIR /usr/local/src/ruby-1.8.7-p374
 # https://www.ruby-forum.com/topic/142608
-#RUN yum install -y -q tk-devel
-#RUN yum install -y -q tclx
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
@@ -226,6 +190,68 @@ RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-
 RUN make -s
 RUN make test
 RUN make install
+
+#----------
+# packaging
+#----------
+WORKDIR /build/
+
+
+# [deb] --------------------------------------------------
+# mysql40
+COPY --from=el7mysql40 /usr/local/src/mysql-4.0.30/opt-mysql40-4.0.30_el7_amd64.deb .
+
+# mysql-5.0
+RUN fpm -s dir \
+  -v 5.0.86~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-mysql50-lib \
+  -p opt-mysql50-lib-5.0.86_focal-gcc9_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/mysql50-lib/lib /etc/ld.so.conf.d/opt-mysql50-lib.conf
+
+# local-perl-DBD-mysql
+RUN fpm -s dir \
+  -v 4.050~$(date "+%Y%m%d") \
+  -d "libdbd-mysql-perl" \
+  -t deb \
+  -n local-perl-DBD-mysql \
+  -p local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb \
+  -C /opt/perl-DBD-mysql \
+  --prefix / \
+  -a x86_64 \
+  .
+RUN dpkg -i local-perl-DBD-mysql-4.050_focal-gcc9_amd64.deb
+# openssl-1.0.2t
+RUN fpm -s dir \
+  -v 1.0.2t~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-openssl \
+  -p opt-openssl-1.0.2t_focal-gcc9_amd64.deb \
+  -C /opt/openssl-1.0.2t \
+  --prefix /opt/openssl-1.0.2t \
+  -a x86_64 \
+  .
+
+# php
+RUN mkdir -p /etc/apache2/mods-available/ /etc/apache2/mods-enabled/ \
+ && echo "LoadModule php5_module /usr/lib64/httpd/modules/libphp5.so" > /etc/apache2/mods-available/php52.conf \
+ && (cd /etc/apache2/mods-enabled/ && ln -s ../mods-available/php52.conf php52.conf)
+
+RUN fpm -s dir \
+  -v 5.2.17~$(date "+%Y%m%d")-el7 \
+  -d "opt-openssl" -d "opt-mysql40" -d "libmcrypt4" -d "libpng16-16" -d "libjpeg62" \
+  -t deb \
+  -n local-php \
+  -p local-php-5.2.17_focal-gcc9_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /usr/local/php /usr/local/pear /usr/lib64/httpd/modules/libphp5.so /etc/apache2 /etc/php.ini /etc/php.d/
+
+# ruby 1.8.7
 RUN fpm -s dir \
   -v 1.8.7_p374~$(date "+%Y%m%d") \
   -t deb \
