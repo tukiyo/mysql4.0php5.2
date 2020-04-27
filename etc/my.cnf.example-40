@@ -1,0 +1,19 @@
+[mysqld]
+socket=/var/lib/mysql/mysqld.sock
+datadir=/var/lib/mysql
+
+default-character-set=sjis
+max_allowed_packet=512M # for insert big data
+
+#log=/tmp/query.log
+log-long-format
+
+log_slow_queries=/tmp/mysql-slow.log
+long_query_time = 1
+#log-queries-not-using-indexes
+
+query_cache_limit=16M
+query_cache_size=256M
+
+[client]
+socket=/var/lib/mysql/mysqld.sock
