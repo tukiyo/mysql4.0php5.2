@@ -10,6 +10,7 @@ $BUILD dockerfiles/Dockerfile.centos7-mysql40 -t tukiyo/mysql4php52:centos7-mysq
 # $BUILD dockerfiles/Dockerfile.ubuntu2004-sqlbench -t tukiyo/mysql4php52:ubuntu2004-sqlbench
 
 $BUILD dockerfiles/Dockerfile.debian10 -t tukiyo/mysql4php52:debian10
+$BUILD dockerfiles/Dockerfile.debian11 -t tukiyo/mysql4php52:debian11
 
 $BUILD dockerfiles/Dockerfile.centos7-20200429 -t tukiyo/mysql4php52:centos7-20200429
 $BUILD dockerfiles/Dockerfile.centos8-gd.so -t tukiyo/mysql4php52:centos8-gd.so

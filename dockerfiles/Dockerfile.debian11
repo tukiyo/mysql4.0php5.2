@@ -1,0 +1,184 @@
+FROM debian:bullseye
+
+ENV CXXFLAGS="-std=gnu++98"
+WORKDIR /usr/local/src
+
+# fpm
+RUN apt-get update \
+ && apt install -y build-essential libncurses5-dev procps ruby-dev \
+ && apt-get clean
+RUN gem install fpm
+
+# 1.mysql 4.0.30 ---------------------------------------------------------
+WORKDIR /usr/local/src
+COPY files/ .
+RUN tar xzf mysql-4.0.30.tar.gz
+WORKDIR /usr/local/src/mysql-4.0.30
+# eucjpとsjisを有効化
+RUN ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis
+
+RUN make -s
+RUN make install
+RUN fpm -s dir \
+  -v 4.0.30 \
+  -t deb \
+  -n opt-mysql4 \
+  -p opt-mysql4-4.0.30_amd64.deb \
+  -C /opt/mysql \
+  --prefix /opt/mysql \
+  -a x86_64 \
+  .
+
+# 2.php 5.2.17 -----------------------------------------------------------
+WORKDIR /usr/local/src
+RUN apt install -y libxml2-dev apache2-dev libssl-dev \
+ && apt-get clean
+
+#-----
+# re2c
+#-----
+# phpの./configureでre2cのPATH指定方法がわからなかったため--prefixは指定していません
+RUN tar xzf re2c-0.16.tar.gz \
+ && cd re2c-0.16 \
+ && ./configure \
+ && make -s \
+ && make install
+
+#-----
+# lemon
+#-----
+RUN gcc -o /usr/local/bin/lemon lemon.c
+
+#-----
+# flex
+#-----
+RUN apt install -y -q byacc \
+ && tar xzf flex-2.5.4a.tar.gz \
+ && cd flex-2.5.4 \
+ && ./configure --prefix=/opt/flex \
+ && make -s \
+ && make install \
+ && fpm -s dir \
+  -v 2.5.4a \
+  -t deb \
+  -n local-flex \
+  -p local-flex-2.5.4a_amd64.deb \
+  -C /opt/flex \
+  --prefix /opt/flex \
+  -a x86_64 \
+  .
+
+#------
+# bison
+#------
+RUN tar jxf bison-2.4.1.tar.bz2 \
+ && cd bison-2.4.1 \
+ && ./configure \
+ && make -s \
+ && make install \
+ && make install DESTDIR=/opt/bison \
+ && fpm -s dir \
+  -v 2.4.1 \
+  -t deb \
+  -n local-bison \
+  -p local-bison-2.4.1_amd64.deb \
+  -C /opt/bison \
+  --prefix /opt/bison \
+  -a x86_64 \
+  .
+
+#--------
+# openssl
+#--------
+COPY files/openssl/openssl-1.0.2u.tar.gz openssl-1.0.2u.tar.gz
+RUN tar xzf openssl-1.0.2u.tar.gz
+WORKDIR /usr/local/src/openssl-1.0.2u
+RUN ./config --prefix=/opt/openssl-1.0.2u shared enable-weak-ssl-ciphers
+RUN make -s
+RUN make install
+RUN ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib/x86_64-linux-gnu
+RUN fpm -s dir \
+  -v 1.0.2u \
+  -t deb \
+  -n local-openssl \
+  -p local-openssl-1.0.2u_amd64.deb \
+  -C /opt/openssl-1.0.2u \
+  --prefix /opt/openssl-1.0.2u \
+  -a x86_64 \
+  .
+
+# php
+WORKDIR /usr/local/src/
+RUN tar jxf php-5.2.17.tar.bz2
+
+WORKDIR /usr/local/src/php-5.2.17
+RUN apt install -y zlib1g-dev libjpeg-dev libpng-dev libfreetype6-dev libmcrypt-dev libmhash-dev \
+ && apt-get clean
+# configureを通すため。
+RUN ln -s /opt/mysql/lib/mysql/libmysqlclient.so /opt/mysql/lib/mysql/libmysqlclient_r.so \
+ && ln -s /opt/mysql/lib/mysql/libmysqlclient.a /opt/mysql/lib/mysql/libmysqlclient_r.a \
+ && ln -s /opt/mysql/lib/mysql/ /opt/mysql/lib/x86_64-linux-gnu
+# CentOS7用と同じパッチ
+RUN patch -p0 -b < ../php-patch/php-5.2.17.patch \
+ && patch -p0 -b < ../php-patch/gmp.patch \
+ && patch -p0 -b < ../php-patch/php_functions.patch
+#
+RUN ./configure \
+  --prefix=/usr/local/php \
+  --with-apxs2=/usr/bin/apxs \
+  --with-config-file-path=/etc/php \
+  --with-pear=/usr/local/pear \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+ --with-openssl=/opt/openssl-1.0.2u \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-libdir=/lib/x86_64-linux-gnu
+#
+RUN make -s > /dev/null
+RUN apt install -y apache2 && apt-get clean
+RUN make test > /dev/null
+RUN make install
+RUN fpm -s dir \
+  -v 5.2.17 \
+  -t deb \
+  -n local-php \
+  -p local-php-5.2.17_amd64.deb \
+  -C /usr/local \
+  --prefix /usr/local \
+  -a x86_64 \
+  php pear
+
+
+#---------
+# local-pear
+#---------
+RUN /usr/local/php/bin/pear install DB-1.7.14 \
+ && /usr/local/php/bin/pear install Var_Dump
+
+WORKDIR /usr/local/
+RUN tar czf local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
+ && mkdir -p /tmp/deb/usr/local /tmp/deb/DEBIAN \
+ && cd /tmp/deb/usr/local \
+ && tar xzf /usr/local/local-pear.tar.gz \
+ && cd /tmp/deb \
+ && cp /usr/local/src/local-pear.control DEBIAN/control \
+ && fakeroot dpkg-deb --build . \
+ && mv ..deb local-pear.deb
