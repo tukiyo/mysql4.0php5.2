@@ -7,12 +7,15 @@ $BUILD dockerfiles/Dockerfile.centos7-mysql40 -t tukiyo/mysql4php52:centos7-mysq
 # $BUILD dockerfiles/Dockerfile -t tukiyo/mysql4php52
 
 # $BUILD dockerfiles/Dockerfile.ubuntu2004-build -t tukiyo3/ubuntu-build:20.04
-$BUILD dockerfiles/Dockerfile.ubuntu2004 -t tukiyo/mysql4php52:ubuntu2004
 # $BUILD dockerfiles/Dockerfile.ubuntu2004-sqlbench -t tukiyo/mysql4php52:ubuntu2004-sqlbench
 
- $BUILD dockerfiles/Dockerfile.debian10 -t tukiyo/mysql4php52:debian10
+$BUILD dockerfiles/Dockerfile.debian10 -t tukiyo/mysql4php52:debian10
 
-$BUILD dockerfiles/Dockerfile.centos7-20200427 -t tukiyo/mysql4php52:centos7-20200427
+$BUILD dockerfiles/Dockerfile.centos7-20200429 -t tukiyo/mysql4php52:centos7-20200429
 $BUILD dockerfiles/Dockerfile.centos8-gd.so -t tukiyo/mysql4php52:centos8-gd.so
 $BUILD dockerfiles/Dockerfile.centos8-mysql4php52 -t tukiyo/mysql4php52:centos8-mysql4php52
 $BUILD dockerfiles/Dockerfile.centos8-mysql5openssl102ruby18tenshi -t tukiyo/mysql4php52:centos8-mysql5openssl102ruby18tenshi
+
+$BUILD dockerfiles/Dockerfile.centos8only -t tukiyo/mysql4php52:centos8only
+
+$BUILD dockerfiles/Dockerfile.ubuntu2004 -t tukiyo/mysql4php52:ubuntu2004
