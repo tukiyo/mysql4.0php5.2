@@ -12,7 +12,7 @@ RUN apt update \
   bison flex re2c \
   software-properties-common \
   ruby-dev \
- &&gem install fpm --no-rdoc --no-ri
+ &&gem install fpm
 ENV CXXFLAGS="-std=gnu++98"
 
 RUN apt install -y \
