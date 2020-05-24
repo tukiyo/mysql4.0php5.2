@@ -1,18 +1,27 @@
-export BUILD="docker build . --no-cache=false -f "
+#!/bin/sh
+set -eu
 
-# $BUILD dockerfiles/Dockerfile.centos5 -t tukiyo/mysql4php52:centos5
-# $BUILD dockerfiles/Dockerfile.centos6 -t tukiyo/mysql4php52:centos6
-$BUILD dockerfiles/Dockerfile.centos7-mysql40 -t tukiyo/mysql4php52:centos7-mysql40
-#$BUILD dockerfiles/Dockerfile.centos8-glibc -t tukiyo/mysql4php52:centos8-glibc
-# $BUILD dockerfiles/Dockerfile -t tukiyo/mysql4php52
+_build() {
+	TAG=$1
+	if [ $# -eq 2 ];then
+		TAG=$2
+	fi
+	echo "info: $TAG"
+	docker build . --no-cache=false -f Dockerfile/${1} -t tukiyo3/mysql4php52:${TAG}
+}
 
-# $BUILD dockerfiles/Dockerfile.ubuntu2004-build -t tukiyo3/ubuntu-build:20.04
-$BUILD dockerfiles/Dockerfile.ubuntu2004 -t tukiyo/mysql4php52:ubuntu2004
-# $BUILD dockerfiles/Dockerfile.ubuntu2004-sqlbench -t tukiyo/mysql4php52:ubuntu2004-sqlbench
+#export BUILD="docker build . --no-cache=false -f "
+#$BUILD dockerfiles/ubuntu2004-build -t tukiyo3/ubuntu-build:20.04
 
- $BUILD dockerfiles/Dockerfile.debian10 -t tukiyo/mysql4php52:debian10
-
-$BUILD dockerfiles/Dockerfile.centos7-20200427 -t tukiyo/mysql4php52:centos7-20200427
-$BUILD dockerfiles/Dockerfile.centos8-gd.so -t tukiyo/mysql4php52:centos8-gd.so
-$BUILD dockerfiles/Dockerfile.centos8-mysql4php52 -t tukiyo/mysql4php52:centos8-mysql4php52
-$BUILD dockerfiles/Dockerfile.centos8-mysql5openssl102ruby18tenshi -t tukiyo/mysql4php52:centos8-mysql5openssl102ruby18tenshi
+_build centos6
+_build centos6-xdebug52
+#_build centos5
+_build centos7-mysql40
+_build ubuntu2004-build
+_build ubuntu2004
+_build ubuntu2004-sqlbench
+_build debian10
+_build centos7-20200427
+_build centos8-gd.so
+_build centos8-mysql4php52
+_build centos8-mysql5openssl102ruby18tenshi

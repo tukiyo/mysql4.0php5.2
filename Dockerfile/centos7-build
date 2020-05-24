@@ -60,7 +60,7 @@ RUN yum install -y \
 
 # fpm
 RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
- && gem install fpm --no-rdoc --no-ri
+ && gem install fpm
 
 # GCC 4.4
 ENV PACKAGES="compat-gcc-44 compat-gcc-44-c++"

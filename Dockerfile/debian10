@@ -7,7 +7,7 @@ WORKDIR /usr/local/src
 RUN apt-get update \
  && apt install -y build-essential libncurses5-dev procps ruby-dev \
  && apt-get clean
-RUN gem install fpm --no-rdoc --no-ri
+RUN gem install fpm
 
 # 1.mysql 4.0.30 ---------------------------------------------------------
 WORKDIR /usr/local/src

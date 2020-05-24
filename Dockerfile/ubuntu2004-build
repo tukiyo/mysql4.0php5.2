@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list \
  && apt update \
- && apt install -y \
+ && DEBIAN_FRONTEND=noninteractive apt install -y \
   build-essential \
   libncurses5-dev libcurl4-openssl-dev \
   procps libclass-dbi-mysql-perl \
@@ -11,7 +11,7 @@ RUN sed -i -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.li
   bison flex re2c \
   software-properties-common \
   ruby-dev \
- &&gem install fpm --no-rdoc --no-ri
+ &&gem install fpm
 ENV CXXFLAGS="-std=gnu++98"
 
 RUN apt install -y \

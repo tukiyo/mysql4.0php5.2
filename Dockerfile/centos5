@@ -2,6 +2,31 @@ FROM centos:5
 
 ENV BUILDROOT="/usr/src/redhat"
 ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel"
+
+RUN rm -f /etc/yum.repos.d/*.repo
+# Vault repo
+RUN { \
+	echo "[base]"; \
+	echo "name=CentOS-\$releasever - Base"; \
+	echo "baseurl=http://vault.centos.org/5.11/os/\$basearch/"; \
+	echo "gpgcheck=0"; \
+	\
+	echo "[updates]"; \
+	echo "name=CentOS-\$releasever - Updates"; \
+	echo "baseurl=http://vault.centos.org/5.11/updates/\$basearch/"; \
+	echo "gpgcheck=0"; \
+	\
+	echo "[addons]"; \
+	echo "name=CentOS-\$releasever - Addons"; \
+	echo "baseurl=http://vault.centos.org/5.11/addons/\$basearch/"; \
+	echo "gpgcheck=0"; \
+	\
+	echo "[extras]"; \
+	echo "name=CentOS-\$releasever - Extras"; \
+	echo "baseurl=http://vault.centos.org/5.11/extras/\$basearch/"; \
+	echo "gpgcheck=0"; \
+    } > /etc/yum.repos.d/CentOS-Base.repo
+
 RUN yum install -y -q $PACKAGES \
  && yum clean all \
  && mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES $BUILDROOT/BUILD
