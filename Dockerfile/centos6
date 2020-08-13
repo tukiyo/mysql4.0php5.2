@@ -32,6 +32,7 @@ RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
 COPY files.centos6/httpd-2.2.15-69.el6.centos.src.rpm httpd-2.2.15-69.el6.centos.src.rpm
 RUN rpm -ivh httpd-2.2.15-69.el6.centos.src.rpm \
  && tar xzf httpd-2.2.15.tar.gz \
+ && cd httpd-2.2.15 \
  && ./configure --prefix=/opt/httpd-2.2.15 --enable-ssl --with-ssl=/opt/openssl-1.0.2u --enable-mpms-shared=all --enable-mods-shared=all \
  && make -s \
  && make install \
