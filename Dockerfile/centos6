@@ -15,6 +15,27 @@ RUN yum install -y -q gettext \
  && rpm -ivh checkinstall-20150420-1.x86_64.rpm \
  && ln -s /usr/local/lib/installwatch.so /usr/local/lib64/installwatch.so
 
+#--------------
+# openssl 1.0.2
+#--------------
+RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
+ && cd openssl-1.0.2u \
+ && ./config shared enable-ssl2 enable-ssl3 enable-md2 --prefix=/opt/openssl-1.0.2u \
+ && make -s \
+ && make install \
+ && checkinstall -y -R --pkgname=opt-openssl-1.0.2
+
+#-------------
+# httpd 2.2.15
+#-------------
+COPY files.centos6/httpd-2.2.15-69.el6.centos.src.rpm httpd-2.2.15-69.el6.centos.src.rpm
+RUN rpm -ivh httpd-2.2.15-69.el6.centos.src.rpm \
+ && xzf httpd-2.2.15.tar.gz \
+ && ./configure --prefix=/opt/httpd-2.2.15 --enable-ssl --with-ssl=/opt/openssl-1.0.2u --enable-mpms-shared=all --enable-mods-shared=all \
+ && make -s \
+ && make install \
+ && checkinstall -y -R --pkgname=opt-httpd-2.2.15
+
 #---------
 # mysql
 #---------
