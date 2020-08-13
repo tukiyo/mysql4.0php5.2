@@ -124,7 +124,7 @@ RUN yum install -y -q autoconf
 RUN make test
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
-RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/
+RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/ --requires=opt-openssl-1.0.2
 
 #---------
 # local-pear
