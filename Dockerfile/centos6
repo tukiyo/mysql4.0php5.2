@@ -98,7 +98,7 @@ RUN ./configure --quiet \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
-  --with-openssl \
+  --with-openssl=/opt/openssl-1.0.2u \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
@@ -129,7 +129,8 @@ RUN checkinstall -y -R --pkgname=local-php --exclude=/etc/httpd/conf/
 # local-pear
 #---------
 RUN /usr/local/php/bin/pear install DB-1.7.14 \
- && /usr/local/php/bin/pear install Var_Dump
+ && /usr/local/php/bin/pear install Var_Dump \
+ && /usr/local/php/bin/pear install PHP_Beautifier-0.1.15
 
 WORKDIR /usr/local
 RUN tar czf $BUILDROOT/SOURCES/local-pear.tar.gz pear php/bin/pear php/bin/peardev php/bin/gen_php_doc.sh \
