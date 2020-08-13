@@ -23,6 +23,7 @@ RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
  && ./config shared enable-ssl2 enable-ssl3 enable-md2 --prefix=/opt/openssl-1.0.2u \
  && make -s \
  && make install \
+ && ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib64 \
  && echo "/opt/openssl-1.0.2u/lib" > /etc/ld.so.conf.d/opt-openssl-1.0.2.conf \
  && checkinstall -y -R --pkgname=opt-openssl-1.0.2 --include=/etc/ld.so.conf.d/opt-openssl-1.0.2.conf
 
