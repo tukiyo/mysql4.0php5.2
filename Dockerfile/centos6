@@ -24,7 +24,7 @@ RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
  && make -s \
  && make install \
  && ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib64
-RUN checkinstall -y -R --pkgname=opt-openssl102u --addso --nodoc
+RUN checkinstall -y -R --pkgname=opt-openssl102u --nodoc
 RUN echo "/opt/openssl-1.0.2u/lib" > /etc/ld.so.conf.d/opt-openssl102u.conf \
  && ldconfig
 
