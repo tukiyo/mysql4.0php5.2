@@ -15,6 +15,7 @@ _build() {
 
 _build centos6
 _build centos6-xdebug52
+_build centos6-build
 #_build centos5
 _build centos7-mysql40
 _build ubuntu2004-build
