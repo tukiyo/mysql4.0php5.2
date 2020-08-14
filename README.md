@@ -6,7 +6,7 @@
     * ubuntu2004
 
 * centos7用
-    * centos7-yyyymmdd
+    * centos7
 
 * centos8用
     * centos8-gd.so : gd.so をここで作成
