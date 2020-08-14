@@ -23,9 +23,10 @@ RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
  && ./config shared enable-ssl2 enable-ssl3 enable-md2 --prefix=/opt/openssl-1.0.2u \
  && make -s \
  && make install \
- && ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib64 \
- && echo "/opt/openssl-1.0.2u/lib" > /etc/ld.so.conf.d/opt-openssl-1.0.2.conf \
- && checkinstall -y -R --pkgname=opt-openssl-1.0.2 --include=/etc/ld.so.conf.d/opt-openssl-1.0.2.conf
+ && ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib64
+RUN checkinstall -y -R --pkgname=opt-openssl102u --addso --nodoc
+RUN echo "/opt/openssl-1.0.2u/lib" > /etc/ld.so.conf.d/opt-openssl102u.conf \
+ && ldconfig
 
 #-------------
 # httpd 2.2.15
@@ -37,7 +38,7 @@ RUN rpm -ivh httpd-2.2.15-69.el6.centos.src.rpm \
  && ./configure --prefix=/opt/httpd-2.2.15 --enable-ssl --with-ssl=/opt/openssl-1.0.2u --enable-mpms-shared=all --enable-mods-shared=all \
  && make -s \
  && make install \
- && checkinstall -y -R --pkgname=opt-httpd-2.2.15 --requires=opt-openssl-1.0.2
+RUN checkinstall -y -R --pkgname=opt-httpd-2.2.15 --requires=opt-openssl102u --nodoc
 
 #---------
 # mysql
@@ -99,7 +100,7 @@ RUN ./configure --quiet \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
-  --with-openssl=/opt/openssl-1.0.2u \
+  --with-openssl \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
