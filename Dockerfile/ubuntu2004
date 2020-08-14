@@ -84,7 +84,7 @@ WORKDIR /usr/local/src/
 COPY files/openssl/openssl-1.0.2u.tar.gz openssl-1.0.2u.tar.gz
 RUN tar xzf openssl-1.0.2u.tar.gz
 WORKDIR /usr/local/src/openssl-1.0.2u
-RUN ./config --prefix=/opt/openssl-1.0.2u shared enable-weak-ssl-ciphers
+RUN ./config shared enable-ssl2 enable-ssl3 enable-md2 enable-weak-ssl-ciphers --prefix=/opt/openssl-1.0.2u
 RUN make -s
 RUN make install
 
