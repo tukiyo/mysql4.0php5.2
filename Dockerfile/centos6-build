@@ -31,10 +31,4 @@ RUN yum install -y -q autoconf && yum clean all
 #------
 # ruby
 #------
-RUN yum -y install rpm-build \
- && yum clean all
-# ruby ruby-devel ruby-libs rubygems 
-COPY files.centos6/ruby-2.4.0-1.el6.x86_64.rpm .
-RUN yum localinstall -y ruby-2.4.0-1.el6.x86_64.rpm
-RUN gem install --no-ri --no-rdoc fpm -v 1.10.0
-#RUN gem install fpm -v 1.8.0
+RUN yum install -y ruby ruby-devel && yum clean all

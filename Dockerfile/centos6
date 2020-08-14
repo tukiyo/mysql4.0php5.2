@@ -1,4 +1,4 @@
-FROM centos:6
+FROM tukiyo3/centos6-build
 
 ENV BUILDROOT="/root/rpmbuild"
 ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel"
