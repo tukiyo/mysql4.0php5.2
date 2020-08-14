@@ -1,18 +1,18 @@
 FROM tukiyo3/centos6-build
 
 ENV BUILDROOT="/root/rpmbuild"
-ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel"
-RUN yum install -y -q $PACKAGES \
- && yum clean all \
- && mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES
+#ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel"
+#RUN yum install -y -q $PACKAGES \
+# && yum clean all
+RUN mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES
 WORKDIR $BUILDROOT/SOURCES
 
 COPY files .
 #-------------
 # checkinstall
 #-------------
-RUN yum install -y -q gettext \
- && rpm -ivh checkinstall-20150420-1.x86_64.rpm \
+#RUN yum install -y -q gettext
+RUN rpm -ivh checkinstall-20150420-1.x86_64.rpm \
  && ln -s /usr/local/lib/installwatch.so /usr/local/lib64/installwatch.so
 
 #--------------
@@ -42,7 +42,7 @@ RUN rpm -ivh httpd-2.2.15-69.el6.centos.src.rpm \
 #---------
 # mysql
 #---------
-RUN yum install -y -q ORBit2-devel
+#RUN yum install -y -q ORBit2-devel
 RUN tar xzf mysql-4.0.30.tar.gz \
  && cd "$BUILDROOT/SOURCES/mysql-4.0.30" \
  && ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
@@ -54,9 +54,9 @@ RUN tar xzf mysql-4.0.30.tar.gz \
 #----------
 # local-php
 #----------
-ENV PACKAGES="libmcrypt-devel httpd-devel libxml2-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel bison"
-RUN yum install -y -q epel-release \
- && yum install -y -q $PACKAGES
+#ENV PACKAGES="libmcrypt-devel httpd-devel libxml2-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel bison"
+#RUN yum install -y -q epel-release \
+# && yum install -y -q $PACKAGES
 
 #-----
 # re2c
@@ -120,7 +120,7 @@ RUN ./configure --quiet \
   --with-libdir=lib64
 
 RUN make -s
-RUN yum install -y -q autoconf
+#RUN yum install -y -q autoconf
 RUN make test
 # /etc/httpd/conf/httpd.confがhttpdパッケージとconfrictするため除外
 RUN make install
@@ -145,7 +145,7 @@ RUN mv $BUILDROOT/SOURCES/local-pear.spec $BUILDROOT/SPECS/ \
 # ruby
 #---------
 WORKDIR $BUILDROOT/SOURCES/ruby/
-RUN yum install -y ruby ruby-devel
+#RUN yum install -y ruby ruby-devel
 
 # mysql-ruby
 RUN tar xzf mysql-ruby-2.8.2.tar.gz \
