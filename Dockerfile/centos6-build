@@ -1,0 +1,36 @@
+FROM centos:6
+
+#------
+# base 
+#------
+ENV BUILDROOT="/root/rpmbuild"
+ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel"
+RUN yum install -y -q $PACKAGES \
+ && yum clean all \
+ && mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES
+WORKDIR $BUILDROOT/SOURCES
+
+#---------
+# mysql
+#---------
+RUN yum install -y -q ORBit2-devel && yum clean all
+
+#------
+# php
+#------
+# libmcryptがepelで配布
+RUN yum install -y -q epel-release && yum clean all
+ENV PACKAGES="libmcrypt-devel httpd-devel libxml2-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel bison"
+RUN yum install -y -q $PACKAGES
+
+#------
+# flex
+#------
+RUN yum install -y -q autoconf && yum clean all
+
+#------
+# ruby
+#------
+RUN yum -y install ruby ruby-devel ruby-libs rubygems rpm-build \
+ && yum clean all \
+ && gem install fpm
