@@ -13,16 +13,16 @@ _build() {
 #export BUILD="docker build . --no-cache=false -f "
 #$BUILD dockerfiles/ubuntu2004-build -t tukiyo3/ubuntu-build:20.04
 
+#_build centos6-build
 _build centos6
-_build centos6-xdebug52
-_build centos6-build
+#_build centos6-xdebug52
 #_build centos5
-_build centos7-mysql40
-_build ubuntu2004-build
-_build ubuntu2004
-_build ubuntu2004-sqlbench
-_build debian10
-_build centos7-20200427
-_build centos8-gd.so
-_build centos8-mysql4php52
-_build centos8-mysql5openssl102ruby18tenshi
+#_build centos7-mysql40
+#_build ubuntu2004-build
+#_build ubuntu2004
+#_build ubuntu2004-sqlbench
+#_build debian10
+#_build centos7
+#_build centos8-gd.so
+#_build centos8-mysql4php52
+#_build centos8-mysql5openssl102ruby18tenshi
