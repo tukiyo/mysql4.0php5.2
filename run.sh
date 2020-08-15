@@ -8,5 +8,6 @@ IMAGE="tukiyo3/mysql4php52:centos8-gd.so"
 #IMAGE="tukiyo3/mysql4php52:ubuntu2004"
 #IMAGE="tukiyo3/mysql4php52:debian10"
 IMAGE="tukiyo3/mysql4php52:centos6"
+IMAGE="tukiyo3/mysql4php52:ubuntu2004-openssl098"
 
 docker run --rm -v `pwd`:/host/  -it $IMAGE /bin/bash
