@@ -21,6 +21,7 @@ _build centos6
 #_build ubuntu2004-build
 #_build ubuntu2004
 #_build ubuntu2004-sqlbench
+#_build ubuntu2004-openssl098
 #_build debian10
 #_build centos7
 #_build centos8-gd.so
