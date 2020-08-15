@@ -12,14 +12,12 @@ RUN tar xzf openssl-0.9.8zh.tar.gz \
  && ln -s /opt/openssl-0.9.8zh/lib /opt/openssl-0.9.8zh/lib64 \
 RUN echo "/opt/openssl-0.9.8zh/lib" | tee /etc/ld.so.conf.d/opt-openssl-0.9.8zh.conf \
  && ldconfig
-RUN cat /etc/ld.so.conf.d/opt-openssl-0.9.8zh.conf
 
 RUN fpm -s dir \
   -v 0.9.8zh~$(date "+%Y%m%d") \
   -t deb \
   -n opt-openssl098zh \
   -p opt-openssl098zh-0.9.8zh_focal-amd64.deb \
-  --post-install "/usr/sbin/ldconfig" \
   -C / \
   --prefix / \
   -a x86_64 \
