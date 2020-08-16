@@ -1,3 +1,8 @@
+## openssl 1.0.1e
+
+* http://vault.centos.org/6.10/os/Source/SPackages/openssl-1.0.1e-57.el6.src.rpm
+
+
 ## httpd 2.2.15
 
 * http://vault.centos.org/6.10/os/Source/SPackages/httpd-2.2.15-69.el6.centos.src.rpm
