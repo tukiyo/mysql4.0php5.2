@@ -1,0 +1,35 @@
+FROM tukiyo3/centos6-build
+
+ENV BUILDROOT="/root/rpmbuild"
+#ENV PACKAGES="gcc gcc-c++ glibc ncurses-devel make rpm-build wget tar git which openssl-devel"
+#RUN yum install -y -q $PACKAGES \
+# && yum clean all
+RUN mkdir -p $BUILDROOT/SPECS $BUILDROOT/SOURCES
+WORKDIR $BUILDROOT/SOURCES
+
+COPY files .
+#-------------
+# checkinstall
+#-------------
+#RUN yum install -y -q gettext
+RUN rpm -ivh checkinstall-20150420-1.x86_64.rpm \
+ && ln -s /usr/local/lib/installwatch.so /usr/local/lib64/installwatch.so
+
+#---------------
+# openssl-1.0.1e
+#---------------
+COPY files.centos6/openssl-1.0.1e-58.el6_10.src.rpm .
+RUN rpm -ivh openssl-1.0.1e-58.el6_10.src.rpm
+RUN sed -i -e 's/enable-md2/enable-md2 enable-weak-ssl-ciphers enable-deprecated enable-aes/g' ../SPECS/openssl.spec
+RUN rpmbuild -ba ../SPECS/openssl.spec
+
+RUN yum install -y perl-WWW-Curl
+RUN rpm -Uvh --force /root/rpmbuild/RPMS/x86_64/openssl*rpm
+
+#-------------
+# httpd 2.2.15
+#-------------
+COPY files.centos6/httpd-2.2.15-69.el6.centos.src.rpm httpd-2.2.15-69.el6.centos.src.rpm
+RUN rpm -ivh httpd-2.2.15-69.el6.centos.src.rpm
+RUN yum install -y pcre-devel
+RUN rpmbuild -ba ../SPECS/httpd.spec

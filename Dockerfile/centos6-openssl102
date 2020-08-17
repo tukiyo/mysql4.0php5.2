@@ -20,12 +20,15 @@ RUN rpm -ivh checkinstall-20150420-1.x86_64.rpm \
 #---------------
 RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
  && cd openssl-1.0.2u \
- && ./config shared enable-ssl2 enable-ssl3 enable-md2 enable-weak-ssl-ciphers --prefix=/opt/openssl-1.0.2u \
+ && ./config --prefix=/opt/openssl-1.0.2u \
+        enable-weak-ssl-ciphers enable-deprecated enable-aes \
+        zlib enable-md2 \
+        shared \
  && make -s \
  && make install \
- && ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib64 \
- && checkinstall -y -R --pkgname=opt-openssl-1.0.2u --nodoc
-RUN echo "/opt/openssl-1.0.2u/lib" > /etc/ld.so.conf.d/opt-openssl-1.0.2u.conf \
+ && ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib64
+RUN checkinstall -y -R --pkgname=opt-openssl-1.0.2u --requires=perl-WWW-Curl --nodoc \
+ && echo "/opt/openssl-1.0.2u/lib" > /etc/ld.so.conf.d/opt-openssl-1.0.2u.conf \
  && ldconfig
 
 #-------------
