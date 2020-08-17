@@ -21,6 +21,7 @@ RUN rpm -ivh checkinstall-20150420-1.x86_64.rpm \
 RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
  && cd openssl-1.0.2u \
  && ./config --prefix=/opt/openssl-1.0.2u \
+        enable-tlsext \
         enable-weak-ssl-ciphers enable-deprecated enable-aes \
         zlib enable-md2 \
         shared \
