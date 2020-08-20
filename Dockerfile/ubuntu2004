@@ -153,7 +153,7 @@ RUN ./configure \
 RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
 RUN make install
-RUN mv /usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5-apache24.so
+RUN mv /usr/lib/apache2/modules/libphp5.so
 
 # Apache 2.2版
 RUN make clean
@@ -191,7 +191,7 @@ RUN ./configure \
 RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
 RUN make install
-RUN mv /opt/apache22/modules/libphp5.so /opt/apache22/modules/libphp5-apache22.so
+#/opt/apache22/modules/libphp5.so
 
 #---------
 # local-pear
@@ -284,8 +284,6 @@ RUN fpm -s dir \
   .
 
 # Apache 2.2
-RUN mv /usr/lib/apache2/modules/libphp5-apache22.so /opt/apache22/modules/
-RUN echo "LoadModule php5_module /opt/apache22/modules/libphp5-apache22.so" > /opt/apache22/conf.d/php52.conf \
 RUN fpm -s dir \
   -v 2.2.34~$(date "+%Y%m%d") \
   -t deb \
@@ -298,7 +296,7 @@ RUN fpm -s dir \
 
 # php
 RUN mkdir -p /etc/apache2/mods-available/ /etc/apache2/mods-enabled/ \
- && echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5-apache24.so" > /etc/apache2/mods-available/php52.conf \
+ && echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apache2/mods-available/php52.conf \
  && (cd /etc/apache2/mods-enabled/ && ln -s ../mods-available/php52.conf php52.conf) \
  && echo "install -o www-data -g www-data -m 0770 -d /var/lib/php/session/" > /usr/local/php/bin/gen_session_dir.sh \
  && chmod +x /usr/local/php/bin/gen_session_dir.sh
@@ -313,7 +311,7 @@ RUN fpm -s dir \
   -C / \
   --prefix / \
   -a x86_64 \
-  /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5-apache24.so /etc/apache2/conf-available/php.conf /etc/apache2/conf-enabled/php.conf /etc/apache2/mods-available/php52.conf /etc/apache2/mods-enabled/php52.conf /etc/php.ini /etc/php.d/
+  /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5.so /etc/apache2/conf-available/php.conf /etc/apache2/conf-enabled/php.conf /etc/apache2/mods-available/php52.conf /etc/apache2/mods-enabled/php52.conf /etc/php.ini /etc/php.d/
 
 # ruby 1.8.7
 RUN fpm -s dir \
