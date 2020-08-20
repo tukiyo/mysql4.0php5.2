@@ -191,7 +191,7 @@ RUN ./configure \
 RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
 RUN make install
-RUN mv /usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5-apache22.so
+RUN mv /opt/apache22/modules/libphp5.so /opt/apache22/modules/libphp5-apache22.so
 
 #---------
 # local-pear

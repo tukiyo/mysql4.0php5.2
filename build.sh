@@ -14,13 +14,13 @@ _build() {
 #$BUILD dockerfiles/ubuntu2004-build -t tukiyo3/ubuntu-build:20.04
 
 #_build centos6-build
-_build centos6
+#_build centos6
 #_build centos6-2020
 #_build centos6-xdebug52
 #_build centos5
 #_build centos7-mysql40
 #_build ubuntu2004-build
-#_build ubuntu2004
+_build ubuntu2004
 #_build ubuntu2004-sqlbench
 #_build ubuntu2004-openssl098
 #_build debian10
