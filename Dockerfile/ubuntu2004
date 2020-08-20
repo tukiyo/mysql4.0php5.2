@@ -167,6 +167,16 @@ RUN /usr/local/php/bin/phpize \
 COPY etc/httpd/conf.d/php.conf /etc/apache2/conf-available/php.conf
 RUN (cd /etc/apache2/conf-enabled && ln -s ../conf-available/php.conf php.conf)
 
+#-------------
+# httpd 2.2.15
+#-------------
+COPY files.ubuntu/httpd-2.2.34.tar.gz httpd-2.2.34.tar.gz
+RUN tar xzf httpd-2.2.34.tar.gz \
+ && cd httpd-2.2.34 \
+ && ./configure --prefix=/opt/httpd22 --enable-ssl --with-ssl=/opt/openssl-1.0.2u --enable-mpms-shared=all --enable-mods-shared=all \
+ && make -s \
+ && make install
+
 #---------------
 # opt-ruby-1.8.7
 #---------------
@@ -188,6 +198,7 @@ RUN ./configure --prefix=/opt/ruby18 --enable-pthread --with-opt-dir=/opt/openss
 RUN make -s
 RUN make test
 RUN make install
+
 
 #----------
 # packaging
@@ -251,6 +262,17 @@ RUN fpm -s dir \
   --prefix / \
   -a x86_64 \
   /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5.so /etc/apache2/conf-available/php.conf /etc/apache2/conf-enabled/php.conf /etc/apache2/mods-available/php52.conf /etc/apache2/mods-enabled/php52.conf /etc/php.ini /etc/php.d/
+
+# httpd2.2
+RUN fpm -s dir \
+  -v 2.2.34~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-httpd22 \
+  -p opt-httpd22-2.2.34_focal-gcc9_amd64.deb \
+  -C /opt/httpd22 \
+  --prefix /opt/httpd22 \
+  -a x86_64 \
+  .
 
 # ruby 1.8.7
 RUN fpm -s dir \
