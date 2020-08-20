@@ -89,6 +89,16 @@ RUN make -s
 RUN make install
 
 
+#-------------
+# httpd 2.2.34
+#-------------
+COPY files.ubuntu/httpd-2.2.34.tar.gz httpd-2.2.34.tar.gz
+RUN tar xzf httpd-2.2.34.tar.gz \
+ && cd httpd-2.2.34 \
+ && ./configure --prefix=/opt/apache22 --enable-ssl --with-ssl=/opt/openssl-1.0.2u --enable-mpms-shared=all --enable-mods-shared=all \
+ && make -s \
+ && make install
+
 # 2.php 5.2.17 -----------------------------------------------------------
 WORKDIR /usr/local/src/
 COPY files/php-5.2.17.tar.bz2 .
@@ -107,6 +117,8 @@ COPY files/php-patch/php_functions.patch ..
 RUN patch -p0 -b < ../php-5.2.17.patch \
  && patch -p0 -b < ../gmp.patch \
  && patch -p0 -b < ../php_functions.patch
+
+# Apache 2.4版
 RUN ./configure \
   --prefix=/usr/local/php \
   --with-apxs2=/usr/bin/apxs \
@@ -138,10 +150,48 @@ RUN ./configure \
   \
   --with-libdir=/lib/x86_64-linux-gnu \
   1>/dev/null
-
 RUN make -s 1>/dev/null
 RUN make test 1>/dev/null
 RUN make install
+RUN mv /usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5-apache24.so
+
+# Apache 2.2版
+RUN make clean
+RUN ./configure \
+  --prefix=/usr/local/php \
+  --with-apxs2=/opt/apache22/bin/apxs \
+  --with-pear=/usr/local/pear \
+  --disable-cgi \
+  --enable-zend-multibyte \
+  --enable-mbstring \
+  \
+  --with-mysql=shared,/opt/mysql \
+  --with-pdo-mysql=shared,/opt/mysql \
+  \
+  --with-openssl=/opt/openssl-1.0.2u \
+  --with-mhash=shared,/usr \
+  --with-mcrypt=shared,/usr \
+  --enable-sockets \
+  --enable-pcntl \
+  --enable-sigchild \
+  --with-gd=shared \
+  --with-jpeg-dir=/usr \
+  --with-png-dir=/usr \
+  --with-zlib \
+  --with-zlib-dir=/usr \
+  --with-ttf \
+  --with-freetype-dir=/usr \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
+  \
+  --with-config-file-path=/etc/ --with-config-file-scan-dir=/etc/php.d \
+  \
+  --with-libdir=/lib/x86_64-linux-gnu \
+  1>/dev/null
+RUN make -s 1>/dev/null
+RUN make test 1>/dev/null
+RUN make install
+RUN mv /usr/lib/apache2/modules/libphp5.so /usr/lib/apache2/modules/libphp5-apache22.so
 
 #---------
 # local-pear
@@ -166,16 +216,6 @@ RUN /usr/local/php/bin/phpize \
 # add MimeType
 COPY etc/httpd/conf.d/php.conf /etc/apache2/conf-available/php.conf
 RUN (cd /etc/apache2/conf-enabled && ln -s ../conf-available/php.conf php.conf)
-
-#-------------
-# httpd 2.2.15
-#-------------
-COPY files.ubuntu/httpd-2.2.34.tar.gz httpd-2.2.34.tar.gz
-RUN tar xzf httpd-2.2.34.tar.gz \
- && cd httpd-2.2.34 \
- && ./configure --prefix=/opt/httpd22 --enable-ssl --with-ssl=/opt/openssl-1.0.2u --enable-mpms-shared=all --enable-mods-shared=all \
- && make -s \
- && make install
 
 #---------------
 # opt-ruby-1.8.7
@@ -243,13 +283,25 @@ RUN fpm -s dir \
   -a x86_64 \
   .
 
+# Apache 2.2
+RUN mv /usr/lib/apache2/modules/libphp5-apache22.so /opt/apache22/modules/
+RUN echo "LoadModule php5_module /opt/apache22/modules/libphp5-apache22.so" > /opt/apache22/conf.d/php52.conf \
+RUN fpm -s dir \
+  -v 2.2.34~$(date "+%Y%m%d") \
+  -t deb \
+  -n opt-apache22 \
+  -p opt-apache22-2.2.34_focal-gcc9_amd64.deb \
+  -C / \
+  --prefix / \
+  -a x86_64 \
+  /opt/apache22
+
 # php
 RUN mkdir -p /etc/apache2/mods-available/ /etc/apache2/mods-enabled/ \
- && echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5.so" > /etc/apache2/mods-available/php52.conf \
+ && echo "LoadModule php5_module /usr/lib/apache2/modules/libphp5-apache24.so" > /etc/apache2/mods-available/php52.conf \
  && (cd /etc/apache2/mods-enabled/ && ln -s ../mods-available/php52.conf php52.conf) \
  && echo "install -o www-data -g www-data -m 0770 -d /var/lib/php/session/" > /usr/local/php/bin/gen_session_dir.sh \
  && chmod +x /usr/local/php/bin/gen_session_dir.sh
-
 ## libjpeg8 は debian10にはない。ubuntu20.04にはある。
 RUN fpm -s dir \
   -v 5.2.17~$(date "+%Y%m%d") \
@@ -261,18 +313,7 @@ RUN fpm -s dir \
   -C / \
   --prefix / \
   -a x86_64 \
-  /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5.so /etc/apache2/conf-available/php.conf /etc/apache2/conf-enabled/php.conf /etc/apache2/mods-available/php52.conf /etc/apache2/mods-enabled/php52.conf /etc/php.ini /etc/php.d/
-
-# httpd2.2
-RUN fpm -s dir \
-  -v 2.2.34~$(date "+%Y%m%d") \
-  -t deb \
-  -n opt-httpd22 \
-  -p opt-httpd22-2.2.34_focal-gcc9_amd64.deb \
-  -C /opt/httpd22 \
-  --prefix /opt/httpd22 \
-  -a x86_64 \
-  .
+  /usr/local/php /usr/local/pear /usr/lib/apache2/modules/libphp5-apache24.so /etc/apache2/conf-available/php.conf /etc/apache2/conf-enabled/php.conf /etc/apache2/mods-available/php52.conf /etc/apache2/mods-enabled/php52.conf /etc/php.ini /etc/php.d/
 
 # ruby 1.8.7
 RUN fpm -s dir \
