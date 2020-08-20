@@ -192,7 +192,7 @@ WORKDIR /usr/local/src/ruby-1.8.7-p374
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
-RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2u
+RUN ./configure --prefix=/opt/ruby187 --enable-pthread --with-opt-dir=/opt/openssl-1.0.2u
 RUN make -s
 RUN make test
 RUN make install
@@ -262,11 +262,11 @@ RUN fpm -s dir \
 
 # ruby 1.8.7
 RUN fpm -s dir \
-  -v 1.8.7_p374~$(date "+%Y%m%d") \
+  -v 1.8.7p374~$(date "+%Y%m%d") \
   -t deb \
-  -n opt-ruby \
-  -p opt-ruby-1.8.7_focal-gcc44_amd64.deb \
-  -C /opt/ruby \
-  --prefix /opt/ruby \
+  -n opt-ruby187 \
+  -p opt-ruby187-1.8.7_focal-gcc44_amd64.deb \
+  -C /opt/ruby187 \
+  --prefix /opt/ruby187 \
   -a x86_64 \
   .
