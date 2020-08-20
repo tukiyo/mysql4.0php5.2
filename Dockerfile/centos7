@@ -157,7 +157,7 @@ WORKDIR $BUILDROOT/SOURCES/ruby-1.8.7-p374
 COPY files.centos7/ruby-1.8.7-p374-openssl.patch .
 # openssl patch : https://gist.github.com/alanthing/1a151c9d8d0b81f039d3
 RUN patch -p1 < ruby-1.8.7-p374-openssl.patch
-RUN ./configure --prefix=/opt/ruby --enable-pthread --with-opt-dir=/opt/openssl-1.0.2u
+RUN ./configure --prefix=/opt/ruby18 --enable-pthread --with-opt-dir=/opt/openssl-1.0.2u
 RUN make -s
 RUN make test
 RUN make install
@@ -166,7 +166,7 @@ RUN make install
 WORKDIR /usr/local/src/ruby
 RUN tar xzf mysql-ruby-2.8.2.tar.gz \
  && cd mysql-ruby-2.8.2 \
- && /opt/ruby/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
+ && /opt/ruby18/bin/ruby extconf.rb --with-mysql-dir=/opt/mysql \
  && make -s \
  && make install
 
@@ -174,9 +174,9 @@ RUN tar xzf mysql-ruby-2.8.2.tar.gz \
 WORKDIR /usr/local/src/ruby
 RUN tar xzf rel-0-1-1.tar.gz \
  && cd ruby-dbi-rel-0-1-1 \
- && /opt/ruby/bin/ruby setup.rb config --with=dbi,dbd_mysql \
- && /opt/ruby/bin/ruby setup.rb setup \
- && /opt/ruby/bin/ruby setup.rb install
+ && /opt/ruby18/bin/ruby setup.rb config --with=dbi,dbd_mysql \
+ && /opt/ruby18/bin/ruby setup.rb setup \
+ && /opt/ruby18/bin/ruby setup.rb install
 
 #-----------------------
 # perl-IO-BufferedSelect
@@ -246,8 +246,8 @@ RUN fpm -s dir \
   -t rpm \
   -n opt-ruby \
   -p opt-ruby-1.8.7-p374.el7.x86_64.rpm \
-  -C /opt/ruby \
-  --prefix /opt/ruby \
+  -C /opt/ruby18 \
+  --prefix /opt/ruby18 \
   -a x86_64 \
   .
 
