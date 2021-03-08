@@ -15,17 +15,23 @@ COPY files .
 RUN rpm -ivh checkinstall-20150420-1.x86_64.rpm \
  && ln -s /usr/local/lib/installwatch.so /usr/local/lib64/installwatch.so
 
-#----------------
-# openssl 0.9.8zh
-#----------------
-RUN tar xzf ./openssl/openssl-0.9.8zh.tar.gz \
- && cd openssl-0.9.8zh \
- && ./config --prefix=/opt/openssl-0.9.8zh shared \
+#---------------
+# openssl 1.0.2u
+#---------------
+RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
+ && cd openssl-1.0.2u \
+ && ./config --prefix=/opt/openssl-1.0.2u \
+        enable-rc4 enable-aes \
+        enable-weak-ssl-ciphers enable-deprecated \
+        zlib enable-md5 \
+        enable-tlsext \
+        shared \
  && make -s \
  && make install \
- && ln -s /opt/openssl-0.9.8zh/lib /opt/openssl-0.9.8zh/lib64 \
- && checkinstall -y -R --pkgname=opt-openssl-0.9.8zh --nodoc
-RUN echo "/opt/openssl-0.9.8zh/lib" > /etc/ld.so.conf.d/opt-openssl-0.9.8zh.conf \
+ && ln -s /opt/openssl-1.0.2u/lib /opt/openssl-1.0.2u/lib64
+RUN cd openssl-1.0.2u \
+ && checkinstall -y -R --pkgname=opt-openssl-1.0.2u --requires=perl-WWW-Curl --nodoc \
+ && echo "/opt/openssl-1.0.2u/lib" > /etc/ld.so.conf.d/opt-openssl-1.0.2u.conf \
  && ldconfig
 
 #-------------
@@ -35,10 +41,10 @@ COPY files.centos6/httpd-2.2.15-69.el6.centos.src.rpm httpd-2.2.15-69.el6.centos
 RUN rpm -ivh httpd-2.2.15-69.el6.centos.src.rpm \
  && tar xzf httpd-2.2.15.tar.gz \
  && cd httpd-2.2.15 \
- && ./configure --prefix=/opt/httpd-2.2.15 --enable-ssl --with-ssl=/opt/openssl-0.9.8zh --enable-mpms-shared=all --enable-mods-shared=all \
+ && ./configure --prefix=/opt/httpd-2.2.15 --enable-ssl --with-ssl=/opt/openssl-1.0.2u --enable-mpms-shared=all --enable-mods-shared=all \
  && make -s \
  && make install \
- && checkinstall -y -R --pkgname=opt-httpd-2.2.15 --requires=opt-openssl-0.9.8zh --nodoc
+ && checkinstall -y -R --pkgname=opt-httpd-2.2.15 --requires=opt-openssl-1.0.2u --nodoc
 
 #---------
 # mysql
@@ -47,17 +53,11 @@ RUN rpm -ivh httpd-2.2.15-69.el6.centos.src.rpm \
 RUN tar xzf mysql-4.0.30.tar.gz \
  && cd "$BUILDROOT/SOURCES/mysql-4.0.30" \
  && ./configure --prefix=/opt/mysql --with-charset=ujis --with-extra-charsets=sjis --quiet \
+    --with-openssl=/opt/openssl-1.0.2u \
  && make -s \
  && make install \
  && ln -s /opt/mysql/lib /opt/mysql/lib64 \
  && checkinstall -y -R --pkgname=opt-mysql4
-
-#----------
-# local-php
-#----------
-#ENV PACKAGES="libmcrypt-devel httpd-devel libxml2-devel libjpeg-turbo-devel libpng-devel freetype-devel mhash-devel bison"
-#RUN yum install -y -q epel-release \
-# && yum install -y -q $PACKAGES
 
 #-----
 # re2c
@@ -100,7 +100,7 @@ RUN ./configure --quiet \
   --with-mysql=shared,/opt/mysql \
   --with-pdo-mysql=shared,/opt/mysql \
   \
-  --with-openssl \
+  --with-openssl=/opt/openssl-1.0.2u \
   --with-mhash=shared,/usr \
   --with-mcrypt=shared,/usr \
   --enable-sockets \
@@ -173,3 +173,17 @@ WORKDIR $BUILDROOT/
 COPY files.centos6/ruby-dbi-0.1.1.spec $BUILDROOT/SPECS/
 RUN tar czf $BUILDROOT/SOURCES/ruby-dbi-0.1.1.tar.gz /usr/lib/ruby/site_ruby/1.8 /usr/bin/sqlsh.rb \
  && rpmbuild -ba SPECS/ruby-dbi-0.1.1.spec
+
+#---------
+# xdebug
+#---------
+WORKDIR /usr/local/src/
+COPY files/xdebug-2.2.7.tgz /usr/local/src/
+RUN tar xzf xdebug-2.2.7.tgz
+WORKDIR /usr/local/src/xdebug-2.2.7
+RUN /usr/local/php/bin/phpize \
+ && ./configure --enable-xdebug --with-php-config=/usr/local/php/bin/php-config \
+ && make -s \
+ && cp /usr/local/src/xdebug-2.2.7/modules/xdebug.so /usr/local/php/lib/php/extensions/ \
+ && cp /usr/local/src/xdebug-2.2.7/modules/xdebug.so /opt/xdebug52.so \
+ && ls -lh /opt/xdebug52.so
