@@ -7,7 +7,7 @@ _build() {
 		TAG=$2
 	fi
 	echo "info: $TAG"
-	docker build . --no-cache=false -f Dockerfile/${1} -t tukiyo3/mysql4php52:${TAG}
+	docker build . --no-cache=false -f Dockerfile/${1} -t tukiyo3/mysql4.0php5.2:${TAG}
 }
 
 #export BUILD="docker build . --no-cache=false -f "
