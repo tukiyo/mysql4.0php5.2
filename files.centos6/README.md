@@ -12,3 +12,8 @@
 
 * https://github.com/feedforce/ruby-rpm/releases
 * https://github.com/feedforce/ruby-rpm/releases/download/2.4.0/ruby-2.4.0-1.el6.x86_64.rpm
+
+
+## curl
+
+* https://ftp.jaist.ac.jp/pub/Linux/CentOS-vault/centos/6/updates/Source/SPackages/curl-7.19.7-54.el6_10.src.rpm
