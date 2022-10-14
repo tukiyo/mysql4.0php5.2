@@ -17,3 +17,11 @@
 ## curl
 
 * https://ftp.jaist.ac.jp/pub/Linux/CentOS-vault/centos/6/updates/Source/SPackages/curl-7.19.7-54.el6_10.src.rpm
+
+```
+rpmbuild -ba /root/rpmbuild/SPECS/curl.spec
+yum install -y libidn-devel libssh2-devel nss-devel openssh-server stunnel valgrind
+
+## php
+--with-curl=/root/rpmbuild/BUILD/curl-7.19.7
+```
