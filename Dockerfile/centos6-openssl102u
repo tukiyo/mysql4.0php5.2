@@ -20,6 +20,7 @@ RUN rpm -ivh checkinstall-20150420-1.x86_64.rpm \
 #---------------
 RUN tar xzf ./openssl/openssl-1.0.2u.tar.gz \
  && cd openssl-1.0.2u \
+ && sed -i -e "1835i return 1; //Allow expired certificates" crypto/x509/x509_vfy.c \
  && ./config --prefix=/opt/openssl-1.0.2u \
         enable-rc4 enable-aes \
         enable-weak-ssl-ciphers enable-deprecated \
