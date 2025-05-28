@@ -2,6 +2,8 @@ rpm -ivh openssl-1.0.1e-58.el6_10.src.rpm
 
 cd /root/rpmbuild/SPECS/
 
+openssl.specに以下2点書き換える。
+
 
 ```diff
   sed -i 's/SHLIB_VERSION_NUMBER "1.0.0"/SHLIB_VERSION_NUMBER "%{version}"/' crypto/opensslv.h
@@ -14,7 +16,7 @@ cd /root/rpmbuild/SPECS/
 ```
 
 
-rpmbuild --b openssl.spec
+rpmbuild --bb openssl.spec
 
 
 
