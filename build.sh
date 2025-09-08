@@ -7,7 +7,7 @@ _build() {
 		TAG=$2
 	fi
 	echo "info: $TAG"
-	docker build . --no-cache=false -f Dockerfile/${1} -t tukiyo3/mysql4.0php5.2:${TAG}
+	docker build . --rm=false -f Dockerfile/${1} -t tukiyo3/mysql4.0php5.2:${TAG}
 }
 
 #export BUILD="docker build . --no-cache=false -f "
@@ -15,6 +15,7 @@ _build() {
 
 _build centos6-build
 _build centos6
+
 #_build centos5
 #_build centos7-mysql40
 #_build ubuntu2004-build
